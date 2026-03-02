@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type SubmitEvent, type ChangeEvent } from "react";
 import { submitContact, type ContactPayload } from "./api";
 
 const SKILLS = ["Go", "Bun", "Hono", "PostgreSQL", "Docker", "React", "TypeScript"];
@@ -13,12 +13,12 @@ export default function App() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
     try {
@@ -44,17 +44,16 @@ export default function App() {
           <h1 className="text-5xl font-bold tracking-tight">John Doe</h1>
           <p className="text-xl text-gray-400">Full-Stack Developer</p>
           <p className="text-gray-500">📍 Moscow, Russia</p>
-          <div className="flex flex-wrap gap-2 justify-center mt-2" role="list" aria-label="Навыки">
+          <ul className="flex flex-wrap gap-2 justify-center mt-2 list-none p-0" aria-label="Навыки">
             {SKILLS.map((skill) => (
-              <span
+              <li
                 key={skill}
-                role="listitem"
                 className="px-3 py-1 bg-indigo-700/60 border border-indigo-500/40 rounded-full text-sm font-medium"
               >
                 {skill}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
           <button
             onClick={scrollToContact}
             className="mt-4 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition-colors cursor-pointer"
