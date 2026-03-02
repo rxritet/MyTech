@@ -1,0 +1,24 @@
+{
+  "name": "mytech-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "generate": "drizzle-kit generate",
+    "migrate": "bun src/db/migrate.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.40.0",
+    "hono": "^4.7.0",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.2",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0",
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.8.0"
+  }
+}
