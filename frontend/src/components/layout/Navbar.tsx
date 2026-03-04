@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import ThemeToggle from "../ui/ThemeToggle";
 
 interface NavLink {
   label: string;
@@ -89,8 +90,10 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
           ))}
         </ul>
 
-        {/* ── Right side: CTA + Burger ─────────────────── */}
+        {/* ── Right side: ThemeToggle + CTA + Burger ──── */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
+
           {/* Desktop CTA */}
           <button
             onClick={() => handleNavClick("#contact")}
