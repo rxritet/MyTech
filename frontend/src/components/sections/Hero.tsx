@@ -1,4 +1,5 @@
 import { MapPin, Send } from "lucide-react";
+import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
 
 // ── Inline brand SVGs (avoids deprecated lucide brand icons) ──────────────────
 
@@ -29,11 +30,26 @@ function LinkedInIcon({ size = 20 }: Readonly<{ size?: number }>) {
     </svg>
   );
 }
+// ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
+//    Avoids a runtime tokeniser — the snippet never changes at runtime.
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+const kw  = (text: string): Token => ({ kind: "keyword", text });
+const v   = (text: string): Token => ({ kind: "var",     text });
+const k   = (text: string): Token => ({ kind: "key",     text });
+const s   = (text: string): Token => ({ kind: "string",  text });
+const p   = (text: string): Token => ({ kind: "punct",   text });
+const pl  = (text: string): Token => ({ kind: "plain",   text });
+const cmt = (text: string): Token => ({ kind: "comment", text });
 
-const SKILLS = [
-  "Go", "Bun", "Hono", "PostgreSQL", "Docker", "React", "TypeScript",
+const STACK_LINES: Line[] = [
+  { id: "l0", tokens: [kw("const"), pl(" "), v("stack"), pl(" "), p("="), pl(" "), p("{")] },
+  { id: "l1", tokens: [pl("  "), k("backend"),  p(":"), pl("  "), p("["), s('"Bun"'),         p(","), pl(" "), s('"Hono"'), p(","), pl(" "), s('"Go"'),          p("]"), p(",")] },
+  { id: "l2", tokens: [pl("  "), k("database"), p(":"), pl(" "),  p("["), s('"PostgreSQL"'),                                                                    p("]"), p(",")] },
+  { id: "l3", tokens: [pl("  "), k("frontend"), p(":"), pl(" "),  p("["), s('"React"'),       p(","), pl(" "), s('"TypeScript"'),                                p("]"), p(",")] },
+  { id: "l4", tokens: [pl("  "), k("devops"),   p(":"), pl("   "),p("["), s('"Docker"'),      p(","), pl(" "), s('"Nginx"'),                                    p("]"), p(",")] },
+  { id: "l5", tokens: [p("}"), p(";")] },
+  { id: "l6", tokens: [] },
+  { id: "l7", tokens: [cmt("// Always open to new challenges ⚡")] },
 ];
 
 const SOCIAL_LINKS = [
@@ -87,12 +103,22 @@ export default function Hero() {
     <section
       id="hero"
       aria-label="Главный экран"
-      className="flex flex-col items-center justify-center min-h-screen px-4 text-center gap-5 pt-16"
+      className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center gap-5 pt-16 overflow-hidden"
     >
+      {/* ── Background blobs ──────────────────────────────────── */}
+      <div aria-hidden="true" className="pointer-events-none select-none">
+        {/* Top-left — indigo */}
+        <div className="animate-float absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/30 blur-[120px]" />
+        {/* Bottom-right — purple */}
+        <div className="animate-float-reverse absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-purple-600/25 blur-[100px]" />
+        {/* Center-top — cyan accent */}
+        <div className="animate-float-slow absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-cyan-500/15 blur-[90px]" />
+      </div>
+
       {/* Name */}
       <FadeIn delay={0}>
-        <h1 className="text-6xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-heading">
+          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
             John Doe
           </span>
         </h1>
@@ -101,7 +127,7 @@ export default function Hero() {
       {/* Subtitle */}
       <FadeIn delay={100}>
         <p className="text-xl text-gray-300 font-medium">
-          Full-Stack Developer · Bun / Hono / React
+          Full-Stack Developer · Bun / Hono / React
         </p>
       </FadeIn>
 
@@ -113,21 +139,9 @@ export default function Hero() {
         </p>
       </FadeIn>
 
-      {/* Skill badges */}
+      {/* Code block — tech stack */}
       <FadeIn delay={300}>
-        <ul
-          className="flex flex-wrap gap-2 justify-center list-none p-0 m-0"
-          aria-label="Навыки"
-        >
-          {SKILLS.map((skill) => (
-            <li
-              key={skill}
-              className="px-3 py-1 bg-indigo-700/30 border border-indigo-500/30 rounded-full text-sm font-mono font-medium text-indigo-300"
-            >
-              {skill}
-            </li>
-          ))}
-        </ul>
+        <CodeBlock title="stack.ts" lines={STACK_LINES} />
       </FadeIn>
 
       {/* CTA buttons */}
