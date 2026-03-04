@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type SubmitEvent } from "react";
+import { useState, type ChangeEvent, type FocusEvent, type SyntheticEvent } from "react";
 import { Mail, Send } from "lucide-react";
 import { submitContact, type ContactPayload } from "../../api";
 import { useInView } from "../../hooks/useInView";
@@ -42,10 +42,46 @@ const CONTACT_ITEMS = [
   },
 ];
 
-// ── Input shared style ────────────────────────────────────────────────────────
+// ── Validation ───────────────────────────────────────────────────────────────
 
-const inputClass =
-  "w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors";
+type FormErrors = Partial<Record<keyof ContactPayload, string>>;
+type TouchedFields = Partial<Record<keyof ContactPayload, boolean>>;
+
+function validate(form: ContactPayload): FormErrors {
+  const errors: FormErrors = {};
+
+  if (!form.name.trim()) {
+    errors.name = "Имя обязательно";
+  } else if (form.name.trim().length > 100) {
+    errors.name = "Не более 100 символов";
+  }
+
+  if (!form.email.trim()) {
+    errors.email = "Email обязателен";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = "Введите корректный email";
+  }
+
+  if (!form.message.trim()) {
+    errors.message = "Сообщение обязательно";
+  } else if (form.message.trim().length < 5) {
+    errors.message = "Минимум 5 символов";
+  } else if (form.message.length > 2000) {
+    errors.message = "Не более 2000 символов";
+  }
+
+  return errors;
+}
+
+// ── Input style helpers ───────────────────────────────────────────────────────
+
+function fieldInputClass(hasError: boolean) {
+  return `w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+    hasError
+      ? "border-red-500 focus:ring-red-500/60"
+      : "border-gray-700 focus:ring-indigo-500"
+  }`;
+}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -56,19 +92,33 @@ export default function Contact() {
     email: "",
     message: "",
   });
+  const [touched, setTouched] = useState<TouchedFields>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  // Compute errors live from current form values
+  const errors = validate(form);
+  const isFormValid = Object.keys(errors).length === 0;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+  const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+  };
+
+  const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Reveal all errors on submit attempt
+    setTouched({ name: true, email: true, message: true });
+    if (!isFormValid) return;
+
     setStatus("loading");
     try {
       await submitContact(form);
       setStatus("success");
       setForm({ name: "", email: "", message: "" });
+      setTouched({});
     } catch {
       setStatus("error");
     }
@@ -102,10 +152,10 @@ export default function Contact() {
           <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-4"
-            noValidate={false}
+            noValidate
           >
             {/* Name */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 rounded-lg transition-colors focus-within:bg-white/[0.02]">
               <label htmlFor="name" className="text-sm text-gray-400">
                 Имя
               </label>
@@ -114,19 +164,25 @@ export default function Contact() {
                 type="text"
                 name="name"
                 placeholder="Ваше имя"
-                required
-                minLength={1}
-                maxLength={100}
                 autoComplete="name"
+                maxLength={100}
                 value={form.name}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 aria-required="true"
-                className={inputClass}
+                aria-invalid={touched.name && !!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
+                className={fieldInputClass(!!touched.name && !!errors.name)}
               />
+              {touched.name && errors.name && (
+                <p id="name-error" role="alert" className="text-xs text-red-400">
+                  {errors.name}
+                </p>
+              )}
             </div>
 
             {/* Email */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 rounded-lg transition-colors focus-within:bg-white/[0.02]">
               <label htmlFor="contact-email" className="text-sm text-gray-400">
                 Email
               </label>
@@ -135,18 +191,25 @@ export default function Contact() {
                 type="email"
                 name="email"
                 placeholder="you@example.com"
-                required
-                maxLength={254}
                 autoComplete="email"
+                maxLength={254}
                 value={form.email}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 aria-required="true"
-                className={inputClass}
+                aria-invalid={touched.email && !!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                className={fieldInputClass(!!touched.email && !!errors.email)}
               />
+              {touched.email && errors.email && (
+                <p id="email-error" role="alert" className="text-xs text-red-400">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Message */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 rounded-lg transition-colors focus-within:bg-white/[0.02]">
               <label htmlFor="message" className="text-sm text-gray-400">
                 Сообщение
               </label>
@@ -154,15 +217,35 @@ export default function Contact() {
                 id="message"
                 name="message"
                 placeholder="Ваше сообщение..."
-                required
                 minLength={5}
                 maxLength={2000}
                 rows={5}
                 value={form.message}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 aria-required="true"
-                className={`${inputClass} resize-none`}
+                aria-invalid={touched.message && !!errors.message}
+                aria-describedby={
+                  errors.message ? "message-error" : "message-hint"
+                }
+                className={`${fieldInputClass(!!touched.message && !!errors.message)} resize-none`}
               />
+              <div className="flex items-center justify-between">
+                {touched.message && errors.message ? (
+                  <p id="message-error" role="alert" className="text-xs text-red-400">
+                    {errors.message}
+                  </p>
+                ) : (
+                  <span id="message-hint" />
+                )}
+                <span
+                  className={`text-xs ml-auto tabular-nums ${
+                    form.message.length > 1800 ? "text-yellow-400" : "text-gray-600"
+                  }`}
+                >
+                  {form.message.length}/2000
+                </span>
+              </div>
             </div>
 
             {/* Submit */}
@@ -171,20 +254,68 @@ export default function Contact() {
               disabled={status === "loading"}
               className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
             >
-              {status === "loading" ? "Отправка..." : "Отправить"}
+              {status === "loading" ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12" cy="12" r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                    />
+                  </svg>
+                  Отправка...
+                </span>
+              ) : (
+                "Отправить"
+              )}
             </button>
 
             {/* Feedback */}
-            <div
-              aria-live="polite"
-              aria-atomic="true"
-              className="min-h-[1.5rem] text-sm"
-            >
+            <div aria-live="polite" aria-atomic="true" className="min-h-[1.5rem] text-sm">
               {status === "success" && (
-                <p className="text-green-400">✅ Сообщение отправлено — отвечу в ближайшее время.</p>
+                <p className="flex items-center gap-2 text-green-400 font-medium">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-4 h-4 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Отправлено! Отвечу в ближайшее время.
+                </p>
               )}
               {status === "error" && (
-                <p className="text-red-400">❌ Ошибка отправки. Попробуйте ещё раз.</p>
+                <p className="flex items-center gap-2 text-red-400">
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-4 h-4 shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Ошибка отправки. Попробуйте ещё раз.
+                </p>
               )}
             </div>
           </form>
