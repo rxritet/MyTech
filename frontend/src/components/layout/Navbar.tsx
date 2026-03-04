@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import ThemeToggle from "../ui/ThemeToggle";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
+import ScrollProgressBar from "../ui/ScrollProgressBar";
 
 interface NavLink {
   label: string;
@@ -29,13 +31,10 @@ interface NavbarProps {
 
 export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const { direction, scrolled } = useScrollDirection(10);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // Hide on scroll-down, but never hide while the mobile menu is open
+  const hidden = direction === "down" && scrolled && !menuOpen;
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -55,18 +54,20 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || menuOpen
-          ? "backdrop-blur-md bg-gray-950/80 border-b border-gray-800"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50
+        backdrop-blur-lg
+        bg-white/80 dark:bg-slate-900/80
+        border-b border-gray-200 dark:border-gray-800
+        transition-transform duration-300 ease-in-out
+        ${hidden ? "-translate-y-full" : "translate-y-0"}
+      `}
       aria-label="Основная навигация"
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* ── Logo ─────────────────────────────────────── */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="text-xl font-bold tracking-tight cursor-pointer bg-transparent border-0 p-0 text-white"
+          className="text-xl font-bold tracking-tight cursor-pointer bg-transparent border-0 p-0 text-gray-900 dark:text-white"
           aria-label="Наверх"
         >
           {"My"}<span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Tech</span>
@@ -78,11 +79,13 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
             <li key={href}>
               <button
                 onClick={() => handleNavClick(href)}
-                className={`text-sm font-medium transition-colors cursor-pointer bg-transparent border-0 p-0 ${
-                  isActive(href)
-                    ? "text-indigo-400"
-                    : "text-gray-300 hover:text-white"
-                }`}
+                className={`relative text-sm font-medium transition-colors cursor-pointer bg-transparent border-0 p-0 pb-0.5
+                  after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full
+                  after:transition-transform after:duration-200
+                  ${isActive(href)
+                    ? "text-indigo-500 dark:text-indigo-400 after:bg-indigo-500 dark:after:bg-indigo-400 after:scale-x-100"
+                    : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white after:bg-indigo-400 after:scale-x-0 hover:after:scale-x-100"
+                  }`}
               >
                 {label}
               </button>
@@ -105,7 +108,7 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
           {/* Mobile burger */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden p-2 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors cursor-pointer"
+            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
             aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
@@ -119,7 +122,7 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
       {menuOpen && (
         <div
           id="mobile-menu"
-          className="md:hidden border-t border-gray-800 bg-gray-950/95 backdrop-blur-md"
+          className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg"
         >
           <ul className="flex flex-col px-4 py-3 gap-1 list-none m-0 p-4">
             {NAV_LINKS.map(({ label, href }) => (
@@ -128,8 +131,8 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
                   onClick={() => handleNavClick(href)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer bg-transparent border-0 ${
                     isActive(href)
-                      ? "text-indigo-400 bg-indigo-500/10"
-                      : "text-gray-300 hover:text-white hover:bg-gray-800"
+                      ? "text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10"
+                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
                   {label}
@@ -147,6 +150,10 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
           </ul>
         </div>
       )}
+
+      {/* ── Scroll progress bar ───────────────────────────────── */}
+      <ScrollProgressBar />
     </nav>
   );
 }
+
