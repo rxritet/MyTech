@@ -60,12 +60,12 @@ export default function About() {
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           }`}
         >
-          <p className="text-gray-300 leading-relaxed text-base">
+          <p className="text-gray-300 leading-body text-base prose-text">
             Я full-stack разработчик с фокусом на производительные и надёжные
             веб-приложения. Использую современный TypeScript-стек: Bun + Hono +
             Drizzle ORM на бэкенде и React + Vite на фронтенде.
           </p>
-          <p className="text-gray-300 leading-relaxed text-base">
+          <p className="text-gray-300 leading-body text-base prose-text">
             Люблю чистый код, хорошо выстроенные системы и прозрачную
             коммуникацию с заказчиком. Всегда на связи в Telegram.
           </p>
