@@ -2,38 +2,66 @@ import { ExternalLink } from "lucide-react";
 import type { Project } from "../../data/projects";
 import SkillBadge from "./SkillBadge";
 
-function GitHubIcon({ size = 16 }: Readonly<{ size?: number }>) {
+// ── Inline GitHub SVG (lucide brand icons are deprecated) ────────────────────
+function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width={size}
-      height={size}
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size} aria-hidden="true">
       <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
     </svg>
   );
 }
 
+// ── Fallback image when no screenshot is provided ─────────────────────────────
+function ImagePlaceholder({ gradient }: Readonly<{ gradient: string }>) {
+  return (
+    <div
+      className={`w-full h-full bg-gradient-to-br ${gradient} opacity-40`}
+      aria-hidden="true"
+    />
+  );
+}
+
 export default function ProjectCard({ project }: Readonly<{ project: Project }>) {
-  const { name, description, stack, github, demo, accentColor } = project;
+  const { name, description, stack, github, demo, accentColor, image } = project;
 
   return (
     <article className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-500/50">
-      {/* Accent top border — gradient */}
-      <div className={`h-1 bg-gradient-to-r ${accentColor}`} aria-hidden="true" />
 
+      {/* ── Preview image (16:9) ────────────────────────────────── */}
+      <div className="relative aspect-video w-full overflow-hidden bg-gray-950">
+        {/* Gradient accent line at top */}
+        <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accentColor} z-10`} aria-hidden="true" />
+
+        {image ? (
+          <img
+            src={image}
+            alt={`Скриншот проекта ${name}`}
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <ImagePlaceholder gradient={accentColor} />
+        )}
+
+        {/* Overlay gradient for text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" aria-hidden="true" />
+      </div>
+
+      {/* ── Card body ───────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 p-5 gap-3">
+
         {/* Name */}
-        <h3 className="text-lg font-semibold text-white group-hover:text-indigo-300 transition-colors">
+        <h3 className="text-base font-semibold text-white group-hover:text-indigo-300 transition-colors leading-snug">
           {name}
         </h3>
 
-        {/* Description */}
-        <p className="text-sm text-gray-400 leading-relaxed flex-1">{description}</p>
+        {/* Description — clamp to 3 lines */}
+        <p className="text-sm text-gray-400 leading-relaxed flex-1 line-clamp-3">
+          {description}
+        </p>
 
-        {/* Stack tags */}
+        {/* Stack badges */}
         <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0" aria-label="Технологии">
           {stack.map((tech) => (
             <li key={tech}>
@@ -44,7 +72,7 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
 
         {/* Links */}
         {(github ?? demo) && (
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex items-center gap-4 pt-1 border-t border-gray-800">
             {github && (
               <a
                 href={github}
@@ -63,10 +91,10 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Live-демо ${name}`}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors"
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
               >
-                <ExternalLink size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                 Live Demo
+                <ExternalLink size={14} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5" />
               </a>
             )}
           </div>

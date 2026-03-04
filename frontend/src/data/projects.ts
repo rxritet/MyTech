@@ -7,6 +7,8 @@ export interface Project {
   demo?: string;
   /** Tailwind gradient classes used for the accent top-border, e.g. "from-indigo-500 to-purple-500" */
   accentColor: string;
+  /** URL for the project preview image (16:9) */
+  image?: string;
 }
 
 export const PROJECTS: Project[] = [
@@ -18,6 +20,7 @@ export const PROJECTS: Project[] = [
     stack: ["Bun", "Hono", "React", "PostgreSQL", "Docker"],
     github: "https://github.com/rxritet/MyTech",
     accentColor: "from-indigo-500 to-purple-500",
+    image: "https://placehold.co/640x360/1e293b/818cf8?text=MyTech",
   },
   {
     id: 2,
@@ -27,6 +30,7 @@ export const PROJECTS: Project[] = [
     stack: ["Bun", "Hono", "Drizzle ORM", "PostgreSQL", "JWT"],
     github: "https://github.com/rxritet",
     accentColor: "from-cyan-500 to-blue-500",
+    image: "https://placehold.co/640x360/0a1929/22d3ee?text=TaskFlow+API",
   },
   {
     id: 3,
@@ -37,6 +41,7 @@ export const PROJECTS: Project[] = [
     github: "https://github.com/rxritet",
     demo: "https://example.com",
     accentColor: "from-emerald-500 to-teal-500",
+    image: "https://placehold.co/640x360/0d1f17/34d399?text=ShopLight",
   },
   {
     id: 4,
@@ -46,5 +51,6 @@ export const PROJECTS: Project[] = [
     stack: ["Go", "Docker", "GitHub Actions", "Bash"],
     github: "https://github.com/rxritet",
     accentColor: "from-orange-500 to-pink-500",
+    image: "https://placehold.co/640x360/1c0f05/fb923c?text=DevDeploy",
   },
 ];
