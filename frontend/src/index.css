@@ -1,14 +1,46 @@
 @import "tailwindcss";
 
-/* ── Typography theme ────────────────────────────────────────── */
+/* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --leading-heading: 1.2;
   --leading-body: 1.5;
+
+  /* Color variables binding */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-border: var(--border);
+  --color-error: var(--error);
+  --color-success: var(--success);
 }
 
 /* ── Base styles ─────────────────────────────────────────────── */
 @layer base {
+  :root {
+    --bg: #ffffff;
+    --surface: #f8fafc; /* slate-50 */
+    --text: #0f172a; /* slate-900 */
+    --muted: #64748b; /* slate-500 */
+    --primary: #4f46e5; /* indigo-600 */
+    --border: #e2e8f0; /* slate-200 */
+    --error: #ef4444; /* red-500 */
+    --success: #22c55e; /* green-500 */
+  }
+
+  .dark {
+    --bg: #0f172a; /* slate-900 */
+    --surface: #1e293b; /* slate-800 */
+    --text: #f8fafc; /* slate-50 */
+    --muted: #94a3b8; /* slate-400 */
+    --primary: #818cf8; /* indigo-400 */
+    --border: #334155; /* slate-700 */
+    --error: #f87171; /* red-400 */
+    --success: #4ade80; /* green-400 */
+  }
+
   html {
     font-size: 16px;
     scroll-behavior: smooth;
@@ -17,6 +49,8 @@
   body {
     font-family: var(--font-sans);
     line-height: var(--leading-body);
+    background-color: var(--bg);
+    color: var(--text);
   }
 
   h1,
