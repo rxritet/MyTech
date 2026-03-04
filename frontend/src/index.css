@@ -68,6 +68,15 @@
   max-width: 640px;
 }
 
+/* ── Global focus-visible ───────────────────────────────────── */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
 /* ── Custom scrollbar (Webkit) ───────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

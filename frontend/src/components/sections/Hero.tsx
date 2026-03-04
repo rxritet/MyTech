@@ -134,13 +134,13 @@ export default function Hero() {
       <FadeIn delay={400} className="flex flex-wrap gap-3 justify-center">
         <button
           onClick={() => scrollToId("projects")}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition-colors cursor-pointer text-white"
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
         >
           Мои проекты
         </button>
         <button
           onClick={() => scrollToId("contact")}
-          className="px-6 py-3 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 rounded-lg font-semibold transition-colors cursor-pointer text-gray-300 hover:text-white"
+          className="px-6 py-3 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0 rounded-lg font-semibold transition-[color,border-color,background-color,transform,box-shadow] duration-200 ease-out cursor-pointer text-gray-300 hover:text-white"
         >
           Написать мне
         </button>

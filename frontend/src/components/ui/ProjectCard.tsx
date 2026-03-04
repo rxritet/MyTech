@@ -20,7 +20,7 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
   const { name, description, stack, github, demo, accentColor } = project;
 
   return (
-    <article className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/10 hover:border-gray-700">
+    <article className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-500/50">
       {/* Accent top border — gradient */}
       <div className={`h-1 bg-gradient-to-r ${accentColor}`} aria-hidden="true" />
 
@@ -65,7 +65,7 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
                 aria-label={`Live-демо ${name}`}
                 className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors"
               >
-                <ExternalLink size={14} />
+                <ExternalLink size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                 Live Demo
               </a>
             )}

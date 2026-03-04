@@ -4,7 +4,7 @@ export default function ServiceCard({ service }: Readonly<{ service: Service }>)
   const { icon, title, description, badge } = service;
 
   return (
-    <article className="flex flex-col gap-4 bg-gray-900 border border-gray-800 rounded-xl p-6 transition-all duration-300 hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5">
+    <article className="flex flex-col gap-4 bg-gray-900 border border-gray-800 rounded-xl p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10">
       {/* Icon + Badge row */}
       <div className="flex items-start justify-between gap-2">
         <span className="text-3xl leading-none" role="img" aria-hidden="true">

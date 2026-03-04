@@ -169,7 +169,7 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors cursor-pointer text-white"
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
             >
               {status === "loading" ? "Отправка..." : "Отправить"}
             </button>

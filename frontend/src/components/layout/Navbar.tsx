@@ -97,7 +97,7 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
           {/* Desktop CTA */}
           <button
             onClick={() => handleNavClick("#contact")}
-            className="hidden md:block px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition-colors cursor-pointer text-white"
+            className="hidden md:block px-4 py-2 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg text-sm font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
           >
             Написать мне
           </button>
@@ -139,7 +139,7 @@ export default function Navbar({ activeSection }: Readonly<NavbarProps>) {
             <li className="mt-2">
               <button
                 onClick={() => handleNavClick("#contact")}
-                className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition-colors cursor-pointer text-white"
+                className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg text-sm font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
               >
                 Написать мне
               </button>
