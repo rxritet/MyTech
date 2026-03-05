@@ -1,30 +1,28 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
-import Hero from "./components/sections/Hero";
-import Projects from "./components/sections/Projects";
-import About from "./components/sections/About";
-import Services from "./components/sections/Services";
-import Contact from "./components/sections/Contact";
-import { useActiveSection } from "./hooks/useActiveSection";
-
-const SECTION_IDS = ["hero", "projects", "about", "services", "contact"];
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
+import ContactPage from "./pages/ContactPage";
 
 export default function App() {
-  const activeSection = useActiveSection(SECTION_IDS);
-
   return (
-    <div className="min-h-screen bg-gray-950 text-white font-sans">
-      <Navbar activeSection={activeSection} />
-
-      <main>
-        <Hero />
-        <Projects />
-        <About />
-        <Services />
-        <Contact />
-      </main>
-
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-950 text-white font-sans">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          {/* Fallback */}
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }
