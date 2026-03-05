@@ -5,26 +5,30 @@ import { useInView } from "../../hooks/useInView";
 const SKILL_CATEGORIES = [
   {
     category: "Backend",
-    skills: ["Bun", "Hono", "Go", "Node.js", "REST API"],
+    skills: ["Go", "Python", "TypeScript", "Django RF", "FastAPI", "net/http", "Cobra CLI"],
   },
   {
     category: "База данных",
-    skills: ["PostgreSQL", "Drizzle ORM", "SQL"],
+    skills: ["PostgreSQL", "BoltDB", "Drizzle ORM", "SQL"],
   },
   {
-    category: "Frontend",
-    skills: ["React", "TypeScript", "Vite", "Tailwind CSS"],
+    category: "Frontend / Mobile",
+    skills: ["React 19", "Flutter", "Dart", "TypeScript", "Tailwind CSS", "TanStack Query", "Zustand"],
   },
   {
     category: "DevOps",
-    skills: ["Docker", "Docker Compose", "GitHub Actions", "Nginx"],
+    skills: ["Docker", "Nginx", "systemd", "rsync", "GitHub Actions", "Mage"],
+  },
+  {
+    category: "Безопасность",
+    skills: ["XSS", "CSRF", "SQL-инъекции", "OSINT", "TryHackMe"],
   },
 ];
 
 const FACTS = [
   { value: "4+", label: "проекта" },
-  { value: "2+", label: "года опыта" },
-  { value: "100%", label: "TypeScript" },
+  { value: "2й", label: "курс SE" },
+  { value: "🦀", label: "учу Rust" },
 ];
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -61,13 +65,14 @@ export default function About() {
           }`}
         >
           <p className="text-gray-300 leading-body text-base prose-text">
-            Я full-stack разработчик с фокусом на производительные и надёжные
-            веб-приложения. Использую современный TypeScript-стек: Bun + Hono +
-            Drizzle ORM на бэкенде и React + Vite на фронтенде.
+            Студент 2-го курса Software Engineering из Алматы. Моя цель —
+            стать сильным Backend-разработчиком с основным фокусом на Go и
+            пониманием всего цикла разработки (Full-Stack).
           </p>
           <p className="text-gray-300 leading-body text-base prose-text">
-            Люблю чистый код, хорошо выстроенные системы и прозрачную
-            коммуникацию с заказчиком. Всегда на связи в Telegram.
+            Пишу чистый код, ценю конкретику и системный подход. Сейчас активно
+            работаю над собственными проектами, расширяю стек — в том числе
+            начинаю Rust — и открыт к первым коммерческим ролям.
           </p>
 
           {/* Facts row */}

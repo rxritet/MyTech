@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FocusEvent, type SyntheticEvent } from "react";
-import { Mail, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { submitContact, type ContactPayload } from "../../api";
 import { useInView } from "../../hooks/useInView";
 
@@ -23,16 +23,10 @@ function GitHubIcon({ size = 18 }: Readonly<{ size?: number }>) {
 
 const CONTACT_ITEMS = [
   {
-    icon: <Mail size={18} />,
-    label: "Email",
-    value: "hello@example.com",
-    href: "mailto:hello@example.com",
-  },
-  {
     icon: <Send size={18} />,
     label: "Telegram",
-    value: "@username",
-    href: "https://t.me/username",
+    value: "@rxritet",
+    href: "https://t.me/rxritet",
   },
   {
     icon: <GitHubIcon />,

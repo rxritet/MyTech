@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MapPin, Send } from "lucide-react";
 import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
 
@@ -17,64 +18,121 @@ function GitHubIcon({ size = 20 }: Readonly<{ size?: number }>) {
   );
 }
 
-function LinkedInIcon({ size = 20 }: Readonly<{ size?: number }>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      width={size}
-      height={size}
-      aria-hidden="true"
-    >
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-    </svg>
-  );
-}
+
 // ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
 //    Avoids a runtime tokeniser — the snippet never changes at runtime.
 
-const kw  = (text: string): Token => ({ kind: "keyword", text });
-const v   = (text: string): Token => ({ kind: "var",     text });
-const k   = (text: string): Token => ({ kind: "key",     text });
-const s   = (text: string): Token => ({ kind: "string",  text });
-const p   = (text: string): Token => ({ kind: "punct",   text });
-const pl  = (text: string): Token => ({ kind: "plain",   text });
+const kw = (text: string): Token => ({ kind: "keyword", text });
+const v = (text: string): Token => ({ kind: "var", text });
+const k = (text: string): Token => ({ kind: "key", text });
+const s = (text: string): Token => ({ kind: "string", text });
+const p = (text: string): Token => ({ kind: "punct", text });
+const pl = (text: string): Token => ({ kind: "plain", text });
 const cmt = (text: string): Token => ({ kind: "comment", text });
 
 const STACK_LINES: Line[] = [
-  { id: "l0", tokens: [kw("const"), pl(" "), v("stack"), pl(" "), p("="), pl(" "), p("{")] },
-  { id: "l1", tokens: [pl("  "), k("backend"),  p(":"), pl("  "), p("["), s('"Bun"'),         p(","), pl(" "), s('"Hono"'), p(","), pl(" "), s('"Go"'),          p("]"), p(",")] },
-  { id: "l2", tokens: [pl("  "), k("database"), p(":"), pl(" "),  p("["), s('"PostgreSQL"'),                                                                    p("]"), p(",")] },
-  { id: "l3", tokens: [pl("  "), k("frontend"), p(":"), pl(" "),  p("["), s('"React"'),       p(","), pl(" "), s('"TypeScript"'),                                p("]"), p(",")] },
-  { id: "l4", tokens: [pl("  "), k("devops"),   p(":"), pl("   "),p("["), s('"Docker"'),      p(","), pl(" "), s('"Nginx"'),                                    p("]"), p(",")] },
+  {
+    id: "l0",
+    tokens: [
+      kw("const"),
+      pl(" "),
+      v("stack"),
+      pl(" "),
+      p("="),
+      pl(" "),
+      p("{"),
+    ],
+  },
+  {
+    id: "l1",
+    tokens: [
+      pl("  "),
+      k("backend"),
+      p(":"),
+      pl("  "),
+      p("["),
+      s('"Go"'),
+      p(","),
+      pl(" "),
+      s('"Python"'),
+      p(","),
+      pl(" "),
+      s('"TypeScript"'),
+      p("]"),
+      p(","),
+    ],
+  },
+  {
+    id: "l2",
+    tokens: [
+      pl("  "),
+      k("database"),
+      p(":"),
+      pl(" "),
+      p("["),
+      s('"PostgreSQL"'),
+      p(","),
+      pl(" "),
+      s('"BoltDB"'),
+      p("]"),
+      p(","),
+    ],
+  },
+  {
+    id: "l3",
+    tokens: [
+      pl("  "),
+      k("mobile"),
+      p(":"),
+      pl("   "),
+      p("["),
+      s('"Flutter"'),
+      p(","),
+      pl(" "),
+      s('"Dart"'),
+      p("]"),
+      p(","),
+    ],
+  },
+  {
+    id: "l4",
+    tokens: [
+      pl("  "),
+      k("devops"),
+      p(":"),
+      pl("   "),
+      p("["),
+      s('"Docker"'),
+      p(","),
+      pl(" "),
+      s('"nginx"'),
+      p(","),
+      pl(" "),
+      s('"systemd"'),
+      p("]"),
+      p(","),
+    ],
+  },
   { id: "l5", tokens: [p("}"), p(";")] },
   { id: "l6", tokens: [] },
-  { id: "l7", tokens: [cmt("// Always open to new challenges ⚡")] },
+  { id: "l7", tokens: [cmt("// Открыт к первым коммерческим ролям 🚀")] },
 ];
 
 const SOCIAL_LINKS = [
   {
     label: "GitHub",
-    href: "https://github.com/",
+    href: "https://github.com/rxritet",
     icon: <GitHubIcon />,
   },
   {
     label: "Telegram",
-    href: "https://t.me/",
+    href: "https://t.me/rxritet",
     icon: <Send size={20} />,
-  },
-  {
-    label: "LinkedIn",
-    href: "https://linkedin.com/in/",
-    icon: <LinkedInIcon />,
   },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-}
 
 /** Wraps children in a div with the fade-in-up animation and a custom delay. */
 function FadeIn({
@@ -119,7 +177,7 @@ export default function Hero() {
       <FadeIn delay={0}>
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-heading">
           <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            John Doe
+            Радмир Абраев
           </span>
         </h1>
       </FadeIn>
@@ -127,7 +185,7 @@ export default function Hero() {
       {/* Subtitle */}
       <FadeIn delay={100}>
         <p className="text-xl text-gray-300 font-medium">
-          Full-Stack Developer · Bun / Hono / React
+          Backend Developer · Go / TypeScript / Python
         </p>
       </FadeIn>
 
@@ -135,7 +193,7 @@ export default function Hero() {
       <FadeIn delay={200}>
         <p className="flex items-center justify-center gap-1.5 text-gray-500 text-sm">
           <MapPin size={14} className="text-indigo-400" aria-hidden="true" />
-          Moscow, Russia
+          Almaty, Kazakhstan
         </p>
       </FadeIn>
 
@@ -146,23 +204,26 @@ export default function Hero() {
 
       {/* CTA buttons */}
       <FadeIn delay={400} className="flex flex-wrap gap-3 justify-center">
-        <button
-          onClick={() => scrollToId("projects")}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
+        <Link
+          to="/projects"
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out text-white"
         >
           Мои проекты
-        </button>
-        <button
-          onClick={() => scrollToId("contact")}
-          className="px-6 py-3 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0 rounded-lg font-semibold transition-[color,border-color,background-color,transform,box-shadow] duration-200 ease-out cursor-pointer text-gray-300 hover:text-white"
+        </Link>
+        <Link
+          to="/contact"
+          className="px-6 py-3 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0 rounded-lg font-semibold transition-[color,border-color,background-color,transform,box-shadow] duration-200 ease-out text-gray-300 hover:text-white"
         >
           Написать мне
-        </button>
+        </Link>
       </FadeIn>
 
       {/* Social links */}
       <FadeIn delay={500}>
-        <ul className="flex items-center gap-4 list-none p-0 m-0" aria-label="Социальные сети">
+        <ul
+          className="flex items-center gap-4 list-none p-0 m-0"
+          aria-label="Социальные сети"
+        >
           {SOCIAL_LINKS.map(({ label, href, icon }) => (
             <li key={label}>
               <a
