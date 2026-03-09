@@ -1,9 +1,10 @@
-import { PROJECTS } from "../../data/projects";
+import { useProjects } from "../../hooks/useProjects";
 import { useInView } from "../../hooks/useInView";
 import ProjectCard from "../ui/ProjectCard";
 
 export default function Projects() {
   const [ref, inView] = useInView<HTMLElement>(0.1);
+  const { projects, loading, error } = useProjects();
 
   return (
     <section
@@ -31,7 +32,12 @@ export default function Projects() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0"
         aria-label="Список проектов"
       >
-        {PROJECTS.map((project, i) => (
+        {loading && <li className="text-center text-gray-500 w-full col-span-full">Загрузка проектов...</li>}
+        {error && <li className="text-center text-red-500 w-full col-span-full">{error}</li>}
+        {!loading && projects.length === 0 && (
+          <li className="text-center text-gray-500 w-full col-span-full">Проекты не найдены</li>
+        )}
+        {projects.slice(0, 3).map((project, i) => (
           <li
             key={project.id}
             className={`${inView ? "animate-fade-in-up" : "opacity-0"}`}

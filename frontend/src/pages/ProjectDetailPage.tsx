@@ -1,7 +1,10 @@
-import { useParams, Link, Navigate } from "react-router-dom";
-import { PROJECTS } from "../data/projects";
+import { useState } from "react";
+import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
+import { useProject, deleteProject } from "../hooks/useProjects";
+import { useAdminMode } from "../hooks/useAdminMode";
 import SkillBadge from "../components/ui/SkillBadge";
-import { ArrowLeft, Clock, Code2, ExternalLink, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, Code2, ExternalLink, CheckCircle2, Edit2, Trash2 } from "lucide-react";
+import ProjectFormModal from "../components/admin/ProjectFormModal";
 
 function GitHubIcon({ size = 16 }: Readonly<{ size?: number }>) {
   return (
@@ -13,9 +16,23 @@ function GitHubIcon({ size = 16 }: Readonly<{ size?: number }>) {
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const project = PROJECTS.find((p) => p.slug === slug);
+  const navigate = useNavigate();
+  const { project, loading, error, refetch } = useProject(slug || "");
+  const { isAdmin, secret } = useAdminMode();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (!project) return <Navigate to="/projects" replace />;
+  if (loading) return <main className="min-h-screen pt-32 text-center text-gray-500">Загрузка проекта...</main>;
+  if (error || !project) return <Navigate to="/projects" replace />;
+
+  const handleDelete = async () => {
+    if (!secret || !project.id || !confirm("Точно удалить?")) return;
+    try {
+      await deleteProject(project.id, secret);
+      navigate("/projects");
+    } catch {
+      alert("Ошибка удаления");
+    }
+  };
 
   const {
     name,
@@ -61,7 +78,19 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left: text */}
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">{name}</h1>
+              <div className="flex items-center gap-4 mb-4">
+                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">{name}</h1>
+                {isAdmin && (
+                  <div className="flex items-center gap-2">
+                    <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-indigo-400 transition" onClick={() => setIsModalOpen(true)}>
+                      <Edit2 size={16} />
+                    </button>
+                    <button className="p-2 bg-gray-800 hover:bg-red-900/50 rounded-lg text-red-400 transition" onClick={handleDelete}>
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Meta row */}
               <div className="flex flex-wrap gap-4 mb-6">
@@ -194,6 +223,16 @@ export default function ProjectDetailPage() {
           </Link>
         </div>
       </div>
+
+      {isAdmin && secret && (
+        <ProjectFormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          project={project}
+          secret={secret}
+          onSuccess={() => refetch()}
+        />
+      )}
     </main>
   );
 }

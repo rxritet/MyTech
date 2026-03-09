@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PROJECTS } from "../data/projects";
+import { Project } from "../data/projects";
+import { useProjects, deleteProject } from "../hooks/useProjects";
+import { useAdminMode } from "../hooks/useAdminMode";
 import { useInView } from "../hooks/useInView";
 import SkillBadge from "../components/ui/SkillBadge";
-import { ArrowRight, Clock, Code2 } from "lucide-react";
+import { ArrowRight, Clock, Code2, Plus, Edit2, Trash2 } from "lucide-react";
+import ProjectFormModal from "../components/admin/ProjectFormModal";
 
 function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
   return (
@@ -12,7 +16,7 @@ function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
   );
 }
 
-function ProjectCard({ project, index }: Readonly<{ project: typeof PROJECTS[0]; index: number }>) {
+function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ project: Project; index: number; onEdit?: (p: Project) => void; onDelete?: (id: number) => void; isAdmin?: boolean }>) {
   const [ref, inView] = useInView<HTMLLIElement>(0.1);
   const { slug, name, description, stack, github, accentColor, image, devTime, language } = project;
 
@@ -42,7 +46,7 @@ function ProjectCard({ project, index }: Readonly<{ project: typeof PROJECTS[0];
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent" aria-hidden="true" />
 
           {/* Meta badges over image */}
-          <div className="absolute bottom-2 left-3 flex items-center gap-2">
+          <div className="absolute bottom-2 left-3 flex items-center gap-2 z-20">
             <span className="flex items-center gap-1 text-xs text-gray-300 bg-gray-950/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
               <Code2 size={10} aria-hidden="true" />
               {language}
@@ -52,6 +56,17 @@ function ProjectCard({ project, index }: Readonly<{ project: typeof PROJECTS[0];
               {devTime}
             </span>
           </div>
+          
+          {isAdmin && (
+            <div className="absolute top-2 right-2 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition">
+              <button onClick={(e) => { e.preventDefault(); onEdit?.(project); }} className="p-1.5 bg-gray-900/80 hover:bg-gray-800 text-indigo-400 rounded transition backdrop-blur-sm border border-gray-700">
+                <Edit2 size={14} />
+              </button>
+              <button onClick={(e) => { e.preventDefault(); onDelete?.(project.id); }} className="p-1.5 bg-gray-900/80 hover:bg-red-900/80 text-red-400 rounded transition backdrop-blur-sm border border-gray-700">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Body */}
@@ -102,6 +117,26 @@ function ProjectCard({ project, index }: Readonly<{ project: typeof PROJECTS[0];
 }
 
 export default function ProjectsPage() {
+  const { projects, loading, error, refetch } = useProjects();
+  const { isAdmin, secret } = useAdminMode();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+
+  const handleEdit = (project: Project) => {
+    setEditingProject(project);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!secret || !confirm("Точно удалить?")) return;
+    try {
+      await deleteProject(id, secret);
+      refetch();
+    } catch {
+      alert("Ошибка удаления");
+    }
+  };
+
   return (
     <main className="min-h-screen pt-16">
       <section className="max-w-6xl mx-auto px-4 py-24" aria-labelledby="projects-page-heading">
@@ -111,10 +146,18 @@ export default function ProjectsPage() {
           <h1 id="projects-page-heading" className="text-4xl font-bold text-white mb-4">
             Мои проекты
           </h1>
-          <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-gray-400 max-w-xl mx-auto leading-relaxed mb-6">
             Реальные вещи, которые я построил — от Go-бэкендов до Flutter-приложений.
             Нажми на проект, чтобы узнать подробности.
           </p>
+          {isAdmin && (
+            <button
+              onClick={() => { setEditingProject(null); setIsModalOpen(true); }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-sm font-semibold transition"
+            >
+              <Plus size={16} /> Добавить проект
+            </button>
+          )}
         </div>
 
         {/* Grid */}
@@ -122,11 +165,26 @@ export default function ProjectsPage() {
           className="grid grid-cols-1 md:grid-cols-2 gap-6 list-none p-0 m-0"
           aria-label="Список проектов"
         >
-          {PROJECTS.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
+          {loading && <li className="text-center text-gray-500 w-full col-span-2">Загрузка проектов...</li>}
+          {error && <li className="text-center text-red-500 w-full col-span-2">{error}</li>}
+          {!loading && projects.length === 0 && (
+            <li className="text-center text-gray-500 w-full col-span-2">Проекты не найдены</li>
+          )}
+          {projects.map((project, i) => (
+            <ProjectCard key={project.id} project={project} index={i} onEdit={handleEdit} onDelete={handleDelete} isAdmin={isAdmin} />
           ))}
         </ul>
       </section>
+
+      {isAdmin && secret && (
+        <ProjectFormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          project={editingProject}
+          secret={secret}
+          onSuccess={refetch}
+        />
+      )}
     </main>
   );
 }
