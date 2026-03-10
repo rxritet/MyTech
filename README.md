@@ -1,309 +1,114 @@
-# MyTech
+<div align="center">
 
-> Персональный **full‑stack сайт‑визитка** разработчика: современный лендинг с секциями Projects / About / Services / Contact, анимированным скроллом и формой обратной связи на Bun + Hono + PostgreSQL.
+# 🚀 MyTech Portfolio
 
-![Status](https://img.shields.io/badge/status-active-success)
-![React](https://img.shields.io/badge/UI-React%20%2B%20Vite-61DAFB?logo=react&logoColor=000)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=fff)
-![Bun](https://img.shields.io/badge/Runtime-Bun-black?logo=bun)
-![Hono](https://img.shields.io/badge/API-Hono-orange)
-![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL%2016-336791?logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+**Современный, премиальный сайт-визитка Full-Stack Разработчика**
 
----
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Bun](https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-## 📌 О проекте
-
-**MyTech** — это одностраничный сайт‑портфолио, вдохновлённый современными лендингами вроде _FullStackForge_.
-
-Он показывает:
-
-- как собрать **production‑ready full‑stack проект** на TypeScript;
-- как сделать **чистый UI** с секциями и плавной навигацией;
-- как связать **React → Bun/Hono API → PostgreSQL** и упаковать всё в Docker.
-
-Основной сценарий: посетитель знакомится с тобой как с разработчиком, смотрит проекты и может сразу написать через форму, а данные улетают в backend и сохраняются в базе.
+[Особенности](#-особенности) • [Дизайн](#-эстетика-и-дизайн) • [Интерактивность](#-взаимодействие) • [Технологии](#-под-капотом)
 
 ---
 
-## ✨ Ключевые фичи интерфейса
+</div>
 
-- **Фиксированный Navbar** с активным пунктом по текущей секции (hero / projects / about / services / contact).
-- **Полоса прогресса скролла** вверху страницы, которая растёт по мере прокрутки.
-- **Hero‑секция** с gradient‑именем, тегами скиллов и CTA‑кнопками.
-- **Projects‑секция** с карточками проектов: название, стек, описание, ссылки на GitHub / demo.
-- **About‑секция** с краткой историей и блоком ключевых навыков.
-- **Services / Условия работы** — карточки того, что ты предлагаешь как разработчик.
-- **Contact‑форма**: имя + e‑mail + сообщение → POST `/api/contacts` + inline‑обратная связь.
-- **Анимации при скролле** (fade‑in снизу) без сторонних библиотек, только CSS + Intersection Observer.
-- **Адаптивность**: корректный вид на мобильных, планшетах и десктопе.
+## 🌌 О Проекте
+
+**MyTech** — это не просто резюме. Это полноценное, работающее доказательство инженерных навыков и чувства прекрасного. Одностраничное веб-приложение (SPA), разработанное с нуля, чтобы презентовать разработчика, его проекты, навыки и опыт в максимально интерактивной и запоминающейся форме. 
+
+Проект совмещает в себе ультрасовременный **UI/UX дизайн**, молниеносную производительность **React + Vite**, а также надежный и быстрый backend на базе **Bun, Hono REST API и PostgreSQL**. Главная задача — с первых секунд дать понять, что здесь работает профессионал.
 
 ---
 
-## 🛠️ Стек технологий
+## 🎨 Эстетика и Дизайн: «Deep Ink & Violet»
 
-| Слой | Технологии |
-|---|---|
-| Фронтенд | React + TypeScript + Vite + Tailwind CSS |
-| Бэкенд | Bun + Hono (REST API) |
-| БД и ORM | PostgreSQL 16 + Drizzle ORM |
-| Инфраструктура | Docker + Docker Compose |
-| Статический хостинг (prod) | nginx (SPA + reverse proxy) |
+Дизайн сайта построен вокруг строго выверенной **трёхцветной палитры**, подчёркивающей глубину и технологичность:
 
----
+- 🟣 **Primary (Violet - `#7C3AED`)**: Акцентный цвет для кнопок, интерактивных элементов, ссылок и свечений. Достаточно яркий, чтобы привлекать внимание, но не режущий глаз.
+- 🌌 **Background (Deep Ink - `#0F0A1A`)**: Основной фон всего сайта. Глубокий чёрный цвет с едва уловимым фиолетовым подтоном, создающий ощущение премиальности.
+- 🌑 **Surface (Dim Slate - `#1A1127`)**: Цвет интерфейсных карточек, навигационной панели и тегов. Слегка светлее фона для идеальной иерархии (Bento-style).
 
-## 🧱 Архитектура и структура
-
-Общая схема:
-
-```text
-Browser
- └── React SPA (Vite, :5173)
-      └── Hono API (Bun, :3000)
-           └── PostgreSQL (contacts table)
-```
-
-Структура репозитория (упрощённо):
-
-```text
-MyTech/
-├── compose.yml            # Docker Compose (db, backend, frontend)
-├── .env.example           # Шаблон переменных среды
-├── TZ.md                  # Техническое задание и критерии готовности
-│
-├── backend/
-│   ├── src/
-│   │   ├── index.ts       # Точка входа Hono‑сервера
-│   │   ├── routes/
-│   │   │   └── contact.ts # REST‑роуты /api/contacts
-│   │   └── db/
-│   │       ├── client.ts  # Drizzle + postgres‑js клиент
-│   │       └── schema.ts  # Схема таблицы contacts
-│   ├── drizzle/
-│   │   └── migrations/    # SQL‑миграции
-│   ├── drizzle.config.ts
-│   └── Dockerfile
-│
-└── frontend/
-    ├── src/
-    │   ├── App.tsx        # Компоновка секций + подключение хуков
-    │   ├── api.ts         # HTTP‑клиент для backend API
-    │   ├── components/
-    │   │   ├── layout/
-    │   │   │   ├── Navbar.tsx
-    │   │   │   └── Footer.tsx
-    │   │   ├── sections/
-    │   │   │   ├── Hero.tsx
-    │   │   │   ├── Projects.tsx
-    │   │   │   ├── About.tsx
-    │   │   │   ├── Services.tsx
-    │   │   │   └── Contact.tsx
-    │   │   └── ui/        # Карточки, бейджи, иконки и т.п.
-    │   ├── hooks/
-    │   │   ├── useScrollProgress.ts  # Прогресс‑бар скролла
-    │   │   └── useActiveSection.ts   # Определение активной секции
-    │   └── index.css      # Tailwind + кастомные анимации
-    ├── index.html
-    ├── vite.config.ts
-    └── Dockerfile
-```
+*Светлая тема намеренно отключена, чтобы ничто не нарушало задуманную космически-неоновую эстетику.*
 
 ---
 
-## 🚀 Быстрый старт (Docker)
+## ✨ Ключевые Фичи и Разделы
 
-**Требования:** установлен Docker Desktop или Docker Engine + Compose plugin.
+### 🏠 Hero Section (Главный экран)
+- Плавные анимации появления (Fade-in).
+- Интерактивный терминал/код-блок, демонстрирующий актуальный технологический стек прямо в синтаксисе TypeScript.
+- Кнопки с микро-взаимодействиями (привязка к курсору, плавный scale-эффект, тени-свечения).
+- Ссылки на ключевые социальные сети (GitHub, LinkedIn, Telegram) через аккуратные иконки.
 
-```bash
-# 1. Клонировать репозиторий
-git clone https://github.com/rxritet/MyTech.git
-cd MyTech
+### 💼 Мои Проекты
+- Реализованы в виде сетки карточек с элегантным Hover-эффектом (рамки подсвечиваются цветом Violent).
+- Каждая карточка содержит стек технологий и прямые ссылки на исходный код или демо-версию проекта.
 
-# 2. Создать .env из шаблона
-cp .env.example .env
-# при необходимости отредактируй значения (user/password/db)
+### 👤 Обо Мне & Навыки
+- Подробная информация, стилизованная под карточки.
+- Загрузка PDF-резюме в 1 клик прямо под фотографией.
+- Удобное облако тегов с ключевыми технологиями.
+- Свернутый блок с подробной информацией об образовании, локации и увлечениях "Вне кода".
 
-# 3. Собрать и запустить все сервисы
-docker compose up --build -d
-
-# 4. Открыть сайт
-#    http://localhost:5173
-```
-
-Остановка и очистка:
-
-```bash
-# Остановить контейнеры
-docker compose down
-
-# Остановить и удалить volume с данными БД
-docker compose down -v
-```
-
-Сервисы по портам:
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:3000
-- PostgreSQL: localhost:5432 (контейнер `db`)
+### ✉️ Связь со Мной
+- Полноценная рабочая контактная форма (Имя, Email, Сообщение).
+- Интеграция с backend (Hono + PostgreSQL) для сохранения и обработки всех входящих заявок.
+- Обратная связь при успешной (или неудачной) отправке сообщения без перезагрузки страницы.
 
 ---
 
-## 🔐 Переменные среды
+## ⚙️ Под Капотом (Архитектура)
 
-Файл `.env` (**не коммитится**, см. `.gitignore`):
+Проект спроектирован так, чтобы его было не только легко использовать потенциальному клиенту, но и удобно поддерживать разработчику. Полный цикл (Front + Back + DB) упакован в контейнеры.
 
-| Переменная | Значение по умолчанию | Описание |
-|---|---|---|
-| `POSTGRES_USER` | `mytech_user` | Пользователь PostgreSQL |
-| `POSTGRES_PASSWORD` | `your_password_here` | Пароль PostgreSQL |
-| `POSTGRES_DB` | `mytech_db` | Имя базы данных |
-| `DATABASE_URL` | `postgres://mytech_user:your_password_here@db:5432/mytech_db` | DSN для Drizzle/бэкенда |
+**Frontend Layer:**
+- **React 18 + TypeScript:** Строгая типизация и компонентный подход.
+- **Tailwind CSS v4:** Утилитарные классы для стилей, полностью кастомная конфигурация цветов и анимаций.
+- **Vite:** Сборщик нового поколения для мгновенного горячего обновления (HMR) в разработке и оптимизированного бандла в продакшене.
 
-> Совет: для локальной разработки можно использовать те же значения, что и в `.env.example`.
+**Backend Layer (API):**
+- **Bun:** Сверхбыстрый JS-рантайм, заменяющий Node.js.
+- **Hono:** Минималистичный и быстрый веб-фреймворк для обработки REST API запросов (`/api/contacts`).
+- **PostgreSQL 16 & Drizzle ORM:** Полностью типобезопасная работа с данными.
 
----
-
-## 📡 API
-
-Базовый URL для backend: `http://localhost:3000`.
-
-### `GET /health`
-
-Проверка работоспособности сервера.
-
-```bash
-curl http://localhost:3000/health
-```
-
-**Ответ 200:**
-
-```json
-{ "status": "ok" }
-```
+**DevOps & Инфраструктура:**
+- **Docker & Docker Compose:** Простая локальная оркестрация. Сборка frontend с помощью многоступенчатого билда в `nginx:alpine`. Сборка backend в `oven/bun:alpine`.
 
 ---
 
-### `POST /api/contacts`
+<details>
+<summary><b>🛠 Как запустить проект локально?</b></summary>
+<br>
 
-Создать запись из формы обратной связи.
+Всё уже настроено для запуска через Docker. Дополнительных установок, кроме самого **Docker Compose**, не требуется.
 
-**Тело запроса:**
+1. **Клонируйте репозиторий:**
+   ```bash
+   git clone https://github.com/rxritet/MyTech.git
+   cd MyTech
+   ```
 
-```json
-{
-  "name": "Иван",
-  "email": "ivan@example.com",
-  "message": "Привет! Хочу обсудить проект."
-}
-```
+2. **Настройте переменные окружения:**
+   ```bash
+   cp .env.example .env
+   ```
+   *(Файл содержит базовые креды для базы данных, которые сразу готовы для разработки).*
 
-| Поле | Тип | Ограничения |
-|---|---|---|
-| `name` | string | 1–100 символов, обязательно |
-| `email` | string | валидный e‑mail, обязательно |
-| `message` | string | 5–2000 символов, обязательно |
+3. **Запустите Docker Compose:**
+   ```bash
+   docker compose up -d --build
+   ```
 
-**Успешный ответ 201:**
+4. Откройте **`http://localhost:5173`** в браузере. Вы великолепны! 🚀
 
-```json
-{
-  "id": 1,
-  "name": "Иван",
-  "email": "ivan@example.com",
-  "message": "Привет! Хочу обсудить проект.",
-  "createdAt": "2026-03-03T12:00:00.000Z"
-}
-```
+</details>
 
----
-
-### `GET /api/contacts`
-
-Список всех отправленных сообщений (для отладки / админки).
-
-```bash
-curl http://localhost:3000/api/contacts
-```
-
-**Ответ 200:** массив объектов, аналогичных примеру выше.
-
----
-
-## 💻 Локальная разработка (без Docker)
-
-**Нужно:** Bun ≥ 1.2, Node.js ≥ 22, pnpm, локальный PostgreSQL.
-
-### Backend
-
-```bash
-cd backend
-bun install
-
-# убедись, что DATABASE_URL в .env указывает на локальную БД
-bun run migrate   # применить миграции
-bun run dev       # dev‑сервер на :3000
-```
-
-### Frontend
-
-```bash
-cd frontend
-pnpm install
-pnpm dev          # Vite dev‑сервер на :5173
-```
-
-Фронтенд в dev‑режиме обычно проксирует запросы `/api/*` на backend.
-
----
-
-## 📋 Скрипты
-
-### backend/
-
-| Команда | Описание |
-|---|---|
-| `bun run dev` | Dev‑сервер с hot reload |
-| `bun run start` | Production‑запуск сервера |
-| `bun run migrate` | Применить миграции Drizzle |
-| `bun run generate` | Сгенерировать миграции из схемы |
-
-### frontend/
-
-| Команда | Описание |
-|---|---|
-| `pnpm dev` | Vite dev‑сервер |
-| `pnpm build` | Production‑сборка в `dist/` |
-| `pnpm preview` | Предпросмотр production‑сборки |
-| `pnpm lint` | ESLint‑проверка |
-| `pnpm typecheck` | Проверка типов (`tsc --noEmit`) |
-
----
-
-## 🧭 Roadmap (что ещё можно добавить)
-
-- [ ] Тёмная/светлая тема (theme toggle).
-- [ ] Фильтрация проектов по стеку.
-- [ ] Счётчики заявок и простая админка.
-- [ ] Деплой на Vercel/Render/Fly.io.
-- [ ] GitHub Actions pipeline: lint + typecheck + docker build.
-
----
-
-## 🧾 Соглашения о коммитах
-
-Используется формат [Conventional Commits](https://www.conventionalcommits.org/ru/v1.0.0/):
-
-| Префикс | Назначение |
-|---|---|
-| `feat:` | Новая функциональность |
-| `fix:` | Исправление ошибок |
-| `docs:` | Документация и README |
-| `refactor:` | Рефакторинг без изменения поведения |
-| `chore:` | Обновление зависимостей, мелкие задачи |
-| `infra:` | Docker, CI/CD, инфраструктура |
-
----
-
-## 📜 Лицензия
-
-MIT — используй, форкай и дорабатывай под свои задачи.
+<div align="center">
+<br/>
+<p>Создано с фокусом на <b>детали</b>, <b>скорость</b> и <b>стиль</b>.</p>
+</div>
