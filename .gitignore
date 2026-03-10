@@ -1,6 +1,5 @@
 # Environment
 .env
-.env.example
 
 # Dependencies
 node_modules/
