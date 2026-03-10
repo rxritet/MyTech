@@ -18,7 +18,6 @@ function GitHubIcon({ size = 20 }: Readonly<{ size?: number }>) {
   );
 }
 
-
 // ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
 //    Avoids a runtime tokeniser — the snippet never changes at runtime.
 
@@ -45,36 +44,135 @@ const STACK_LINES: Line[] = [
   {
     id: "l1",
     tokens: [
-      pl("  "), k("langs"), p(":"), pl("    "), p("["),
-      s('"Go"'), p(","), pl(" "), s('"Rust"'), p(","), pl(" "), s('"Python"'), p(","), pl(" "), s('"TS"'), p(","), pl(" "), s('"JS"'), p(","), pl(" "), s('"Dart"'), p("]"), p(","),
+      pl("  "),
+      k("langs"),
+      p(":"),
+      pl("    "),
+      p("["),
+      s('"Go"'),
+      p(","),
+      pl(" "),
+      s('"Java"'),
+      p(","),
+      pl(" "),
+      s('"TypeScript"'),
+      p(","),
+      pl(" "),
+      s('"JavaScript"'),
+      p(","),
+      pl(" "),
+      s('"Python"'),
+      p(","),
+      pl(" "),
+      s('"Dart"'),
+      p("]"),
+      p(","),
     ],
   },
   {
     id: "l2",
     tokens: [
-      pl("  "), k("backend"), p(":"), pl("  "), p("["),
-      s('"Django"'), p(","), pl(" "), s('"FastAPI"'), p(","), pl(" "), s('"PostgreSQL"'), p(","), pl(" "), s('"SQLite"'), p("]"), p(","),
+      pl("  "),
+      k("backend"),
+      p(":"),
+      pl("  "),
+      p("["),
+      s('"Django"'),
+      p(","),
+      pl(" "),
+      s('"FastAPI"'),
+      p(","),
+      pl(" "),
+      s('"Node.js"'),
+      p(","),
+      pl(" "),
+      s('"PostgreSQL"'),
+      p(","),
+      pl(" "),
+      s('"SQLite"'),
+      p("]"),
+      p(","),
     ],
   },
   {
     id: "l3",
     tokens: [
-      pl("  "), k("frontend"), p(":"), pl(" "), p("["),
-      s('"React"'), p(","), pl(" "), s('"Tailwind"'), p(","), pl(" "), s('"Vite"'), p(","), pl(" "), s('"Figma"'), p(","), pl(" "), s('"Flutter"'), p(","), pl(" "), s('"HTML5"'), p(","), pl(" "), s('"CSS3"'), p("]"), p(","),
+      pl("  "),
+      k("frontend"),
+      p(":"),
+      pl(" "),
+      p("["),
+      s('"React"'),
+      p(","),
+      pl(" "),
+      s('"TailwindCSS"'),
+      p(","),
+      pl(" "),
+      s('"Vite"'),
+      p(","),
+      pl(" "),
+      s('"Flutter"'),
+      p(","),
+      pl(" "),
+      s('"HTML5"'),
+      p(","),
+      pl(" "),
+      s('"CSS3"'),
+      p(","),
+      pl(" "),
+      s('"Figma"'),
+      p("]"),
+      p(","),
     ],
   },
   {
     id: "l4",
     tokens: [
-      pl("  "), k("devops"), p(":"), pl("   "), p("["),
-      s('"Docker"'), p(","), pl(" "), s('"AWS"'), p(","), pl(" "), s('"Nginx"'), p(","), pl(" "), s('"Linux"'), p(","), pl(" "), s('"GitHub"'), p("]"), p(","),
+      pl("  "),
+      k("devops"),
+      p(":"),
+      pl("   "),
+      p("["),
+      s('"Docker"'),
+      p(","),
+      pl(" "),
+      s('"GitHub Actions"'),
+      p(","),
+      pl(" "),
+      s('"AWS"'),
+      p(","),
+      pl(" "),
+      s('"Nginx"'),
+      p(","),
+      pl(" "),
+      s('"Linux"'),
+      p("]"),
+      p(","),
     ],
   },
   {
     id: "l5",
     tokens: [
-      pl("  "), k("tools"), p(":"), pl("    "), p("["),
-      s('"Git"'), p(","), pl(" "), s('"GitHub"'), p(","), pl(" "), s('"VSCode"'), p(","), pl(" "), s('"Postman"'), p("]"), p(","),
+      pl("  "),
+      k("tools"),
+      p(":"),
+      pl("    "),
+      p("["),
+      s('"Git"'),
+      p(","),
+      pl(" "),
+      s('"GitHub"'),
+      p(","),
+      pl(" "),
+      s('"VS Code"'),
+      p(","),
+      pl(" "),
+      s('"Burp Suite"'),
+      p(","),
+      pl(" "),
+      s('"Antigravity"'),
+      p("]"),
+      p(","),
     ],
   },
   { id: "l6", tokens: [p("}")] },
@@ -104,7 +202,6 @@ const SOCIAL_LINKS = [
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
 
 /** Wraps children in a div with the fade-in-up animation and a custom delay. */
 function FadeIn({
@@ -156,9 +253,7 @@ export default function Hero() {
 
       {/* Subtitle */}
       <FadeIn delay={100}>
-        <p className="text-xl text-gray-300 font-medium">
-          FullStack Developer
-        </p>
+        <p className="text-xl text-gray-300 font-medium">FullStack Developer</p>
       </FadeIn>
 
       {/* Location */}
