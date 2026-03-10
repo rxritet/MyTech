@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Send } from "lucide-react";
+import { MapPin, Send, Linkedin, Mail } from "lucide-react";
 import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
 
 // ── Inline brand SVGs (avoids deprecated lucide brand icons) ──────────────────
@@ -28,7 +28,6 @@ const k = (text: string): Token => ({ kind: "key", text });
 const s = (text: string): Token => ({ kind: "string", text });
 const p = (text: string): Token => ({ kind: "punct", text });
 const pl = (text: string): Token => ({ kind: "plain", text });
-const cmt = (text: string): Token => ({ kind: "comment", text });
 
 const STACK_LINES: Line[] = [
   {
@@ -46,76 +45,39 @@ const STACK_LINES: Line[] = [
   {
     id: "l1",
     tokens: [
-      pl("  "),
-      k("backend"),
-      p(":"),
-      pl("  "),
-      p("["),
-      s('"Go"'),
-      p(","),
-      pl(" "),
-      s('"Python"'),
-      p(","),
-      pl(" "),
-      s('"TypeScript"'),
-      p("]"),
-      p(","),
+      pl("  "), k("langs"), p(":"), pl("    "), p("["),
+      s('"Go"'), p(","), pl(" "), s('"Rust"'), p(","), pl(" "), s('"Python"'), p(","), pl(" "), s('"TS"'), p(","), pl(" "), s('"JS"'), p(","), pl(" "), s('"Dart"'), p("]"), p(","),
     ],
   },
   {
     id: "l2",
     tokens: [
-      pl("  "),
-      k("database"),
-      p(":"),
-      pl(" "),
-      p("["),
-      s('"PostgreSQL"'),
-      p(","),
-      pl(" "),
-      s('"BoltDB"'),
-      p("]"),
-      p(","),
+      pl("  "), k("backend"), p(":"), pl("  "), p("["),
+      s('"Django"'), p(","), pl(" "), s('"FastAPI"'), p(","), pl(" "), s('"PostgreSQL"'), p(","), pl(" "), s('"SQLite"'), p("]"), p(","),
     ],
   },
   {
     id: "l3",
     tokens: [
-      pl("  "),
-      k("mobile"),
-      p(":"),
-      pl("   "),
-      p("["),
-      s('"Flutter"'),
-      p(","),
-      pl(" "),
-      s('"Dart"'),
-      p("]"),
-      p(","),
+      pl("  "), k("frontend"), p(":"), pl(" "), p("["),
+      s('"React"'), p(","), pl(" "), s('"Tailwind"'), p(","), pl(" "), s('"Vite"'), p(","), pl(" "), s('"Figma"'), p(","), pl(" "), s('"Flutter"'), p(","), pl(" "), s('"HTML5"'), p(","), pl(" "), s('"CSS3"'), p("]"), p(","),
     ],
   },
   {
     id: "l4",
     tokens: [
-      pl("  "),
-      k("devops"),
-      p(":"),
-      pl("   "),
-      p("["),
-      s('"Docker"'),
-      p(","),
-      pl(" "),
-      s('"nginx"'),
-      p(","),
-      pl(" "),
-      s('"systemd"'),
-      p("]"),
-      p(","),
+      pl("  "), k("devops"), p(":"), pl("   "), p("["),
+      s('"Docker"'), p(","), pl(" "), s('"AWS"'), p(","), pl(" "), s('"Nginx"'), p(","), pl(" "), s('"Linux"'), p(","), pl(" "), s('"GitHub"'), p("]"), p(","),
     ],
   },
-  { id: "l5", tokens: [p("}"), p(";")] },
-  { id: "l6", tokens: [] },
-  { id: "l7", tokens: [cmt("// Открыт к первым коммерческим ролям 🚀")] },
+  {
+    id: "l5",
+    tokens: [
+      pl("  "), k("tools"), p(":"), pl("    "), p("["),
+      s('"Git"'), p(","), pl(" "), s('"GitHub"'), p(","), pl(" "), s('"VSCode"'), p(","), pl(" "), s('"Postman"'), p("]"), p(","),
+    ],
+  },
+  { id: "l6", tokens: [p("}")] },
 ];
 
 const SOCIAL_LINKS = [
@@ -125,9 +87,19 @@ const SOCIAL_LINKS = [
     icon: <GitHubIcon />,
   },
   {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/radmir-abraev-186b393b0/",
+    icon: <Linkedin size={20} />,
+  },
+  {
     label: "Telegram",
     href: "https://t.me/rxritet",
     icon: <Send size={20} />,
+  },
+  {
+    label: "Email",
+    href: "mailto:abraevradmir2@gmail.com",
+    icon: <Mail size={20} />,
   },
 ];
 
@@ -165,18 +137,18 @@ export default function Hero() {
     >
       {/* ── Background blobs ──────────────────────────────────── */}
       <div aria-hidden="true" className="pointer-events-none select-none">
-        {/* Top-left — indigo */}
-        <div className="animate-float absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/30 blur-[120px]" />
-        {/* Bottom-right — purple */}
-        <div className="animate-float-reverse absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-purple-600/25 blur-[100px]" />
-        {/* Center-top — cyan accent */}
-        <div className="animate-float-slow absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-cyan-500/15 blur-[90px]" />
+        {/* Top-left — violet */}
+        <div className="animate-float absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-[120px]" />
+        {/* Bottom-right — dark violet */}
+        <div className="animate-float-reverse absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-violet-600/15 blur-[100px]" />
+        {/* Center-top — cyan accent (kept for contrast, but dimmed) */}
+        <div className="animate-float-slow absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-cyan-500/10 blur-[90px]" />
       </div>
 
       {/* Name */}
       <FadeIn delay={0}>
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-heading">
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-violet-400 to-cyan-400 bg-clip-text text-transparent">
             Радмир Абраев
           </span>
         </h1>
@@ -185,14 +157,14 @@ export default function Hero() {
       {/* Subtitle */}
       <FadeIn delay={100}>
         <p className="text-xl text-gray-300 font-medium">
-          Backend Developer · Go / TypeScript / Python
+          FullStack Developer
         </p>
       </FadeIn>
 
       {/* Location */}
       <FadeIn delay={200}>
         <p className="flex items-center justify-center gap-1.5 text-gray-500 text-sm">
-          <MapPin size={14} className="text-indigo-400" aria-hidden="true" />
+          <MapPin size={14} className="text-primary" aria-hidden="true" />
           Almaty, Kazakhstan
         </p>
       </FadeIn>
@@ -206,15 +178,15 @@ export default function Hero() {
       <FadeIn delay={400} className="flex flex-wrap gap-3 justify-center">
         <Link
           to="/projects"
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out text-white"
+          className="px-6 py-3 bg-primary hover:bg-violet-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out text-white"
         >
           Мои проекты
         </Link>
         <Link
-          to="/contact"
-          className="px-6 py-3 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0 rounded-lg font-semibold transition-[color,border-color,background-color,transform,box-shadow] duration-200 ease-out text-gray-300 hover:text-white"
+          to="/about"
+          className="px-6 py-3 border border-primary/50 hover:border-primary hover:bg-primary/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/15 active:translate-y-0 rounded-lg font-semibold transition-[color,border-color,background-color,transform,box-shadow] duration-200 ease-out text-gray-300 hover:text-white"
         >
-          Написать мне
+          Обо мне
         </Link>
       </FadeIn>
 
@@ -231,7 +203,7 @@ export default function Hero() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="text-gray-500 hover:text-indigo-400 transition-colors block"
+                className="text-gray-500 hover:text-primary transition-colors block"
               >
                 {icon}
               </a>

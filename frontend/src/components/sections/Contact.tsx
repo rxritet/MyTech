@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FocusEvent, type SyntheticEvent } from "react";
-import { Send } from "lucide-react";
+import { Send, Linkedin, Mail } from "lucide-react";
 import { submitContact, type ContactPayload } from "../../api";
 import { useInView } from "../../hooks/useInView";
 
@@ -33,6 +33,18 @@ const CONTACT_ITEMS = [
     label: "GitHub",
     value: "github.com/rxritet",
     href: "https://github.com/rxritet",
+  },
+  {
+    icon: <Linkedin size={18} />,
+    label: "LinkedIn",
+    value: "linkedin.com/in/radmir-abraev",
+    href: "https://www.linkedin.com/in/radmir-abraev-186b393b0/",
+  },
+  {
+    icon: <Mail size={18} />,
+    label: "Email",
+    value: "abraevradmir2@gmail.com",
+    href: "mailto:abraevradmir2@gmail.com",
   },
 ];
 
@@ -70,10 +82,10 @@ function validate(form: ContactPayload): FormErrors {
 // ── Input style helpers ───────────────────────────────────────────────────────
 
 function fieldInputClass(hasError: boolean) {
-  return `w-full px-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
+  return `w-full px-4 py-3 bg-surface border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-colors ${
     hasError
       ? "border-red-500 focus:ring-red-500/60"
-      : "border-gray-700 focus:ring-indigo-500"
+      : "border-white/10 focus:ring-primary"
   }`;
 }
 
@@ -246,7 +258,7 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
+              className="px-6 py-3 bg-primary hover:bg-violet-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 ease-out cursor-pointer text-white"
             >
               {status === "loading" ? (
                 <span className="flex items-center justify-center gap-2">
@@ -336,7 +348,7 @@ export default function Contact() {
                   className="flex items-center gap-3 group"
                   aria-label={`${label}: ${value}`}
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-900 border border-gray-800 text-indigo-400 group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-colors shrink-0">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-surface border border-white/10 text-primary group-hover:border-primary/50 group-hover:bg-primary/10 transition-colors shrink-0">
                     {icon}
                   </span>
                   <div className="flex flex-col">

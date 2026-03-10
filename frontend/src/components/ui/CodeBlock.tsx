@@ -57,10 +57,10 @@ function CodeLine({ tokens }: Readonly<{ tokens: Token[] }>) {
 
 export default function CodeBlock({ title = "stack.ts", lines }: Readonly<CodeBlockProps>) {
   return (
-    <div className="w-full max-w-sm rounded-xl overflow-hidden border border-gray-700/60 bg-gray-900/80 backdrop-blur-sm shadow-2xl shadow-black/40 text-left">
+    <div className="w-full max-w-2xl rounded-xl overflow-hidden border border-white/10 bg-surface/80 backdrop-blur-sm shadow-2xl shadow-black/40 text-left">
 
       {/* ── Title bar ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800/70 border-b border-gray-700/60">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-bg/50 border-b border-white/10">
         <span className="w-3 h-3 rounded-full bg-red-500/70" aria-hidden="true" />
         <span className="w-3 h-3 rounded-full bg-yellow-500/70" aria-hidden="true" />
         <span className="w-3 h-3 rounded-full bg-green-500/70" aria-hidden="true" />

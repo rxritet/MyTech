@@ -1,4 +1,4 @@
-import { Code2, Send, ExternalLink } from "lucide-react";
+import { Code2, Send, Linkedin, Mail } from "lucide-react";
 
 interface NavLink {
   label: string;
@@ -19,9 +19,10 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 const SOCIAL_LINKS: SocialLink[] = [
-  { label: "GitHub", href: "https://github.com/", Icon: Code2 },
-  { label: "Telegram", href: "https://t.me/", Icon: Send },
-  { label: "LinkedIn", href: "https://linkedin.com/in/", Icon: ExternalLink },
+  { label: "GitHub", href: "https://github.com/rxritet", Icon: Code2 },
+  { label: "Telegram", href: "https://t.me/rxritet", Icon: Send },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/radmir-abraev-186b393b0/", Icon: Linkedin },
+  { label: "Email", href: "mailto:abraevradmir2@gmail.com", Icon: Mail },
 ];
 
 function scrollTo(href: string) {
