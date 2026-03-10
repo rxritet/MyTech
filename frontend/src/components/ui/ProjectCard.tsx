@@ -25,10 +25,10 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
   const { name, description, stack, github, demo, accentColor, image } = project;
 
   return (
-    <article className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-500/50">
+    <article className="group flex flex-col bg-surface border border-white/10 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50">
 
       {/* ── Preview image (16:9) ────────────────────────────────── */}
-      <div className="relative aspect-video w-full overflow-hidden bg-gray-950">
+      <div className="relative aspect-video w-full overflow-hidden bg-bg">
         {/* Gradient accent line at top */}
         <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accentColor} z-10`} aria-hidden="true" />
 
@@ -45,14 +45,14 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
         )}
 
         {/* Overlay gradient for text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg/60 to-transparent" aria-hidden="true" />
       </div>
 
       {/* ── Card body ───────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 p-5 gap-3">
 
         {/* Name */}
-        <h3 className="text-base font-semibold text-white group-hover:text-indigo-300 transition-colors leading-snug">
+        <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors leading-snug">
           {name}
         </h3>
 
@@ -72,7 +72,7 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
 
         {/* Links */}
         {(github ?? demo) && (
-          <div className="flex items-center gap-4 pt-1 border-t border-gray-800">
+          <div className="flex items-center gap-4 pt-1 border-t border-white/10">
             {github && (
               <a
                 href={github}
@@ -91,7 +91,7 @@ export default function ProjectCard({ project }: Readonly<{ project: Project }>)
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Live-демо ${name}`}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition-colors ml-auto"
+                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-primary transition-colors ml-auto"
               >
                 Live Demo
                 <ExternalLink size={14} aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5" />

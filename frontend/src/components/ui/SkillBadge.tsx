@@ -32,7 +32,7 @@ const TECH_COLORS: Record<string, string> = {
   Bash: "bg-neutral-500/10 border-neutral-500/30 text-neutral-300",
 };
 
-const DEFAULT_BADGE = "bg-indigo-500/10 border-indigo-500/30 text-indigo-300";
+const DEFAULT_BADGE = "bg-primary/10 border-primary/30 text-primary/80";
 
 interface SkillBadgeProps {
   label: string;

@@ -31,14 +31,15 @@
   }
 
   .dark {
-    --bg: #0f172a; /* slate-900 */
-    --surface: #1e293b; /* slate-800 */
-    --text: #f8fafc; /* slate-50 */
-    --muted: #94a3b8; /* slate-400 */
-    --primary: #818cf8; /* indigo-400 */
-    --border: #334155; /* slate-700 */
-    --error: #f87171; /* red-400 */
-    --success: #4ade80; /* green-400 */
+    --bg: #0f0a1a; /* Deep Ink */
+    --surface: #1a1127; /* Dim Slate */
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.5);
+    --primary: #7c3aed; /* Violet-600 */
+    --border: rgba(124, 58, 237, 0.2);
+    --hover-bg: rgba(124, 58, 237, 0.08);
+    --error: #f87171;
+    --success: #4ade80;
   }
 
   html {
