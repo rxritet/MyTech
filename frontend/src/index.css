@@ -3,6 +3,7 @@
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -20,30 +21,31 @@
 /* ── Base styles ─────────────────────────────────────────────── */
 @layer base {
   :root {
-    --bg: #ffffff;
-    --surface: #f8fafc; /* slate-50 */
-    --text: #0f172a; /* slate-900 */
-    --muted: #64748b; /* slate-500 */
-    --primary: #4f46e5; /* indigo-600 */
-    --border: #e2e8f0; /* slate-200 */
-    --error: #ef4444; /* red-500 */
-    --success: #22c55e; /* green-500 */
+    --bg: #080810;
+    --surface: #0e0e1a;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --primary: #00ff88;
+    --border: rgba(0, 255, 136, 0.12);
+    --hover-bg: rgba(0, 255, 136, 0.08);
+    --error: #ef4444;
+    --success: #22c55e;
   }
 
   .dark {
-    --bg: #0f0a1a; /* Deep Ink */
-    --surface: #1a1127; /* Dim Slate */
-    --text: #ffffff;
-    --muted: rgba(255, 255, 255, 0.5);
-    --primary: #7c3aed; /* Violet-600 */
-    --border: rgba(124, 58, 237, 0.2);
-    --hover-bg: rgba(124, 58, 237, 0.08);
+    --bg: #0d0905;
+    --surface: #161008;
+    --text: #f5ede8;
+    --muted: #6b5a4e;
+    --primary: #f97316;
+    --border: rgba(249, 115, 22, 0.15);
+    --hover-bg: rgba(249, 115, 22, 0.08);
     --error: #f87171;
     --success: #4ade80;
   }
 
   html {
-    font-size: 16px;
+    font-size: 17px;
     scroll-behavior: smooth;
   }
 
@@ -61,6 +63,33 @@
   h5,
   h6 {
     line-height: var(--leading-heading);
+    letter-spacing: -0.05em; /* tracking-tighter */
+  }
+}
+
+/* ── Custom Utilities ────────────────────────────────────────── */
+@layer utilities {
+  .dot-grid {
+    background-image: radial-gradient(
+      circle,
+      var(--border) 1px,
+      transparent 1px
+    );
+    background-size: 28px 28px;
+  }
+
+  .card-glass {
+    background: rgba(14, 14, 26, 0.6);
+    border: 1px solid rgba(0, 255, 136, 0.1);
+    backdrop-filter: blur(12px);
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .card-glass:hover {
+    border-color: rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 24px rgba(0, 255, 136, 0.08);
   }
 }
 
@@ -86,11 +115,11 @@
   background: #030712; /* gray-950 */
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151; /* gray-700 */
+  background: #92400e; /* amber-800 */
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #6366f1; /* indigo-500 */
+  background: #f97316; /* orange-500 */
 }
 
 /* ── Fade-in-up animation ───────────────────────────────────── */
@@ -131,4 +160,33 @@
 
 .animate-float-reverse {
   animation: float 10s ease-in-out infinite reverse;
+}
+
+/* ── Typing effect ──────────────────────────────────────────── */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Marquee animation ──────────────────────────────────────── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
