@@ -18,7 +18,7 @@ function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
 
 function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ project: Project; index: number; onEdit?: (p: Project) => void; onDelete?: (id: number) => void; isAdmin?: boolean }>) {
   const [ref, inView] = useInView<HTMLLIElement>(0.1);
-  const { slug, name, description, stack, github, accentColor, image, devTime, language } = project;
+  const { slug, name, description, stack, github, image, devTime, language } = project;
 
   return (
     <li
