@@ -1,0 +1,23 @@
+CREATE TABLE "about" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text DEFAULT 'Радмир Абраев' NOT NULL,
+	"location" text DEFAULT 'Almaty, Kazakhstan' NOT NULL,
+	"tagline" text DEFAULT 'Full-Stack Developer' NOT NULL,
+	"bio1" text DEFAULT '' NOT NULL,
+	"bio2" text DEFAULT '' NOT NULL,
+	"quote" text DEFAULT '' NOT NULL,
+	"university" text DEFAULT 'AlmaU' NOT NULL,
+	"status" text DEFAULT 'Open to work' NOT NULL,
+	"resume_url" text DEFAULT '/resume.pdf' NOT NULL,
+	"avatar_url" text DEFAULT '' NOT NULL,
+	"github_url" text DEFAULT 'https://github.com/rxritet' NOT NULL,
+	"linkedin_url" text DEFAULT '' NOT NULL,
+	"telegram_url" text DEFAULT '' NOT NULL,
+	"email" text DEFAULT '' NOT NULL,
+	"focus_areas" jsonb DEFAULT '[]' NOT NULL,
+	"competencies" jsonb DEFAULT '[]' NOT NULL,
+	"projects" jsonb DEFAULT '[]' NOT NULL,
+	"education" jsonb DEFAULT '[]' NOT NULL,
+	"hobbies" jsonb DEFAULT '[]' NOT NULL,
+	"updated_at" timestamp DEFAULT now()
+);
