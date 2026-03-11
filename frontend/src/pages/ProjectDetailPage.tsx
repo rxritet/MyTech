@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { useProject, deleteProject } from "../hooks/useProjects";
-import { useAdminMode } from "../hooks/useAdminMode";
+import { useAdmin } from "../context/AdminContext";
 import SkillBadge from "../components/ui/SkillBadge";
 import { ArrowLeft, Clock, Code2, ExternalLink, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 import ProjectFormModal from "../components/admin/ProjectFormModal";
@@ -18,7 +18,7 @@ export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { project, loading, error, refetch } = useProject(slug || "");
-  const { isAdmin, secret } = useAdminMode();
+  const { isAdmin, secret } = useAdmin();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (loading) return <main className="min-h-screen pt-32 text-center text-gray-500">Загрузка проекта...</main>;
@@ -54,8 +54,8 @@ export default function ProjectDetailPage() {
       <div className="relative overflow-hidden border-b border-gray-800">
         {/* Gradient blobs */}
         <div aria-hidden="true" className="pointer-events-none select-none">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/20 blur-[120px]" />
-          <div className="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-purple-600/20 blur-[100px]" />
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-orange-600/20 blur-[120px]" />
+          <div className="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-amber-600/20 blur-[100px]" />
         </div>
 
         {/* Accent top line */}
@@ -65,7 +65,7 @@ export default function ProjectDetailPage() {
           {/* Back link */}
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-400 transition-colors mb-8 group"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-400 transition-colors mb-8 group"
           >
             <ArrowLeft
               size={14}
@@ -82,7 +82,7 @@ export default function ProjectDetailPage() {
                 <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">{name}</h1>
                 {isAdmin && (
                   <div className="flex items-center gap-2">
-                    <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-indigo-400 transition" onClick={() => setIsModalOpen(true)}>
+                    <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-orange-400 transition" onClick={() => setIsModalOpen(true)}>
                       <Edit2 size={16} />
                     </button>
                     <button className="p-2 bg-gray-800 hover:bg-red-900/50 rounded-lg text-red-400 transition" onClick={handleDelete}>
@@ -95,11 +95,11 @@ export default function ProjectDetailPage() {
               {/* Meta row */}
               <div className="flex flex-wrap gap-4 mb-6">
                 <span className="flex items-center gap-1.5 text-sm text-gray-400">
-                  <Code2 size={14} className="text-indigo-400" aria-hidden="true" />
+                  <Code2 size={14} className="text-orange-400" aria-hidden="true" />
                   {language}
                 </span>
                 <span className="flex items-center gap-1.5 text-sm text-gray-400">
-                  <Clock size={14} className="text-indigo-400" aria-hidden="true" />
+                  <Clock size={14} className="text-orange-400" aria-hidden="true" />
                   {devTime}
                 </span>
                 <span className="text-sm text-gray-500">Начат в {createdAt}</span>
@@ -114,7 +114,7 @@ export default function ProjectDetailPage() {
                     href={github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 text-white text-sm"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 text-white text-sm"
                   >
                     <GitHubIcon size={16} />
                     Открыть на GitHub
@@ -125,7 +125,7 @@ export default function ProjectDetailPage() {
                     href={demo}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-500/10 hover:-translate-y-0.5 active:translate-y-0 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-orange-500/50 hover:border-orange-400 hover:bg-orange-500/10 hover:-translate-y-0.5 active:translate-y-0 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
                   >
                     Live Demo
                     <ExternalLink size={14} aria-hidden="true" />
@@ -163,7 +163,7 @@ export default function ProjectDetailPage() {
                 <li key={feature} className="flex items-start gap-3">
                   <CheckCircle2
                     size={18}
-                    className="text-indigo-400 shrink-0 mt-0.5"
+                    className="text-orange-400 shrink-0 mt-0.5"
                     aria-hidden="true"
                   />
                   <span className="text-gray-300 text-sm leading-relaxed">{feature}</span>
@@ -210,14 +210,14 @@ export default function ProjectDetailPage() {
         <div className="mt-16 pt-8 border-t border-gray-800 flex items-center justify-between">
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-indigo-400 transition-colors group"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-400 transition-colors group"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
             Все проекты
           </Link>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 border border-gray-800 hover:border-indigo-500/50 hover:bg-indigo-500/10 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 border border-gray-800 hover:border-orange-500/50 hover:bg-orange-500/10 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
           >
             Обсудить проект
           </Link>

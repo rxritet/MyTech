@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Project } from "../data/projects";
 import { useProjects, deleteProject } from "../hooks/useProjects";
-import { useAdminMode } from "../hooks/useAdminMode";
+import { useAdmin } from "../context/AdminContext";
 import { useInView } from "../hooks/useInView";
 import SkillBadge from "../components/ui/SkillBadge";
 import { ArrowRight, Clock, Code2, Plus, Edit2, Trash2 } from "lucide-react";
@@ -28,7 +28,7 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
     >
       <Link
         to={`/projects/${slug}`}
-        className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/20 hover:border-indigo-500/40 h-full"
+        className="group flex flex-col bg-gray-900 border border-gray-800 rounded-xl overflow-hidden transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-orange-500/20 hover:border-orange-500/40 h-full"
         aria-label={`Открыть детали проекта ${name}`}
       >
         {/* Preview */}
@@ -59,7 +59,7 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
           
           {isAdmin && (
             <div className="absolute top-2 right-2 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition">
-              <button onClick={(e) => { e.preventDefault(); onEdit?.(project); }} className="p-1.5 bg-gray-900/80 hover:bg-gray-800 text-indigo-400 rounded transition backdrop-blur-sm border border-gray-700">
+              <button onClick={(e) => { e.preventDefault(); onEdit?.(project); }} className="p-1.5 bg-gray-900/80 hover:bg-gray-800 text-orange-400 rounded transition backdrop-blur-sm border border-gray-700">
                 <Edit2 size={14} />
               </button>
               <button onClick={(e) => { e.preventDefault(); onDelete?.(project.id); }} className="p-1.5 bg-gray-900/80 hover:bg-red-900/80 text-red-400 rounded transition backdrop-blur-sm border border-gray-700">
@@ -72,12 +72,12 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
         {/* Body */}
         <div className="flex flex-col flex-1 p-5 gap-3">
           <div className="flex items-start justify-between">
-            <h3 className="text-base font-semibold text-white group-hover:text-indigo-300 transition-colors leading-snug">
+            <h3 className="text-base font-semibold text-white group-hover:text-orange-300 transition-colors leading-snug">
               {name}
             </h3>
             <ArrowRight
               size={16}
-              className="text-gray-600 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5"
+              className="text-gray-600 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5"
               aria-hidden="true"
             />
           </div>
@@ -105,7 +105,7 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
                 <GitHubIcon size={12} />
                 {github.replace("https://github.com/", "")}
               </span>
-              <span className="ml-auto text-xs text-indigo-400 group-hover:text-indigo-300 transition-colors font-medium">
+              <span className="ml-auto text-xs text-orange-400 group-hover:text-orange-300 transition-colors font-medium">
                 Подробнее →
               </span>
             </div>
@@ -118,7 +118,7 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
 
 export default function ProjectsPage() {
   const { projects, loading, error, refetch } = useProjects();
-  const { isAdmin, secret } = useAdminMode();
+  const { isAdmin, secret } = useAdmin();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
       <section className="max-w-6xl mx-auto px-4 py-24" aria-labelledby="projects-page-heading">
         {/* Heading */}
         <div className="text-center mb-16">
-          <p className="text-indigo-400 text-sm font-mono mb-3 tracking-widest uppercase">Портфолио</p>
+          <p className="text-orange-400 text-sm font-mono mb-3 tracking-widest uppercase">Портфолио</p>
           <h1 id="projects-page-heading" className="text-4xl font-bold text-white mb-4">
             Мои проекты
           </h1>
@@ -153,7 +153,7 @@ export default function ProjectsPage() {
           {isAdmin && (
             <button
               onClick={() => { setEditingProject(null); setIsModalOpen(true); }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white text-sm font-semibold transition"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-white text-sm font-semibold transition"
             >
               <Plus size={16} /> Добавить проект
             </button>
