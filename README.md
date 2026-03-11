@@ -8,7 +8,7 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Bun](https://img.shields.io/badge/Bun-runtime-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Hono](https://img.shields.io/badge/Hono-API-E36002?style=flat-square&logo=hono&logoColor=white)](https://hono.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-compose-2CA5E0?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
@@ -19,7 +19,7 @@
 
 ## О проекте
 
-**MyTech** — это не статичная страница с резюме. Это полноценное full-stack приложение: React-SPA на фронтенде, REST API на Bun + Hono, база данных PostgreSQL и Docker-оркестрация для деплоя. Весь стек упакован в контейнеры и поднимается одной командой.
+**MyTech** — это не статичная страница с резюме. Это полноценное full-stack приложение: React-SPA на фронтенде, REST API на Node.js + Hono, база данных PostgreSQL и Docker-оркестрация для деплоя. Весь стек упакован в контейнеры и поднимается одной командой.
 
 Проект создан **Радмиром Абраевым** — студентом 2-го курса Software Engineering в AlmaU (Алматы) — как центральный элемент портфолио при поиске первой коммерческой роли в бэкенд- или full-stack-разработке.
 
@@ -64,11 +64,12 @@ MyTech/
 │   ├── Dockerfile              # Multi-stage build → nginx:alpine
 │   └── nginx.conf              # SPA routing + gzip
 │
-├── backend/                    # Bun + Hono REST API
+├── backend/                    # Node.js + Hono REST API
 │   ├── src/                    # Хэндлеры маршрутов, схема БД, middleware
+│   ├── api/                    # Vercel serverless entrypoint
 │   ├── drizzle/                # SQL-миграции
 │   ├── drizzle.config.ts
-│   └── Dockerfile              # oven/bun:alpine
+│   └── Dockerfile              # node:20-alpine
 │
 └── compose.yml                 # Оркестрация: frontend + backend + postgres
 ```
@@ -91,7 +92,7 @@ MyTech/
 - **pnpm** — эффективное управление зависимостями
 
 ### Бэкенд
-- **Bun** — высокопроизводительный JS-рантайм (быстрее Node.js в ~3×)
+- **Node.js 20** — совместимый рантайм для Docker и Vercel
 - **Hono** — минималистичный, типобезопасный REST-фреймворк
 - **Drizzle ORM** — схема и миграции с полной типизацией
 - **PostgreSQL 16** — основная база данных
@@ -143,8 +144,16 @@ docker compose up -d --build
 | `POSTGRES_PASSWORD` | Пароль БД | `secret` |
 | `POSTGRES_DB` | Имя базы данных | `mytech` |
 | `DATABASE_URL` | Строка подключения | `postgres://user:pass@db:5432/mytech` |
+| `ADMIN_SECRET` | Секрет для admin-режима API | `change_me` |
 
 Дефолтные значения из `.env.example` готовы для локальной разработки без изменений.
+
+### Vercel
+
+- `frontend` можно деплоить как отдельный Vercel project с Root Directory = `frontend`
+- `backend` можно деплоить как отдельный Vercel project с Root Directory = `backend`
+- Для фронтенда нужно задать `VITE_API_URL` адресом backend deployment
+- Для бэкенда нужно задать `DATABASE_URL` и `ADMIN_SECRET`
 
 ---
 
