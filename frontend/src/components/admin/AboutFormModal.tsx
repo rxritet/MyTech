@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { X, Loader2, Save, User, FileText, Share2, Target, GraduationCap } from "lucide-react";
-import { AboutData, updateAbout } from "../../api";
+import { X, Loader2, Save, User, FileText, Share2, Target, GraduationCap, Plus, Trash2 } from "lucide-react";
+import { AboutData, type AboutProject, updateAbout } from "../../api";
 
 interface AboutFormModalProps {
   isOpen: boolean;
@@ -12,7 +12,15 @@ interface AboutFormModalProps {
 
 type Tab = "general" | "bio" | "social" | "expertise" | "lists";
 
-export default function AboutFormModal({ isOpen, onClose, initialData, secret, onSuccess }: AboutFormModalProps) {
+function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size} aria-hidden="true">
+      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+    </svg>
+  );
+}
+
+export default function AboutFormModal({ isOpen, onClose, initialData, secret, onSuccess }: Readonly<AboutFormModalProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("general");
@@ -40,12 +48,53 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleProjectChange = (index: number, field: keyof AboutProject, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      projects: prev.projects.map((project, currentIndex) =>
+        currentIndex === index ? { ...project, [field]: value } : project,
+      ),
+    }));
+  };
+
+  const addProject = () => {
+    setFormData((prev) => ({
+      ...prev,
+      projects: [
+        ...prev.projects,
+        {
+          name: "",
+          desc: "",
+          stack: "",
+          github: "",
+        },
+      ],
+    }));
+  };
+
+  const removeProject = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      projects: prev.projects.filter((_, currentIndex) => currentIndex !== index),
+    }));
+  };
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const updated = await updateAbout(formData, secret);
+      const sanitizedProjects = formData.projects
+        .map((project) => ({
+          ...project,
+          github: project.github?.trim() ? project.github.trim() : undefined,
+        }))
+        .filter((project) => project.name.trim() && project.desc.trim() && project.stack.trim());
+
+      const updated = await updateAbout({
+        ...formData,
+        projects: sanitizedProjects,
+      }, secret);
       onSuccess(updated);
       onClose();
     } catch (err: unknown) {
@@ -110,32 +159,32 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               {activeTab === "general" && (
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Имя</label>
-                    <input name="name" value={formData.name} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-name" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Имя</label>
+                    <input id="about-name" name="name" value={formData.name} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Локация</label>
-                    <input name="location" value={formData.location} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-location" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Локация</label>
+                    <input id="about-location" name="location" value={formData.location} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Заголовок (Tagline)</label>
-                    <input name="tagline" value={formData.tagline} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-tagline" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Заголовок (Tagline)</label>
+                    <input id="about-tagline" name="tagline" value={formData.tagline} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Университет</label>
-                    <input name="university" value={formData.university} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-university" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Университет</label>
+                    <input id="about-university" name="university" value={formData.university} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Статус</label>
-                    <input name="status" value={formData.status} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-status" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Статус</label>
+                    <input id="about-status" name="status" value={formData.status} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">URL Фото</label>
-                    <input name="avatarUrl" value={formData.avatarUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-avatar" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">URL Фото</label>
+                    <input id="about-avatar" name="avatarUrl" value={formData.avatarUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">URL Резюме</label>
-                    <input name="resumeUrl" value={formData.resumeUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-resume" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">URL Резюме</label>
+                    <input id="about-resume" name="resumeUrl" value={formData.resumeUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                 </div>
               )}
@@ -143,16 +192,16 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               {activeTab === "bio" && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Биография 1</label>
-                    <textarea name="bio1" value={formData.bio1} onChange={handleChange} rows={4} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
+                    <label htmlFor="about-bio1" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Биография 1</label>
+                    <textarea id="about-bio1" name="bio1" value={formData.bio1} onChange={handleChange} rows={4} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Биография 2</label>
-                    <textarea name="bio2" value={formData.bio2} onChange={handleChange} rows={4} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
+                    <label htmlFor="about-bio2" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Биография 2</label>
+                    <textarea id="about-bio2" name="bio2" value={formData.bio2} onChange={handleChange} rows={4} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Цитата</label>
-                    <textarea name="quote" value={formData.quote} onChange={handleChange} rows={2} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
+                    <label htmlFor="about-quote" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Цитата</label>
+                    <textarea id="about-quote" name="quote" value={formData.quote} onChange={handleChange} rows={2} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none" />
                   </div>
                 </div>
               )}
@@ -160,20 +209,20 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               {activeTab === "social" && (
                 <div className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Email</label>
-                    <input name="email" value={formData.email} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-email" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Email</label>
+                    <input id="about-email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">GitHub URL</label>
-                    <input name="githubUrl" value={formData.githubUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-github-url" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">GitHub URL</label>
+                    <input id="about-github-url" name="githubUrl" value={formData.githubUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">LinkedIn URL</label>
-                    <input name="linkedinUrl" value={formData.linkedinUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-linkedin-url" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">LinkedIn URL</label>
+                    <input id="about-linkedin-url" name="linkedinUrl" value={formData.linkedinUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Telegram URL</label>
-                    <input name="telegramUrl" value={formData.telegramUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
+                    <label htmlFor="about-telegram-url" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Telegram URL</label>
+                    <input id="about-telegram-url" name="telegramUrl" value={formData.telegramUrl} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50" />
                   </div>
                 </div>
               )}
@@ -181,17 +230,19 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               {activeTab === "expertise" && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Компетенции (через запятую)</label>
+                    <label htmlFor="about-competencies" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Компетенции (через запятую)</label>
                     <textarea 
+                      id="about-competencies"
                        value={formData.competencies.join(", ")} 
                        onChange={(e) => setFormData(prev => ({...prev, competencies: e.target.value.split(",").map(i => i.trim()).filter(Boolean)}))}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 h-32" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Текущий фокус (JSON)</label>
+                    <label htmlFor="about-focus-areas" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Текущий фокус (JSON)</label>
                     <p className="text-[10px] text-gray-500 mb-2 italic">Массив объектов: &#123; title, desc &#125;</p>
                     <textarea 
+                      id="about-focus-areas"
                        value={JSON.stringify(formData.focusAreas, null, 2)} 
                        onChange={(e) => handleJSONChange("focusAreas", e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-64" 
@@ -203,24 +254,98 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               {activeTab === "lists" && (
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Проекты (JSON)</label>
-                    <textarea 
-                       value={JSON.stringify(formData.projects, null, 2)} 
-                       onChange={(e) => handleJSONChange("projects", e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-48" 
-                    />
+                    <div className="mb-3 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Проекты</p>
+                        <p className="text-xs text-gray-500">Для каждого проекта можно сразу указать GitHub-репозиторий.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addProject}
+                        className="inline-flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-sm font-medium text-orange-400 hover:bg-orange-500/15 transition"
+                      >
+                        <Plus size={16} />
+                        Добавить проект
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {formData.projects.map((project, index) => (
+                        <div key={`${project.name || "project"}-${index}`} className="rounded-2xl border border-white/10 bg-black/30 p-4 space-y-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-semibold text-white">Проект {index + 1}</p>
+                            <button
+                              type="button"
+                              onClick={() => removeProject(index)}
+                              className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-red-400 hover:bg-red-500/10 transition"
+                            >
+                              <Trash2 size={14} />
+                              Удалить
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label htmlFor={`about-project-name-${index}`} className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Название</label>
+                              <input
+                                id={`about-project-name-${index}`}
+                                value={project.name}
+                                onChange={(e) => handleProjectChange(index, "name", e.target.value)}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor={`about-project-stack-${index}`} className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Стек</label>
+                              <input
+                                id={`about-project-stack-${index}`}
+                                value={project.stack}
+                                onChange={(e) => handleProjectChange(index, "stack", e.target.value)}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label htmlFor={`about-project-desc-${index}`} className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Описание</label>
+                            <textarea
+                              id={`about-project-desc-${index}`}
+                              value={project.desc}
+                              onChange={(e) => handleProjectChange(index, "desc", e.target.value)}
+                              rows={3}
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 resize-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label htmlFor={`about-project-github-${index}`} className="flex items-center gap-2 text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">
+                              <GitHubIcon size={14} />
+                              GitHub URL
+                            </label>
+                            <input
+                              id={`about-project-github-${index}`}
+                              value={project.github ?? ""}
+                              onChange={(e) => handleProjectChange(index, "github", e.target.value)}
+                              placeholder="https://github.com/username/repository"
+                              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Обучение (JSON)</label>
+                    <label htmlFor="about-education-json" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Обучение (JSON)</label>
                     <textarea 
+                      id="about-education-json"
                        value={JSON.stringify(formData.education, null, 2)} 
                        onChange={(e) => handleJSONChange("education", e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-48" 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Хобби (JSON)</label>
+                    <label htmlFor="about-hobbies-json" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Хобби (JSON)</label>
                     <textarea 
+                      id="about-hobbies-json"
                        value={JSON.stringify(formData.hobbies, null, 2)} 
                        onChange={(e) => handleJSONChange("hobbies", e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-48" 

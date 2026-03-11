@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
   Download,
   MapPin,
@@ -7,7 +7,6 @@ import {
   ExternalLink,
   Send,
   Mail,
-  Linkedin,
   Server,
   Layers,
   Smartphone,
@@ -36,7 +35,7 @@ import {
 
 // ── Helpers ────────────────────────────────────────────────────
 
-function GitHubIcon({ size = 18 }: { size?: number }) {
+function GitHubIcon({ size = 18 }: Readonly<{ size?: number }>) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -46,6 +45,20 @@ function GitHubIcon({ size = 18 }: { size?: number }) {
       aria-hidden="true"
     >
       <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon({ size = 18 }: Readonly<{ size?: number }>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      aria-hidden="true"
+    >
+      <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19ZM8.34 17.34V9.97H5.9V17.34H8.34ZM7.12 8.96A1.41 1.41 0 1 0 7.12 6.14A1.41 1.41 0 0 0 7.12 8.96ZM18.1 17.34V13.3C18.1 11.13 16.94 10.12 15.39 10.12C14.14 10.12 13.58 10.81 13.27 11.3V10.29H10.83C10.86 10.96 10.83 17.34 10.83 17.34H13.27V13.22C13.27 13 13.29 12.78 13.35 12.62C13.52 12.18 13.91 11.72 14.56 11.72C15.41 11.72 15.75 12.37 15.75 13.31V17.34H18.1Z" />
     </svg>
   );
 }
@@ -70,11 +83,11 @@ function Section({
   children,
   className = "",
   delay = 0,
-}: {
-  children: React.ReactNode;
+}: Readonly<{
+  children: ReactNode;
   className?: string;
   delay?: number;
-}) {
+}>) {
   const [ref, inView] = useInView<HTMLDivElement>(0.08);
   return (
     <div
@@ -89,16 +102,43 @@ function Section({
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <p className="text-xs font-mono text-primary tracking-widest uppercase mb-2">
-      // {children}
+      {"// "}{children}
     </p>
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+function SectionHeading({ children }: Readonly<{ children: ReactNode }>) {
   return <h2 className="text-2xl sm:text-3xl font-bold text-white mb-7">{children}</h2>;
+}
+
+const TECH_GROUPS = [
+  {
+    title: "Языки",
+    description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
+    names: ["Go", "Java", "TypeScript", "JavaScript", "Python", "Dart"],
+  },
+  {
+    title: "Backend & Data",
+    description: "Серверная логика, API, базы данных и инфраструктура данных.",
+    names: ["Django", "FastAPI", "Node.js", "PostgreSQL", "SQLite", "Nginx"],
+  },
+  {
+    title: "Frontend & UI",
+    description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
+    names: ["React", "TailwindCSS", "Vite", "Flutter", "HTML5", "CSS3", "Figma"],
+  },
+  {
+    title: "Dev Workflow",
+    description: "Инструменты поставки, командной разработки и инженерного цикла.",
+    names: ["Docker", "GitHub Actions", "AWS", "Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"],
+  },
+] as const;
+
+function getTechGroupItems(names: readonly string[]) {
+  return STATIC_STACK.filter((item) => names.includes(item.name));
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -149,10 +189,10 @@ export default function About() {
   }
 
   return (
-    <article id="about" className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-20 space-y-28 relative">
+    <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-28 relative">
       {/* ── 1. PAGE HEADER ─────────────────────── */}
       <Section className="text-center space-y-4">
-        <p className="text-sm font-mono text-primary tracking-widest uppercase mb-1">// about.me</p>
+        <p className="text-sm font-mono text-primary tracking-widest uppercase mb-1">{"// about.me"}</p>
         <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold text-white tracking-tighter">
           Привет, я{" "}
           <span className="text-primary underline decoration-[4px] underline-offset-8">
@@ -206,7 +246,7 @@ export default function About() {
             <div className="flex gap-3">
               {[
                 { href: data.githubUrl,   icon: <GitHubIcon size={20} />,      label: "GitHub" },
-                { href: data.linkedinUrl, icon: <Linkedin size={20}/>, label: "LinkedIn" },
+                { href: data.linkedinUrl, icon: <LinkedInIcon size={20} />, label: "LinkedIn" },
                 { href: data.telegramUrl, icon: <Send size={20}/>,    label: "Telegram" },
                 { href: `mailto:${data.email}`, icon: <Mail size={20}/>, label: "Email" },
               ].map(({ href, icon, label }) => (
@@ -260,16 +300,37 @@ export default function About() {
       <Section>
         <SectionLabel>stack</SectionLabel>
         <SectionHeading>Технологии</SectionHeading>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {STATIC_STACK.map((t) => (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          {TECH_GROUPS.map((group) => {
+            const items = getTechGroupItems(group.names);
+
+            return (
             <div
-              key={t.name}
-              className={`group relative p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20 cursor-default flex flex-col items-center justify-center text-center gap-2 ${t.color.split(' ').slice(0, 2).join(' ')} ${t.color.split(' ')[2]}`}
+              key={group.title}
+              className="surface-panel rounded-[1.6rem] p-5 sm:p-6"
             >
-              <div className="absolute inset-x-0 bottom-0 h-0.5 bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
-              <span className="text-sm font-bold tracking-tight uppercase">{t.name}</span>
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{group.title}</h3>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{group.description}</p>
+                </div>
+                <span className="eyebrow-chip shrink-0">{items.length} items</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2.5">
+                {items.map((item) => (
+                  <div
+                    key={item.name}
+                    className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${item.color.split(" ").slice(0, 2).join(" ")} ${item.color.split(" ")[2]}`}
+                  >
+                    <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
+                    {item.name}
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
@@ -278,9 +339,9 @@ export default function About() {
         <SectionLabel>focus</SectionLabel>
         <SectionHeading>Чем занимаюсь</SectionHeading>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {data.focusAreas.map((f, i) => (
+          {data.focusAreas.map((f) => (
             <div
-              key={i}
+              key={`${f.title}-${f.desc}`}
               className="flex gap-4 p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300"
             >
               <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -314,36 +375,56 @@ export default function About() {
         <SectionLabel>projects</SectionLabel>
         <SectionHeading>Проекты</SectionHeading>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.projects.map((p) => (
-            <div
-              key={p.name}
-              className="flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300 group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-white font-semibold text-base group-hover:text-primary transition-colors">
-                  {p.name}
-                </h3>
-                {p.github && (
-                  <a
-                    href={p.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted hover:text-primary transition-colors p-1"
-                    aria-label={`GitHub — ${p.name}`}
-                  >
-                    <GitHubIcon size={16} />
-                  </a>
-                )}
+          {data.projects.map((p) => {
+            const cardContent = (
+              <>
+                <div className="flex items-start justify-between mb-3 gap-3">
+                  <h3 className="text-white font-semibold text-base group-hover:text-primary transition-colors">
+                    {p.name}
+                  </h3>
+                  {p.github && (
+                    <span className="text-muted group-hover:text-primary transition-colors p-1" aria-hidden="true">
+                      <GitHubIcon size={16} />
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
+                <div className="pt-3 border-t border-border flex items-center justify-between gap-3 mt-auto">
+                  <span className="text-[11px] font-mono text-muted/70 truncate">{p.stack}</span>
+                  {p.github ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-primary/80 group-hover:text-primary transition-colors">
+                      GitHub
+                      <ExternalLink size={12} aria-hidden="true" />
+                    </span>
+                  ) : null}
+                </div>
+              </>
+            );
+
+            if (p.github) {
+              return (
+                <a
+                  key={p.name}
+                  href={p.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300 cursor-pointer"
+                  aria-label={`Открыть репозиторий проекта ${p.name}`}
+                >
+                  {cardContent}
+                </a>
+              );
+            }
+
+            return (
+              <div
+                key={p.name}
+                className="group flex flex-col p-5 rounded-xl bg-surface border border-border transition-colors duration-300"
+              >
+                {cardContent}
               </div>
-              <p className="text-muted text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
-              <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono text-muted/70 truncate">{p.stack}</span>
-                {p.github && (
-                  <ExternalLink size={12} className="text-muted/50 group-hover:text-primary/70 transition-colors" />
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Section>
 
