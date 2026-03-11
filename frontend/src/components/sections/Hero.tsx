@@ -26,7 +26,7 @@ export default function Hero() {
       <div className="animate-float-slow absolute top-1/4 left-1/2 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
       <div className="animate-float absolute top-1/3 left-1/3 w-96 h-96 rounded-full bg-amber-600/15 blur-[100px] pointer-events-none" />
       <div className="animate-float-reverse absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] rounded-full bg-orange-500/10 blur-[110px] pointer-events-none" />
-      
+
       <div className="animate-fade-in-up flex flex-col items-center gap-5 z-10 max-w-3xl">
         <h1 className="text-5xl sm:text-7xl font-bold tracking-tighter text-white">
           Радмир <span className="text-primary underline decoration-primary decoration-[3px] underline-offset-[6px]">Абраев</span>
@@ -36,23 +36,23 @@ export default function Hero() {
         </p>
       </div>
 
-      <div className="animate-fade-in-up z-10 w-full flex justify-center px-4" style={{ animationDelay: '200ms' }}>
-         <CodeBlock title="stack.ts" lines={STACK_LINES} />
+      <div className="animate-fade-in-up z-10 w-full flex justify-center px-4" style={{ animationDelay: "200ms" }}>
+        <CodeBlock title="stack.ts" lines={STACK_LINES} />
       </div>
 
-      <div className="animate-fade-in-up flex flex-col sm:flex-row items-center gap-4 mt-2 z-10" style={{ animationDelay: '300ms' }}>
+      <div className="animate-fade-in-up flex flex-col sm:flex-row items-center gap-4 mt-2 z-10" style={{ animationDelay: "300ms" }}>
         <Link
           to="/projects"
-          className="w-full sm:w-auto px-8 py-3.5 bg-primary hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 rounded-xl font-semibold transition-all duration-300 text-bg flex items-center justify-center gap-2"
+          className="button-primary w-full sm:w-auto px-8 py-3.5"
         >
           Мои проекты
           <ArrowRight className="w-5 h-5" />
         </Link>
         <Link
-           to="/about"
-           className="w-full sm:w-auto px-8 py-3.5 border border-primary/50 hover:border-primary hover:bg-primary/10 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/15 active:translate-y-0 rounded-xl font-semibold transition-all duration-300 text-gray-300 hover:text-white flex items-center justify-center"
+          to="/about"
+          className="button-secondary w-full sm:w-auto px-8 py-3.5"
         >
-           Обо мне
+          Обо мне
         </Link>
       </div>
     </section>

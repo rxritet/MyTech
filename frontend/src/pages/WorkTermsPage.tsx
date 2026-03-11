@@ -2,36 +2,44 @@ import { Code2, MonitorPlay, Zap, ArrowRight, CheckCircle2 } from "lucide-react"
 import { Link } from "react-router-dom";
 
 export default function WorkTermsPage() {
+  const offerings = [
+    "Backend API и интеграции",
+    "Full-stack проекты на React",
+    "CI/CD и Docker-поставку",
+    "Архитектурный аудит и code review",
+    "Поддержку и развитие после релиза",
+  ];
+
+  const workflow = [
+    { title: "Бриф", desc: "Фиксируем контекст, ограничения и желаемый результат." },
+    { title: "Предложение", desc: "Собираю стек, этапы, сроки и безопасный объём первой версии." },
+    { title: "Разработка", desc: "Работаю итерациями с прозрачным прогрессом и промежуточными демо." },
+    { title: "Деплой", desc: "Готовлю финальную сборку, окружение и инструкцию по поддержке." },
+    { title: "Поддержка", desc: "После релиза помогаю с фикcами, доработками и развитием." },
+  ];
+
   return (
-    <div className="pt-24 pb-20 px-4 min-h-screen flex flex-col mt-10">
-      <div className="max-w-7xl mx-auto w-full flex-1">
+    <main className="min-h-screen px-4 pb-20 pt-28">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-16">
         
-        {/* Header */}
-        <div className="text-center mb-16 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Условия работы</h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+        <div className="section-heading animate-fade-in-up pt-4">
+          <p className="section-kicker">Collaboration</p>
+          <h1 className="section-title text-4xl md:text-5xl">Условия работы</h1>
+          <p className="section-copy text-lg">
             Прозрачный процесс, измеримые результаты и современный стек технологий для решения ваших бизнес-задач.
           </p>
         </div>
 
-        {/* 3 Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.05fr_1.1fr_0.85fr]">
           
-          {/* Column 1: Что делаю */}
-          <div className="card-glass p-8 rounded-3xl border border-white/10 hover:border-primary/50 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6">
+          <div className="surface-panel rounded-[1.8rem] p-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Code2 className="w-6 h-6" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-6">Что делаю</h2>
             <ul className="space-y-4">
-              {[
-                "Backend API (Go, Python/Django)",
-                "Full-stack проекты (React, Vite)",
-                "Настройка CI/CD (GitHub Actions, Docker)",
-                "Мобильные приложения на Flutter",
-                "Ревью кода и аудит архитектуры"
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
+              {offerings.map((item) => (
+                <li key={item} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <span className="text-gray-300">{item}</span>
                 </li>
@@ -39,23 +47,16 @@ export default function WorkTermsPage() {
             </ul>
           </div>
 
-          {/* Column 2: Как работаю */}
-          <div className="card-glass p-8 rounded-3xl border border-white/10 hover:border-primary/50 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6">
+          <div className="surface-panel rounded-[1.8rem] p-8 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <MonitorPlay className="w-6 h-6" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-6">Как работаю</h2>
-            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-white/10">
-              {[
-                { title: "Бриф", desc: "Сбор требований и обсуждение." },
-                { title: "Предложение", desc: "Оценка сроков, стека и стоимости." },
-                { title: "Разработка", desc: "Итеративный процесс с прозрачностью." },
-                { title: "Деплой", desc: "Запуск на сервере (Docker/Nginx)." },
-                { title: "Поддержка", desc: "Доработки по необходимости." }
-              ].map((step, i) => (
-                <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+            <div className="relative space-y-6 before:absolute before:inset-y-0 before:left-[11px] before:w-px before:bg-white/10 md:before:left-1/2 md:before:-translate-x-1/2">
+              {workflow.map((step) => (
+                <div key={step.title} className="group relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse">
                   <div className="flex items-center justify-center w-6 h-6 rounded-full border-4 border-surface bg-primary text-surface font-bold text-xs shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-[0_0_0_2px_rgba(0,255,136,0.2)]"></div>
-                  <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-1.5rem)] p-4 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm">
+                  <div className="w-[calc(100%-2.5rem)] rounded-xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm md:w-[calc(50%-1.5rem)]">
                     <h3 className="font-bold text-white text-sm mb-1">{step.title}</h3>
                     <p className="text-gray-400 text-xs">{step.desc}</p>
                   </div>
@@ -64,9 +65,8 @@ export default function WorkTermsPage() {
             </div>
           </div>
 
-          {/* Column 3: Стоимость */}
-          <div className="card-glass p-8 rounded-3xl border border-white/10 hover:border-primary/50 transition-all duration-300 animate-fade-in-up flex flex-col" style={{ animationDelay: '300ms' }}>
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6">
+          <div className="surface-panel flex flex-col rounded-[1.8rem] p-8 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Zap className="w-6 h-6" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-6">Стоимость</h2>
@@ -75,19 +75,18 @@ export default function WorkTermsPage() {
               <br/><br/>
               Ориентировочная ставка рассчитывается исходя из затраченного времени или фиксированной оплаты за проект (Fixed Price).
             </p>
-            <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-center">
+            <div className="rounded-2xl border border-primary/20 bg-primary/10 p-4 text-center">
               <span className="text-primary font-bold text-lg">Обсуждается индивидуально</span>
             </div>
           </div>
 
         </div>
 
-        {/* CTA */}
-        <div className="text-center animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+        <div className="surface-panel animate-fade-in-up rounded-[1.8rem] px-6 py-8 text-center md:px-10" style={{ animationDelay: '400ms' }}>
           <h2 className="text-2xl font-bold text-white mb-6">Готовы обсудить задачу?</h2>
           <Link
             to="/contact"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary hover:bg-violet-700 text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 rounded-xl font-bold transition-all duration-300"
+            className="button-primary"
           >
             Написать мне
             <ArrowRight className="w-5 h-5" />
@@ -95,6 +94,6 @@ export default function WorkTermsPage() {
         </div>
 
       </div>
-    </div>
+    </main>
   );
 }

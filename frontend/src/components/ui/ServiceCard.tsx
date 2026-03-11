@@ -4,24 +4,24 @@ export default function ServiceCard({ service }: Readonly<{ service: Service }>)
   const { icon, title, description, badge } = service;
 
   return (
-    <article className="flex flex-col gap-4 bg-gray-900 border border-gray-800 rounded-xl p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10">
+    <article className="surface-panel flex h-full flex-col gap-4 rounded-[1.35rem] p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out hover:border-primary/50">
       {/* Icon + Badge row */}
       <div className="flex items-start justify-between gap-2">
-        <span className="text-3xl leading-none" role="img" aria-hidden="true">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-2xl leading-none" role="img" aria-hidden="true">
           {icon}
         </span>
         {badge && (
-          <span className="shrink-0 px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+          <span className="shrink-0 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
             {badge}
           </span>
         )}
       </div>
 
       {/* Title */}
-      <h3 className="text-base font-semibold text-white">{title}</h3>
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-400 leading-relaxed flex-1">{description}</p>
+      <p className="flex-1 text-sm leading-7 text-gray-400">{description}</p>
     </article>
   );
 }

@@ -10,17 +10,14 @@ export default function Services() {
       id="services"
       ref={ref}
       aria-labelledby="services-heading"
-      className="max-w-6xl mx-auto px-4 py-24"
+      className="section-shell"
     >
-      {/* Heading */}
-      <div className="text-center mb-12">
-        <h2
-          id="services-heading"
-          className="text-3xl font-bold text-white mb-3"
-        >
+      <div className="section-heading">
+        <p className="section-kicker">Workflow</p>
+        <h2 id="services-heading" className="section-title">
           Условия работы
         </h2>
-        <p className="text-gray-400 max-w-xl mx-auto">
+        <p className="section-copy">
           Что я делаю, как работаю и в какие сроки. Всегда на связи через
           Telegram.
         </p>
