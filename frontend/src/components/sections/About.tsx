@@ -1,590 +1,395 @@
+import { useState, useEffect } from "react";
+import {
+  Download,
+  MapPin,
+  GraduationCap,
+  Briefcase,
+  Send,
+  Mail,
+  Linkedin,
+  Server,
+  Layers,
+  Smartphone,
+  Shield,
+  CheckCircle2,
+  BookOpen,
+  Edit,
+  Loader2,
+  Target,
+} from "lucide-react";
 import { useInView } from "../../hooks/useInView";
-import { Send, Linkedin, Mail } from "lucide-react";
+import { useAdmin } from "../../context/AdminContext";
+import { AboutData, getAbout } from "../../api";
+import AboutFormModal from "../admin/AboutFormModal";
+import {
+  PROFILE as STATIC_PROFILE,
+  HERO_BIO as STATIC_BIO,
+  TECH_STACK as STATIC_STACK,
+  FOCUS_AREAS as STATIC_FOCUS,
+  COMPETENCIES as STATIC_COMPETENCIES,
+  PROJECTS as STATIC_PROJECTS,
+  EDUCATION_REPOS as STATIC_EDU,
+  HOBBIES as STATIC_HOBBIES,
+  QUOTE as STATIC_QUOTE,
+} from "../../data/about";
 
-// ── DATA ───────────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────
 
-const TECH_STACK = [
-  { name: "Go", color: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20" },
-  {
-    name: "Java",
-    color: "text-orange-400 bg-orange-400/10 border-orange-400/20",
-  },
-  {
-    name: "TypeScript",
-    color: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-  },
-  {
-    name: "JavaScript",
-    color: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-  },
-  {
-    name: "Python",
-    color: "text-yellow-500 bg-yellow-500/10 border-yellow-500/20",
-  },
-  { name: "Dart", color: "text-sky-400 bg-sky-400/10 border-sky-400/20" },
-  {
-    name: "Django",
-    color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-  },
-  { name: "FastAPI", color: "text-teal-400 bg-teal-400/10 border-teal-400/20" },
-  {
-    name: "Node.js",
-    color: "text-green-400 bg-green-400/10 border-green-400/20",
-  },
-  {
-    name: "PostgreSQL",
-    color: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-  },
-  { name: "SQLite", color: "text-sky-300 bg-sky-300/10 border-sky-300/20" },
-  { name: "React", color: "text-sky-400 bg-sky-400/10 border-sky-400/20" },
-  {
-    name: "TailwindCSS",
-    color: "text-cyan-300 bg-cyan-300/10 border-cyan-300/20",
-  },
-  {
-    name: "Vite",
-    color: "text-purple-400 bg-purple-400/10 border-purple-400/20",
-  },
-  { name: "Flutter", color: "text-blue-300 bg-blue-300/10 border-blue-300/20" },
-  {
-    name: "HTML5",
-    color: "text-orange-500 bg-orange-500/10 border-orange-500/20",
-  },
-  { name: "CSS3", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-  { name: "Figma", color: "text-pink-400 bg-pink-400/10 border-pink-400/20" },
-  { name: "Docker", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-  {
-    name: "GitHub Actions",
-    color: "text-gray-300 bg-gray-300/10 border-gray-300/20",
-  },
-  {
-    name: "AWS",
-    color: "text-orange-400 bg-orange-400/10 border-orange-400/20",
-  },
-  {
-    name: "Nginx",
-    color: "text-green-400 bg-green-400/10 border-green-400/20",
-  },
-  {
-    name: "Linux",
-    color: "text-yellow-300 bg-yellow-300/10 border-yellow-300/20",
-  },
-  {
-    name: "Git",
-    color: "text-orange-400 bg-orange-400/10 border-orange-400/20",
-  },
-  { name: "GitHub", color: "text-gray-300 bg-gray-300/10 border-gray-300/20" },
-  { name: "VS Code", color: "text-blue-400 bg-blue-400/10 border-blue-400/20" },
-  {
-    name: "Burp Suite",
-    color: "text-orange-500 bg-orange-500/10 border-orange-500/20",
-  },
-  {
-    name: "Antigravity",
-    color: "text-indigo-400 bg-indigo-400/10 border-indigo-400/20",
-  },
-];
+function GitHubIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      width={size}
+      height={size}
+      aria-hidden="true"
+    >
+      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+    </svg>
+  );
+}
 
-const FOCUS_AREAS = [
-  {
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"
-        />
-      </svg>
-    ),
-    title: "Backend-разработка",
-    desc: "Go как основной язык, проектирование API, чистая архитектура и работа с базами данных.",
-  },
-  {
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-    title: "Full-Stack проекты",
-    desc: "Понимание всего цикла разработки — от фронтенда на React до деплоя через Docker и Nginx.",
-  },
-  {
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-        />
-      </svg>
-    ),
-    title: "Мобильная разработка",
-    desc: "Flutter/Dart для кросс-платформенных приложений с выразительным UI.",
-  },
-  {
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-        />
-      </svg>
-    ),
-    title: "Веб-безопасность",
-    desc: "Изучение основ: XSS, CSRF, SQL-инъекции, OSINT в рамках университетского курса.",
-  },
-];
+const FOCUS_ICONS: Record<string, React.ReactNode> = {
+  server:     <Server size={22} />,
+  layers:     <Layers size={22} />,
+  smartphone: <Smartphone size={22} />,
+  shield:     <Shield size={22} />,
+  "Backend-разработка": <Server size={22} />,
+  "Full-Stack проекты": <Layers size={22} />,
+  "Мобильная разработка": <Smartphone size={22} />,
+  "Веб-безопасность": <Shield size={22} />,
+};
 
-const COMPETENCIES = [
-  "RESTful API дизайн",
-  "Чистая архитектура",
-  "SQL и миграции БД",
-  "Docker & CI/CD",
-  "Адаптивная вёрстка",
-  "Git-workflow",
-  "Тестирование API",
-  "Системный подход",
-];
+function getFocusIcon(area: { title: string; iconKey?: string }) {
+  return FOCUS_ICONS[area.iconKey || area.title] || <Target size={22} />;
+}
 
-const PROJECTS = [
-  {
-    name: "SpoitHub",
-    desc: "MVP маркетплейса спортивных мероприятий и товаров с CRM-панелью организатора",
-    stack: "Django · React 19 · Vite",
-  },
-  {
-    name: "HelpDesk",
-    desc: "Система обратной связи через виджет: админ-панель, фильтрация, JWT-авторизация",
-    stack: "Django · Nuxt 4 · Vue 3",
-  },
-  {
-    name: "MyTech",
-    desc: "Личный сайт-визитка с современным дизайном",
-    stack: "React · TypeScript",
-  },
-];
+// Fade-in-up wrapper that fires useInView individually per section
+function Section({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const [ref, inView] = useInView<HTMLDivElement>(0.08);
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
-const EDUCATION = [
-  { name: "GoLang-Education", desc: "Углублённое изучение Go" },
-  { name: "Frontend-Education", desc: "React, TypeScript, Tailwind" },
-  { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript" },
-  { name: "Django-Education", desc: "Python / Django" },
-  { name: "FastAPI-Education", desc: "FastAPI" },
-  { name: "Velora", desc: "Первое знакомство с Rust" },
-];
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-mono text-primary tracking-widest uppercase mb-2">
+      // {children}
+    </p>
+  );
+}
 
-// ── Component ──────────────────────────────────────────────────────────────────
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-2xl sm:text-3xl font-bold text-white mb-7">{children}</h2>;
+}
+
+// ── Component ──────────────────────────────────────────────────
+
+const INITIAL_DATA: AboutData = {
+  id: 1,
+  ...STATIC_PROFILE,
+  tagline: "Backend Developer | Software Engineering Student",
+  githubUrl: STATIC_PROFILE.github,
+  linkedinUrl: STATIC_PROFILE.linkedin,
+  telegramUrl: STATIC_PROFILE.telegram,
+  bio1: STATIC_BIO.p1,
+  bio2: STATIC_BIO.p2,
+  quote: STATIC_QUOTE,
+  focusAreas: STATIC_FOCUS,
+  competencies: STATIC_COMPETENCIES,
+  projects: STATIC_PROJECTS,
+  education: STATIC_EDU,
+  hobbies: STATIC_HOBBIES,
+};
 
 export default function About() {
-  const [ref, inView] = useInView<HTMLElement>(0.05);
+  const { isAdmin, secret } = useAdmin();
+  const [data, setData] = useState<AboutData>(INITIAL_DATA);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const anim = (delay = 0) =>
-    `transition-all duration-700 ${delay ? `delay-[${delay}ms]` : ""} ${
-      inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-    }`;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetched = await getAbout();
+        setData(fetched);
+      } catch (err) {
+        console.error("Failed to fetch about data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="animate-spin text-primary" size={48} />
+      </div>
+    );
+  }
 
   return (
-    <section
-      id="about"
-      ref={ref}
-      aria-labelledby="about-heading"
-      className="max-w-5xl mx-auto px-4 sm:px-6 py-24 space-y-20"
-    >
-      {/* ═══════════════════════════════════════════════════════════════════════
-          1. HERO
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim()}>
-        {/* Big centered greeting */}
-        <div className="text-center mb-12">
-          <h2
-            id="about-heading"
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight"
-          >
-            Привет, я <span className="text-primary">Радмир Абраев</span>
-          </h2>
-          <p className="text-gray-400 mt-3 text-base sm:text-lg">
-            Backend Developer | Software Engineering Student
-          </p>
-        </div>
+    <article id="about" className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-20 space-y-28 relative">
+      {/* ── 1. PAGE HEADER ─────────────────────── */}
+      <Section className="text-center space-y-4">
+        <p className="text-sm font-mono text-primary tracking-widest uppercase mb-1">// about.me</p>
+        <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold text-white tracking-tighter">
+          Привет, я{" "}
+          <span className="text-primary underline decoration-[4px] underline-offset-8">
+            {data.name.split(" ")[0]}
+          </span>
+        </h1>
+        <p className="text-muted text-xl sm:text-2xl font-light">
+          {data.tagline} · {data.university} · {data.location}
+        </p>
 
-        <div className="flex flex-col lg:flex-row gap-10 items-start">
-          {/* Avatar & Resume Button */}
-          <div className="relative shrink-0 mx-auto lg:mx-0 flex flex-col gap-5 items-center">
-            <div className="relative">
-              <div className="absolute -inset-2 bg-primary/20 rounded-2xl blur-xl" />
+        {isAdmin && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 border border-orange-500/20 rounded-xl font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/5"
+            >
+              <Edit size={18} />
+              Редактировать
+            </button>
+          </div>
+        )}
+      </Section>
+
+      {/* ── 2. PROFILE CARD ────────────────────── */}
+      <Section delay={50}>
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start p-8 sm:p-12 rounded-3xl bg-surface/40 backdrop-blur-md border border-border shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] -mr-32 -mt-32 rounded-full" />
+          
+          {/* Left col — avatar + actions */}
+          <div className="shrink-0 w-full sm:w-72 flex flex-col items-center gap-6 mx-auto lg:mx-0 z-10">
+            <div className="relative group/img">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-b from-primary/30 to-transparent opacity-50 group-hover/img:opacity-100 transition duration-500" />
               <img
-                src="https://res.cloudinary.com/dm6maaylh/image/upload/v1773151857/WhatsApp_Image_2026-02-13_at_20.47.57_hcpmqg.jpg"
-                alt="Радмир Абраев"
-                className="relative w-56 h-72 sm:w-64 sm:h-80 rounded-2xl object-cover border-2 border-primary/30 shadow-2xl"
+                src={data.avatarUrl}
+                alt={data.name}
+                className="relative w-52 h-64 sm:w-64 sm:h-80 rounded-2xl object-cover border border-white/5 shadow-2xl transition duration-500 group-hover/img:scale-[1.02]"
               />
             </div>
 
+            {/* Resume btn */}
             <a
-              href="/resume.pdf"
-              download="Radmir_Abraev_Resume.pdf"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-primary hover:bg-violet-700 text-white rounded-xl font-medium transition-[background-color,transform,box-shadow] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:translate-y-0 cursor-pointer"
+              href={data.resumeUrl}
+              download={`${data.name.replace(" ", "_")}_Resume.pdf`}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-primary hover:bg-orange-600 hover:shadow-lg hover:shadow-primary/20 active:scale-95 text-white font-bold text-base transition-all duration-300"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
-              >
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
+              <Download size={20} />
               Скачать резюме
             </a>
-          </div>
-
-          {/* Bio */}
-          <div className="space-y-5 flex-1">
-            <div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">
-                О себе
-              </h3>
-            </div>
-
-            <p className="text-gray-300 text-base leading-relaxed">
-              Студент 2-го курса Software Engineering в AlmaU, Алматы. Строю
-              портфолио под первую коммерческую роль с основным фокусом на
-              бэкенде: Go как главный язык, TypeScript на фронтенде, Java как
-              третий стек в работе.
-            </p>
-
-            <p className="text-gray-300 text-base leading-relaxed">
-              За последний год прошёл путь от Django и чистого JavaScript до Go,
-              Flutter и полноценных full-stack проектов. Предпочитаю полный цикл
-              разработки: проектирование архитектуры, работу с данными и
-              создание удобных интерфейсов. Сейчас открыт к первым коммерческим
-              ролям и интересным командам.
-            </p>
-
-            {/* Meta badges */}
-            <div className="flex flex-wrap gap-x-5 gap-y-2 text-base text-gray-400">
-              <span className="flex items-center gap-1.5">
-                <svg
-                  className="w-4 h-4 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 14l9-5-9-5-9 5 9 5z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-                  />
-                </svg>
-                AlmaU
-              </span>
-              <span className="flex items-center gap-1.5">
-                <svg
-                  className="w-4 h-4 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                Алматы
-              </span>
-              <span className="flex items-center gap-1.5">
-                <svg
-                  className="w-4 h-4 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                Open to work
-              </span>
-            </div>
 
             {/* Social links */}
-            <div className="flex gap-3 pt-2">
-              <a
-                href="https://github.com/rxritet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-surface border border-white/10 text-gray-400 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
-                aria-label="GitHub"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-5 h-5"
+            <div className="flex gap-3">
+              {[
+                { href: data.githubUrl,   icon: <GitHubIcon size={20} />,      label: "GitHub" },
+                { href: data.linkedinUrl, icon: <Linkedin size={20}/>, label: "LinkedIn" },
+                { href: data.telegramUrl, icon: <Send size={20}/>,    label: "Telegram" },
+                { href: `mailto:${data.email}`, icon: <Mail size={20}/>, label: "Email" },
+              ].map(({ href, icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href?.startsWith("mailto") ? undefined : "_blank"}
+                  rel="noopener noreferrer"
+                  className="p-3.5 rounded-xl bg-gray-900/50 border border-border text-muted hover:text-white hover:border-primary/50 hover:bg-surface transition-all duration-300"
+                  aria-label={label}
                 >
-                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                </svg>
-              </a>
-              <a
-                href="https://www.linkedin.com/in/radmir-abraev-186b393b0/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-surface border border-white/10 text-gray-400 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="https://t.me/rxritet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-surface border border-white/10 text-gray-400 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
-                aria-label="Telegram"
-              >
-                <Send className="w-5 h-5" />
-              </a>
-              <a
-                href="mailto:abraevradmir2@gmail.com"
-                className="p-2 rounded-lg bg-surface border border-white/10 text-gray-400 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all duration-300"
-                aria-label="Email"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
+                  {icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Right col — bio */}
+          <div className="flex-1 space-y-8 z-10 pt-4">
+            <div className="space-y-6">
+              <p className="text-text text-xl sm:text-2xl leading-relaxed font-medium">{data.bio1}</p>
+              <p className="text-muted text-lg sm:text-xl leading-relaxed">{data.bio2}</p>
+            </div>
+
+            {/* Meta badges */}
+            <div className="flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-muted">
+                <GraduationCap size={16} className="text-primary/70" /> {data.university}
+              </span>
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-muted">
+                <MapPin size={16} className="text-primary/70" /> {data.location}
+              </span>
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 text-primary">
+                <Briefcase size={16} /> Ищу первую коммерческую роль
+              </span>
+            </div>
+
+            {/* Status indicator */}
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-green-500/20 bg-green-500/5 text-green-400 text-sm font-mono">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              {data.status}
             </div>
           </div>
         </div>
-      </div>
+      </Section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          2. TECH STACK
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(100)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Технологический стек
-        </h3>
-        <p className="text-gray-400 text-base mb-6">
-          Технологии и инструменты, с которыми я работаю
-        </p>
-
-        <div className="flex flex-wrap gap-3">
-          {TECH_STACK.map((t) => (
-            <span
-              key={t.name}
-              className={`px-4 py-2.5 rounded-full text-base font-medium border ${t.color} hover:scale-105 transition-transform duration-200 cursor-default`}
-            >
-              {t.name}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          3. CURRENT FOCUS — Cards
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(200)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Текущий фокус
-        </h3>
-        <p className="text-gray-500 text-sm mb-6">
-          Направления, в которых я развиваюсь прямо сейчас
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {FOCUS_AREAS.map((f) => (
+      {/* ── 3. TECH STACK ──────────────────────── */}
+      <Section>
+        <SectionLabel>stack</SectionLabel>
+        <SectionHeading>Технологии</SectionHeading>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {STATIC_STACK.map((t) => (
             <div
-              key={f.title}
-              className="group p-5 rounded-xl bg-surface border border-white/10 hover:border-primary/50 transition-colors duration-300"
+              key={t.name}
+              className={`group relative p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20 cursor-default flex flex-col items-center justify-center text-center gap-2 ${t.color.split(' ').slice(0, 2).join(' ')} ${t.color.split(' ')[2]}`}
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
-                {f.icon}
-              </div>
-              <h4 className="text-white font-semibold mb-1">{f.title}</h4>
-              <p className="text-gray-400 text-base leading-relaxed">
-                {f.desc}
-              </p>
+              <div className="absolute inset-x-0 bottom-0 h-0.5 bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
+              <span className="text-sm font-bold tracking-tight uppercase">{t.name}</span>
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          4. COMPETENCIES
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(300)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Компетенции
-        </h3>
-        <p className="text-gray-500 text-sm mb-6">
-          Навыки и практики, которые я активно применяю
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-6 rounded-xl bg-surface border border-white/10">
-          {COMPETENCIES.map((c) => (
+      {/* ── 4. FOCUS AREAS ─────────────────────── */}
+      <Section>
+        <SectionLabel>focus</SectionLabel>
+        <SectionHeading>Чем занимаюсь</SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {data.focusAreas.map((f, i) => (
             <div
-              key={c}
-              className="flex items-center gap-3 text-base text-gray-300"
+              key={i}
+              className="flex gap-4 p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300"
             >
-              <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+              <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                {getFocusIcon(f)}
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1 text-sm">{f.title}</h3>
+                <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── 5. COMPETENCIES ────────────────────── */}
+      <Section>
+        <SectionLabel>skills</SectionLabel>
+        <SectionHeading>Компетенции</SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-6 rounded-xl bg-surface border border-border">
+          {data.competencies.map((c) => (
+            <div key={c} className="flex items-start gap-3 text-sm text-text">
+              <CheckCircle2 size={15} className="text-primary shrink-0 mt-0.5" />
               {c}
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          5. PROJECTS
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(350)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Проекты
-        </h3>
-        <p className="text-gray-400 text-base mb-6">
-          Реальные проекты, которые я разрабатываю
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {PROJECTS.map((p) => (
+      {/* ── 6. PROJECTS ────────────────────────── */}
+      <Section>
+        <SectionLabel>projects</SectionLabel>
+        <SectionHeading>Проекты</SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data.projects.map((p) => (
             <div
               key={p.name}
-              className="group p-5 rounded-xl bg-surface border border-white/10 hover:border-primary/50 transition-colors duration-300 flex flex-col"
+              className="flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300 group"
             >
-              <h4 className="text-white font-semibold mb-2">{p.name}</h4>
-              <p className="text-gray-400 text-base leading-relaxed grow">
-                {p.desc}
-              </p>
-              <span className="text-sm font-mono text-primary/70 mt-3 pt-3 border-t border-white/5">
-                {p.stack}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          6. EDUCATION
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(400)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Обучение
-        </h3>
-        <p className="text-gray-400 text-base mb-6">
-          Учебные репозитории, охватывающие пройденный путь
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {EDUCATION.map((e) => (
-            <div
-              key={e.name}
-              className="flex items-start gap-3 p-4 rounded-xl bg-surface border border-white/10"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
-              <div>
-                <span className="text-gray-200 font-medium text-base block">
-                  {e.name}
-                </span>
-                <span className="text-gray-500 text-sm">{e.desc}</span>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-white font-semibold text-base group-hover:text-primary transition-colors">
+                  {p.name}
+                </h3>
+              </div>
+              <p className="text-muted text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
+              <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+                <span className="text-[11px] font-mono text-muted/70 truncate">{p.stack}</span>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </Section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          7. OUTSIDE CODE
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className={anim(450)}>
-        <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Вне кода
-        </h3>
-        <p className="text-gray-400 text-base mb-6">
-          Чем живу помимо разработки
-        </p>
+      {/* ── 7. EDUCATION REPOS ─────────────────── */}
+      <Section>
+        <SectionLabel>learning</SectionLabel>
+        <SectionHeading>Учебные репозитории</SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {data.education.map((e) => (
+            <div
+              key={e.name}
+              className="flex items-start gap-3 p-4 rounded-xl bg-surface border border-border hover:border-primary/40 transition-all duration-300"
+            >
+              <BookOpen
+                size={15}
+                className="text-primary shrink-0 mt-0.5"
+              />
+              <div className="min-w-0">
+                <p className="text-white text-sm font-medium leading-snug truncate">
+                  {e.name}
+                </p>
+                <p className="text-muted text-xs mt-0.5 leading-relaxed">{e.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {[
-            {
-              emoji: "⚽",
-              title: "Футбол",
-              desc: "Играть, не смотреть. Командная игра — лучшая разгрузка.",
-            },
-            {
-              emoji: "🎵",
-              title: "Музыка",
-              desc: "От lo-fi для фокуса до тяжёлых треков, зависит от задачи.",
-            },
-            {
-              emoji: "🎮",
-              title: "Игры",
-              desc: "CoD, Ghost of Tsushima, MK, FNAF — атмосфера и геймплей.",
-            },
-          ].map((h) => (
+      {/* ── 8. HOBBIES + QUOTE ─────────────────── */}
+      <Section>
+        <SectionLabel>off_duty</SectionLabel>
+        <SectionHeading>Вне кода</SectionHeading>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          {data.hobbies.map((h) => (
             <div
               key={h.title}
-              className="p-5 rounded-xl bg-surface border border-white/10 hover:border-primary/50 transition-colors duration-300"
+              className="p-6 rounded-xl bg-surface border border-border hover:border-primary/30 transition-colors duration-300"
             >
-              <span className="text-3xl mb-3 block">{h.emoji}</span>
-              <h4 className="text-white font-semibold text-base mb-1">
-                {h.title}
-              </h4>
-              <p className="text-gray-400 text-sm leading-relaxed">{h.desc}</p>
+              <span className="text-3xl block mb-4" role="img" aria-label={h.title}>
+                {h.emoji}
+              </span>
+              <h3 className="text-white font-semibold mb-1 text-sm">{h.title}</h3>
+              <p className="text-muted text-sm leading-relaxed">{h.desc}</p>
             </div>
           ))}
         </div>
 
-        <blockquote className="border-l-2 border-primary/50 pl-5 py-2 italic text-gray-400 text-base leading-relaxed">
-          «Прямой и конкретный. Не люблю воду ни в коде, ни в разговоре. Если
-          берусь за задачу — довожу до результата.»
+        <blockquote className="border-l-2 border-primary/50 pl-6 py-1">
+          <p className="italic text-muted text-base sm:text-lg leading-relaxed">{data.quote}</p>
         </blockquote>
-      </div>
-    </section>
+      </Section>
+
+      <AboutFormModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        initialData={data}
+        secret={secret ?? ""}
+        onSuccess={(updated) => setData(updated)}
+      />
+
+    </article>
   );
 }
