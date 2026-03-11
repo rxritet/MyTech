@@ -1,114 +1,152 @@
 <div align="center">
 
-# 🚀 MyTech Portfolio
+<h1>MyTech — Portfolio Website</h1>
 
-**Современный, премиальный сайт-визитка Full-Stack Разработчика**
+<p>Personal developer portfolio built as a full-stack production-ready application.<br/>
+Designed to demonstrate engineering skills, project history, and technical depth.</p>
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Bun](https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-
-[Особенности](#-особенности) • [Дизайн](#-эстетика-и-дизайн) • [Интерактивность](#-взаимодействие) • [Технологии](#-под-капотом)
-
----
+[![Live](https://img.shields.io/badge/Live-Demo-7C3AED?style=flat-square&logo=vercel&logoColor=white)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Bun](https://img.shields.io/badge/Bun-runtime-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
+[![Hono](https://img.shields.io/badge/Hono-API-E36002?style=flat-square&logo=hono&logoColor=white)](https://hono.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-compose-2CA5E0?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 
 </div>
 
-## 🌌 О Проекте
+---
 
-**MyTech** — это не просто резюме. Это полноценное, работающее доказательство инженерных навыков и чувства прекрасного. Одностраничное веб-приложение (SPA), разработанное с нуля, чтобы презентовать разработчика, его проекты, навыки и опыт в максимально интерактивной и запоминающейся форме. 
+## About
 
-Проект совмещает в себе ультрасовременный **UI/UX дизайн**, молниеносную производительность **React + Vite**, а также надежный и быстрый backend на базе **Bun, Hono REST API и PostgreSQL**. Главная задача — с первых секунд дать понять, что здесь работает профессионал.
+**MyTech** is a personal portfolio and business card site for **Radmir Abraev** — a 2nd-year Software Engineering student at AlmaU (Almaty), focused on backend development (Go), full-stack projects (TypeScript/React), and mobile development (Flutter).
+
+The project is not a static page. It is a complete full-stack application — with a REST API backend, PostgreSQL database, and Docker-based deployment — built to showcase real engineering practices.
+
+> **Status:** Open to first commercial roles and interesting teams.
 
 ---
 
-## 🎨 Эстетика и Дизайн: «Deep Ink & Violet»
+## Features
 
-Дизайн сайта построен вокруг строго выверенной **трёхцветной палитры**, подчёркивающей глубину и технологичность:
-
-- 🟣 **Primary (Violet - `#7C3AED`)**: Акцентный цвет для кнопок, интерактивных элементов, ссылок и свечений. Достаточно яркий, чтобы привлекать внимание, но не режущий глаз.
-- 🌌 **Background (Deep Ink - `#0F0A1A`)**: Основной фон всего сайта. Глубокий чёрный цвет с едва уловимым фиолетовым подтоном, создающий ощущение премиальности.
-- 🌑 **Surface (Dim Slate - `#1A1127`)**: Цвет интерфейсных карточек, навигационной панели и тегов. Слегка светлее фона для идеальной иерархии (Bento-style).
-
-*Светлая тема намеренно отключена, чтобы ничто не нарушало задуманную космически-неоновую эстетику.*
-
----
-
-## ✨ Ключевые Фичи и Разделы
-
-### 🏠 Hero Section (Главный экран)
-- Плавные анимации появления (Fade-in).
-- Интерактивный терминал/код-блок, демонстрирующий актуальный технологический стек прямо в синтаксисе TypeScript.
-- Кнопки с микро-взаимодействиями (привязка к курсору, плавный scale-эффект, тени-свечения).
-- Ссылки на ключевые социальные сети (GitHub, LinkedIn, Telegram) через аккуратные иконки.
-
-### 💼 Мои Проекты
-- Реализованы в виде сетки карточек с элегантным Hover-эффектом (рамки подсвечиваются цветом Violent).
-- Каждая карточка содержит стек технологий и прямые ссылки на исходный код или демо-версию проекта.
-
-### 👤 Обо Мне & Навыки
-- Подробная информация, стилизованная под карточки.
-- Загрузка PDF-резюме в 1 клик прямо под фотографией.
-- Удобное облако тегов с ключевыми технологиями.
-- Свернутый блок с подробной информацией об образовании, локации и увлечениях "Вне кода".
-
-### ✉️ Связь со Мной
-- Полноценная рабочая контактная форма (Имя, Email, Сообщение).
-- Интеграция с backend (Hono + PostgreSQL) для сохранения и обработки всех входящих заявок.
-- Обратная связь при успешной (или неудачной) отправке сообщения без перезагрузки страницы.
+| Section | Description |
+|---|---|
+| **Hero** | Animated landing with terminal-style tech stack display and social links |
+| **About** | Bio, photo, resume download (PDF), tech stack cloud, competency list |
+| **Projects** | Cards with stack tags and links to source code / demo |
+| **Contact** | Fully functional form — saves messages to PostgreSQL via REST API |
 
 ---
 
-## ⚙️ Под Капотом (Архитектура)
+## Architecture
 
-Проект спроектирован так, чтобы его было не только легко использовать потенциальному клиенту, но и удобно поддерживать разработчику. Полный цикл (Front + Back + DB) упакован в контейнеры.
-
-**Frontend Layer:**
-- **React 18 + TypeScript:** Строгая типизация и компонентный подход.
-- **Tailwind CSS v4:** Утилитарные классы для стилей, полностью кастомная конфигурация цветов и анимаций.
-- **Vite:** Сборщик нового поколения для мгновенного горячего обновления (HMR) в разработке и оптимизированного бандла в продакшене.
-
-**Backend Layer (API):**
-- **Bun:** Сверхбыстрый JS-рантайм, заменяющий Node.js.
-- **Hono:** Минималистичный и быстрый веб-фреймворк для обработки REST API запросов (`/api/contacts`).
-- **PostgreSQL 16 & Drizzle ORM:** Полностью типобезопасная работа с данными.
-
-**DevOps & Инфраструктура:**
-- **Docker & Docker Compose:** Простая локальная оркестрация. Сборка frontend с помощью многоступенчатого билда в `nginx:alpine`. Сборка backend в `oven/bun:alpine`.
+```
+MyTech/
+├── frontend/               # React + TypeScript SPA
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── sections/   # About, Hero, Contact, Projects, Services
+│   │   ├── pages/          # Route-level page components
+│   │   ├── hooks/          # Custom hooks (useInView, etc.)
+│   │   ├── data/           # Static data (projects, stack, etc.)
+│   │   └── api.ts          # API client (fetch wrapper)
+│   ├── Dockerfile          # Multi-stage build → nginx:alpine
+│   └── nginx.conf
+│
+├── backend/                # Bun + Hono REST API
+│   ├── src/                # Route handlers, DB schema, middleware
+│   ├── drizzle/            # SQL migrations
+│   ├── drizzle.config.ts
+│   └── Dockerfile          # oven/bun:alpine
+│
+└── compose.yml             # Orchestration: frontend + backend + postgres
+```
 
 ---
 
-<details>
-<summary><b>🛠 Как запустить проект локально?</b></summary>
-<br>
+## Tech Stack
 
-Всё уже настроено для запуска через Docker. Дополнительных установок, кроме самого **Docker Compose**, не требуется.
+### Frontend
+- **React 18** + **TypeScript** (strict mode) — component-driven UI with full type safety
+- **Tailwind CSS v4** — utility-first styling, custom design tokens (`#7C3AED` / `#0F0A1A` / `#1A1127`)
+- **Vite** — fast HMR in development, optimized bundle for production
+- **pnpm** — efficient dependency management
 
-1. **Клонируйте репозиторий:**
-   ```bash
-   git clone https://github.com/rxritet/MyTech.git
-   cd MyTech
-   ```
+### Backend
+- **Bun** — high-performance JS runtime
+- **Hono** — lightweight, type-safe REST framework
+- **Drizzle ORM** + **PostgreSQL 16** — type-safe migrations and queries
 
-2. **Настройте переменные окружения:**
-   ```bash
-   cp .env.example .env
-   ```
-   *(Файл содержит базовые креды для базы данных, которые сразу готовы для разработки).*
+### Infrastructure
+- **Docker** + **Docker Compose** — containerized full-stack environment
+- **Nginx** — static file serving with SPA routing support
 
-3. **Запустите Docker Compose:**
-   ```bash
-   docker compose up -d --build
-   ```
+---
 
-4. Откройте **`http://localhost:5173`** в браузере. Вы великолепны! 🚀
+## Design System
 
-</details>
+The site uses a strictly defined **"Deep Ink & Violet"** palette — no light theme.
+
+| Token | Hex | Usage |
+|---|---|---|
+| `primary` | `#7C3AED` | Buttons, accents, glow effects, borders |
+| `background` | `#0F0A1A` | Main page background |
+| `surface` | `#1A1127` | Cards, nav, tags (Bento-style hierarchy) |
+
+---
+
+## Getting Started
+
+> Prerequisites: **Docker** and **Docker Compose** installed.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/rxritet/MyTech.git
+cd MyTech
+
+# 2. Configure environment variables
+cp .env.example .env
+
+# 3. Build and start all services
+docker compose up -d --build
+```
+
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+
+### Environment Variables
+
+| Variable | Description | Example |
+|---|---|---|
+| `POSTGRES_USER` | DB username | `postgres` |
+| `POSTGRES_PASSWORD` | DB password | `secret` |
+| `POSTGRES_DB` | Database name | `mytech` |
+| `DATABASE_URL` | Full connection string | `postgres://...` |
+
+See `.env.example` for defaults ready for local development.
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/contacts` | Submit a contact form message |
+| `GET` | `/api/contacts` | List all contact submissions (admin) |
+
+---
+
+## Author
+
+**Radmir Abraev** — Backend Developer · Software Engineering Student
+
+[![GitHub](https://img.shields.io/badge/GitHub-rxritet-181717?style=flat-square&logo=github)](https://github.com/rxritet)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Radmir_Abraev-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/radmir-abraev-186b393b0/)
+[![Telegram](https://img.shields.io/badge/Telegram-rxritet-26A5E4?style=flat-square&logo=telegram)](https://t.me/rxritet)
+[![Email](https://img.shields.io/badge/Email-abraevradmir2@gmail.com-EA4335?style=flat-square&logo=gmail)](mailto:abraevradmir2@gmail.com)
+
+---
 
 <div align="center">
-<br/>
-<p>Создано с фокусом на <b>детали</b>, <b>скорость</b> и <b>стиль</b>.</p>
+<sub>Built with focus on detail, performance, and clean code.</sub>
 </div>
