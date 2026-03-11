@@ -1,123 +1,136 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { useScrollDirection } from "../../hooks/useScrollDirection";
-import ScrollProgressBar from "../ui/ScrollProgressBar";
 
 const NAV_LINKS = [
+  { label: "Главная", to: "/" },
   { label: "Проекты", to: "/projects" },
   { label: "Обо мне", to: "/about" },
-  { label: "Контакт", to: "/contact" },
+  { label: "Работа", to: "/terms" },
+  { label: "Контакты", to: "/contact" },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { direction, scrolled } = useScrollDirection(10);
-
-  const hidden = direction === "down" && scrolled && !menuOpen;
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onResize = () => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+
+    const handleResize = () => {
       if (window.innerWidth >= 768) setMenuOpen(false);
     };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative text-sm font-medium inline-block transition-all duration-200 cursor-pointer bg-transparent border-0 p-0 pb-0.5 hover:-translate-y-0.5 active:scale-95 active:translate-y-0
-     after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full
-     after:transition-transform after:duration-200
-     ${isActive
-      ? "text-primary dark:text-primary after:bg-primary dark:after:bg-primary after:scale-x-100"
-      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white after:bg-primary after:scale-x-0 hover:after:scale-x-100"
-    }`;
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [menuOpen]);
+
+  const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `font-medium transition-colors hover:text-white px-1 py-4 border-b-2
+     ${
+       isActive
+         ? "text-primary border-primary"
+         : "text-gray-400 border-transparent hover:border-primary/50"
+     }`;
 
   const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer block ${
-      isActive
-        ? "text-primary dark:text-primary bg-primary/10 dark:bg-primary/10"
-        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface"
-    }`;
+    `block text-3xl sm:text-4xl font-bold transition-colors py-4 px-2 border-l-4
+     ${
+       isActive
+         ? "text-primary border-primary"
+         : "text-gray-400 border-transparent hover:text-white hover:border-primary/50"
+     }`;
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50
-        backdrop-blur-lg
-        bg-white/80 dark:bg-bg/80
-        border-b border-gray-200 dark:border-gray-800
-        transition-transform duration-300 ease-in-out
-        ${hidden ? "-translate-y-full" : "translate-y-0"}
-      `}
-      aria-label="Основная навигация"
-    >
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-xl font-bold tracking-tight text-white inline-block transition-all duration-200 hover:-translate-y-0.5 active:scale-95 active:translate-y-0"
-          aria-label="На главную"
-        >
-          {"My"}<span className="bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">Tech</span>
-        </Link>
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
+          ${
+            isScrolled
+              ? "backdrop-blur-[16px] bg-bg/80 border-b border-[rgba(249,115,22,0.1)] py-0"
+              : "bg-transparent border-transparent py-1"
+          }
+        `}
+      >
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+          {/* Logo */}
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 group py-3"
+          >
+            <span className="font-mono text-xl font-bold text-white group-hover:text-primary transition-colors">
+              rxritet
+            </span>
+          </Link>
 
-        {/* Right side nav & mobile menu */}
-        <div className="flex items-center gap-8">
-          {/* Desktop nav */}
-          <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(({ label, to }) => (
-              <li key={to}>
-                <NavLink to={to} className={linkClass}>
-                  {label}
-                </NavLink>
-              </li>
+              <NavLink key={to} to={to} className={desktopLinkClass}>
+                {label}
+              </NavLink>
             ))}
-          </ul>
+          </div>
 
+          {/* Mobile Burger */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            className="md:hidden p-2 -mr-2 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors z-[60] relative"
             aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
           >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div
-          id="mobile-menu"
-          className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-surface backdrop-blur-lg"
-        >
-          <ul className="flex flex-col px-4 py-3 gap-1 list-none m-0">
-            {NAV_LINKS.map(({ label, to }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  className={mobileLinkClass}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {label}
-                </NavLink>
-              </li>
-            ))}
-            <li className="mt-2">
-              <Link
-                to="/contact"
-                onClick={() => setMenuOpen(false)}
-                className="w-full block text-center px-4 py-2 bg-primary hover:bg-violet-700 rounded-lg text-sm font-semibold text-white transition-colors"
-              >
-                Написать мне
-              </Link>
-            </li>
-          </ul>
+      {/* Full-screen Mobile Menu */}
+      <div
+        className={`fixed inset-0 z-[55] bg-bg/95 backdrop-blur-xl md:hidden flex flex-col items-center justify-center transition-all duration-300 ease-in-out ${
+          menuOpen ? "opacity-100 visible pointer-events-auto" : "opacity-0 invisible pointer-events-none"
+        }`}
+      >
+        <div className="flex flex-col items-start gap-2 w-full max-w-sm px-6">
+          {NAV_LINKS.map(({ label, to }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setMenuOpen(false)}
+              className={mobileLinkClass}
+            >
+              {label}
+            </NavLink>
+          ))}
+          <div className="mt-8 w-full">
+            <Link
+              to="/contact"
+              onClick={() => setMenuOpen(false)}
+              className="w-full flex items-center justify-center py-4 bg-primary hover:bg-orange-600 rounded-xl text-lg font-bold text-bg transition-colors"
+            >
+              Связаться со мной
+            </Link>
+          </div>
         </div>
-      )}
-
-      <ScrollProgressBar />
-    </nav>
+      </div>
+    </>
   );
 }
