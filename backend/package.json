@@ -1,15 +1,17 @@
 {
   "name": "mytech-backend",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
     "generate": "drizzle-kit generate",
-    "migrate": "bun src/db/migrate.ts",
+    "migrate": "tsx src/db/migrate.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hono/node-server": "^1.14.0",
     "@hono/zod-validator": "^0.7.6",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
@@ -18,7 +20,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.0",
+    "@types/node": "^24.5.2",
     "drizzle-kit": "^0.30.0",
     "tsx": "^4.21.0",
     "typescript": "^5.8.0"

@@ -1,23 +1,11 @@
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { config } from "dotenv";
-import contactRouter from "./routes/contact";
-import projectsRouter from "./routes/projects";
-import aboutRouter from "./routes/about";
+import { serve } from "@hono/node-server";
+import app from "./app";
 
-config();
+const port = Number(process.env.PORT ?? 3000);
 
-const app = new Hono();
-
-app.use("*", cors());
-
-app.get("/health", (c) => c.json({ status: "ok" }));
-
-app.route("/api/contacts", contactRouter);
-app.route("/api/projects", projectsRouter);
-app.route("/api/about", aboutRouter);
-
-export default {
-  port: 3000,
+serve({
   fetch: app.fetch,
-};
+  port,
+});
+
+console.log(`API server listening on port ${port}`);
