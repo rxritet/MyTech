@@ -8,10 +8,12 @@ export interface AboutProject {
   name: string;
   desc: string;
   stack: string;
+  github?: string;
 }
 export interface AboutEducation {
   name: string;
   desc: string;
+  href: string;
 }
 export interface AboutHobby {
   emoji: string;

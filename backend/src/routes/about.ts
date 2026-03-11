@@ -34,8 +34,17 @@ const aboutSchema = z.object({
   email: z.string().optional(),
   focusAreas: z.array(z.object({ title: z.string(), desc: z.string() })).optional(),
   competencies: z.array(z.string()).optional(),
-  projects: z.array(z.object({ name: z.string(), desc: z.string(), stack: z.string() })).optional(),
-  education: z.array(z.object({ name: z.string(), desc: z.string() })).optional(),
+  projects: z.array(z.object({ 
+    name: z.string(), 
+    desc: z.string(), 
+    stack: z.string(),
+    github: z.string().optional()
+  })).optional(),
+  education: z.array(z.object({ 
+    name: z.string(), 
+    desc: z.string(),
+    href: z.string()
+  })).optional(),
   hobbies: z.array(z.object({ emoji: z.string(), title: z.string(), desc: z.string() })).optional(),
 });
 
@@ -70,15 +79,15 @@ aboutRouter.get("/", async (c) => {
         projects: [
           { name: "SpoitHub", desc: "MVP маркетплейса спортивных мероприятий и товаров с CRM-панелью организатора", stack: "Django · React 19 · Vite" },
           { name: "HelpDesk", desc: "Система обратной связи через виджет: админ-панель, фильтрация, JWT-авторизация", stack: "Django · Nuxt 4 · Vue 3" },
-          { name: "MyTech", desc: "Личный сайт-визитка с современным дизайном", stack: "React · TypeScript" },
+          { name: "MyTech", desc: "Личный сайт-визитка с современным дизайном", stack: "React · TypeScript", github: "https://github.com/rxritet/mytech" },
         ],
         education: [
-          { name: "GoLang-Education", desc: "Углублённое изучение Go" },
-          { name: "Frontend-Education", desc: "React, TypeScript, Tailwind" },
-          { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript" },
-          { name: "Django-Education", desc: "Python / Django" },
-          { name: "FastAPI-Education", desc: "FastAPI" },
-          { name: "Velora", desc: "Первое знакомство с Rust" },
+          { name: "GoLang-Education", desc: "Углублённое изучение Go", href: "https://github.com/rxritet/GoLang-Education" },
+          { name: "Frontend-Education", desc: "React, TypeScript, Tailwind", href: "https://github.com/rxritet/Frontend-Education" },
+          { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript", href: "https://github.com/rxritet/Advanced-JS-Education" },
+          { name: "Django-Education", desc: "Python / Django", href: "https://github.com/rxritet/Django-Education" },
+          { name: "FastAPI-Education", desc: "FastAPI", href: "https://github.com/rxritet/FastAPI-Education" },
+          { name: "Velora", desc: "Первое знакомство с Rust", href: "https://github.com/rxritet/Velora" },
         ],
         hobbies: [
           { emoji: "⚽", title: "Футбол", desc: "Играть и смотреть. Командная игра — лучшая разгрузка" },

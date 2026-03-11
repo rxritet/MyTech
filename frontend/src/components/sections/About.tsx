@@ -4,6 +4,7 @@ import {
   MapPin,
   GraduationCap,
   Briefcase,
+  ExternalLink,
   Send,
   Mail,
   Linkedin,
@@ -322,10 +323,24 @@ export default function About() {
                 <h3 className="text-white font-semibold text-base group-hover:text-primary transition-colors">
                   {p.name}
                 </h3>
+                {p.github && (
+                  <a
+                    href={p.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted hover:text-primary transition-colors p-1"
+                    aria-label={`GitHub — ${p.name}`}
+                  >
+                    <GitHubIcon size={16} />
+                  </a>
+                )}
               </div>
               <p className="text-muted text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
               <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
                 <span className="text-[11px] font-mono text-muted/70 truncate">{p.stack}</span>
+                {p.github && (
+                  <ExternalLink size={12} className="text-muted/50 group-hover:text-primary/70 transition-colors" />
+                )}
               </div>
             </div>
           ))}
@@ -338,21 +353,25 @@ export default function About() {
         <SectionHeading>Учебные репозитории</SectionHeading>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {data.education.map((e) => (
-            <div
+            <a
               key={e.name}
-              className="flex items-start gap-3 p-4 rounded-xl bg-surface border border-border hover:border-primary/40 transition-all duration-300"
+              href={e.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 p-4 rounded-xl bg-surface border border-border hover:border-primary/40 transition-all duration-300 group"
             >
               <BookOpen
                 size={15}
-                className="text-primary shrink-0 mt-0.5"
+                className="text-primary shrink-0 mt-0.5 group-hover:scale-110 transition-transform"
               />
               <div className="min-w-0">
-                <p className="text-white text-sm font-medium leading-snug truncate">
+                <p className="text-white text-sm font-medium leading-snug truncate group-hover:text-primary transition-colors">
                   {e.name}
                 </p>
                 <p className="text-muted text-xs mt-0.5 leading-relaxed">{e.desc}</p>
               </div>
-            </div>
+              <ExternalLink size={10} className="ml-auto text-muted/30 group-hover:text-primary/50 transition-colors" />
+            </a>
           ))}
         </div>
       </Section>
