@@ -54,14 +54,11 @@ export default function ProjectDetailPage() {
       <div className="relative overflow-hidden border-b border-gray-800">
         {/* Gradient blobs */}
         <div aria-hidden="true" className="pointer-events-none select-none">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-orange-600/20 blur-[120px]" />
-          <div className="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-amber-600/20 blur-[100px]" />
+          <div className="absolute left-[18%] top-[-12rem] h-[22rem] w-[22rem] rounded-full bg-orange-600/10 blur-[150px]" />
+          <div className="absolute -bottom-28 right-[2%] h-[18rem] w-[18rem] rounded-full bg-amber-600/14 blur-[120px]" />
         </div>
 
-        {/* Accent top line */}
-        <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accentColor}`} aria-hidden="true" />
-
-        <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
+        <div className="relative max-w-[86rem] mx-auto px-3 py-16 md:px-5 md:py-24">
           {/* Back link */}
           <Link
             to="/projects"
@@ -150,12 +147,13 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Content section */}
-      <div className="max-w-6xl mx-auto px-4 py-16">
+      <div className="max-w-[86rem] mx-auto px-3 py-16 md:px-5">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Features — 2 columns */}
           <div className="lg:col-span-2">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span className={`w-1 h-5 rounded-full bg-gradient-to-b ${accentColor}`} aria-hidden="true" />
+              {" "}
               Ключевые возможности
             </h2>
             <ul className="flex flex-col gap-3 list-none p-0 m-0">
@@ -176,6 +174,7 @@ export default function ProjectDetailPage() {
           <div>
             <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span className={`w-1 h-5 rounded-full bg-gradient-to-b ${accentColor}`} aria-hidden="true" />
+              {" "}
               Технологии
             </h2>
             <ul className="flex flex-wrap gap-2 list-none p-0 m-0">
