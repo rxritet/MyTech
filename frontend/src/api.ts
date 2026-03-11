@@ -1,5 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
+function buildApiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(buildApiUrl(path), init);
+
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
+
 export interface AboutFocusArea {
   title: string;
   desc: string;
@@ -56,33 +70,23 @@ export interface Contact extends ContactPayload {
 }
 
 export async function submitContact(payload: ContactPayload): Promise<Contact> {
-  const res = await fetch(`${API_BASE}/api/contacts`, {
+  return apiRequest<Contact>("/api/contacts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  if (!res.ok) {
-    throw new Error(`Ошибка отправки: ${res.status}`);
-  }
-
-  return res.json() as Promise<Contact>;
 }
 
 export async function getContacts(): Promise<Contact[]> {
-  const res = await fetch(`${API_BASE}/api/contacts`);
-  if (!res.ok) throw new Error(`Ошибка загрузки: ${res.status}`);
-  return res.json() as Promise<Contact[]>;
+  return apiRequest<Contact[]>("/api/contacts");
 }
 
 export async function getAbout(): Promise<AboutData> {
-  const res = await fetch(`${API_BASE}/api/about`);
-  if (!res.ok) throw new Error(`Ошибка загрузки: ${res.status}`);
-  return res.json() as Promise<AboutData>;
+  return apiRequest<AboutData>("/api/about");
 }
 
 export async function updateAbout(payload: Partial<AboutData>, secret: string): Promise<AboutData> {
-  const res = await fetch(`${API_BASE}/api/about`, {
+  return apiRequest<AboutData>("/api/about", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -90,6 +94,60 @@ export async function updateAbout(payload: Partial<AboutData>, secret: string): 
     },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error(`Ошибка обновления: ${res.status}`);
-  return res.json() as Promise<AboutData>;
+}
+
+export interface Project {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  longDescription: string;
+  stack: string[];
+  features: string[];
+  github?: string;
+  demo?: string;
+  accentColor: string;
+  image?: string;
+  devTime: string;
+  language: string;
+  createdAt: string;
+}
+
+export async function getProjects(): Promise<Project[]> {
+  return apiRequest<Project[]>("/api/projects");
+}
+
+export async function getProject(slug: string): Promise<Project> {
+  return apiRequest<Project>(`/api/projects/${slug}`);
+}
+
+export async function createProject(payload: Partial<Project>, secret: string): Promise<Project> {
+  return apiRequest<Project>("/api/projects", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateProject(id: number, payload: Partial<Project>, secret: string): Promise<Project> {
+  return apiRequest<Project>(`/api/projects/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteProject(id: number, secret: string): Promise<{ success: boolean; project: Project }> {
+  return apiRequest<{ success: boolean; project: Project }>(`/api/projects/${id}`, {
+    method: "DELETE",
+    headers: {
+      "x-admin-secret": secret,
+    },
+  });
 }

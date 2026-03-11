@@ -1,5 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import type { Project } from "../../data/projects";
+import type { Project } from "../../api";
 import SkillBadge from "./SkillBadge";
 
 // ── Inline GitHub SVG (lucide brand icons are deprecated) ────────────────────
@@ -37,12 +37,6 @@ export default function ProjectCard({
     <article className="group flex flex-col card-glass rounded-xl overflow-hidden">
       {/* ── Preview image (16:9) ────────────────────────────────── */}
       <div className="relative aspect-video w-full overflow-hidden bg-bg">
-        {/* Gradient accent line at top */}
-        <div
-          className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accentColor} z-10`}
-          aria-hidden="true"
-        />
-
         {image ? (
           <img
             src={image}

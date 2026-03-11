@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Project } from "../data/projects";
+import type { Project } from "../api";
 import { useProjects, deleteProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
 import { useInView } from "../hooks/useInView";
@@ -33,7 +33,6 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
       >
         {/* Preview */}
         <div className="relative aspect-video w-full overflow-hidden bg-gray-950">
-          <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accentColor} z-10`} aria-hidden="true" />
           {image && (
             <img
               src={image}
@@ -139,7 +138,7 @@ export default function ProjectsPage() {
 
   return (
     <main className="min-h-screen pt-16">
-      <section className="max-w-6xl mx-auto px-4 py-24" aria-labelledby="projects-page-heading">
+      <section className="max-w-[86rem] mx-auto px-3 py-24 md:px-5" aria-labelledby="projects-page-heading">
         {/* Heading */}
         <div className="text-center mb-16">
           <p className="text-orange-400 text-sm font-mono mb-3 tracking-widest uppercase">Портфолио</p>
@@ -162,13 +161,13 @@ export default function ProjectsPage() {
 
         {/* Grid */}
         <ul
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 list-none p-0 m-0"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0"
           aria-label="Список проектов"
         >
-          {loading && <li className="text-center text-gray-500 w-full col-span-2">Загрузка проектов...</li>}
-          {error && <li className="text-center text-red-500 w-full col-span-2">{error}</li>}
+          {loading && <li className="text-center text-gray-500 w-full md:col-span-2 lg:col-span-3">Загрузка проектов...</li>}
+          {error && <li className="text-center text-red-500 w-full md:col-span-2 lg:col-span-3">{error}</li>}
           {!loading && projects.length === 0 && (
-            <li className="text-center text-gray-500 w-full col-span-2">Проекты не найдены</li>
+            <li className="text-center text-gray-500 w-full md:col-span-2 lg:col-span-3">Проекты не найдены</li>
           )}
           {projects.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} onEdit={handleEdit} onDelete={handleDelete} isAdmin={isAdmin} />

@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { Project } from "../data/projects";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { getProject, getProjects, type Project } from "../api";
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -11,10 +9,9 @@ export function useProjects() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/projects`);
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
+      const data = await getProjects();
       setProjects(data);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -41,10 +38,9 @@ export function useProject(slug: string) {
   const fetchProject = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/projects/${slug}`);
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
+      const data = await getProject(slug);
       setProject(data);
+      setError(null);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -63,39 +59,4 @@ export function useProject(slug: string) {
   return { project, loading, error, refetch: fetchProject };
 }
 
-export async function createProject(data: Partial<Project>, secret: string) {
-  const res = await fetch(`${API_BASE}/api/projects`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-secret": secret,
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to create project");
-  return res.json();
-}
-
-export async function updateProject(id: number, data: Partial<Project>, secret: string) {
-  const res = await fetch(`${API_BASE}/api/projects/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-secret": secret,
-    },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error("Failed to update project");
-  return res.json();
-}
-
-export async function deleteProject(id: number, secret: string) {
-  const res = await fetch(`${API_BASE}/api/projects/${id}`, {
-    method: "DELETE",
-    headers: {
-      "x-admin-secret": secret,
-    },
-  });
-  if (!res.ok) throw new Error("Failed to delete project");
-  return res.json();
-}
+export { createProject, updateProject, deleteProject } from "../api";
