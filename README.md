@@ -169,14 +169,6 @@ Base URL: `http://localhost:3000`
 
 **Радмир Абраев** — Backend Developer · Студент Software Engineering (AlmaU, Алматы)
 
-Основной стек: **Go** (backend), **TypeScript / React** (frontend), **Java** (учебный).
-Открыт к первым коммерческим ролям и интересным командам.
-
-[![GitHub](https://img.shields.io/badge/GitHub-rxritet-181717?style=flat-square&logo=github)](https://github.com/rxritet)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Radmir_Abraev-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/radmir-abraev-186b393b0/)
-[![Telegram](https://img.shields.io/badge/Telegram-@rxritet-26A5E4?style=flat-square&logo=telegram)](https://t.me/rxritet)
-[![Email](https://img.shields.io/badge/Email-abraevradmir2@gmail.com-EA4335?style=flat-square&logo=gmail)](mailto:abraevradmir2@gmail.com)
-
 ---
 
 <div align="center">
