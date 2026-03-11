@@ -4,18 +4,86 @@ import { about } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import adminAuth from "../middleware/adminAuth";
 
 const aboutRouter = new Hono();
 
-// Auth Middleware
-const adminAuth = async (c: any, next: any) => {
-  const secret = c.req.header("x-admin-secret");
-  const adminSecret = process.env.VITE_ADMIN_SECRET || process.env.ADMIN_SECRET;
-  if (!adminSecret || secret !== adminSecret) {
-    return c.json({ error: "Unauthorized" }, 401);
+const defaultEducationHref = (name: string) => `https://github.com/rxritet/${encodeURIComponent(name)}`;
+
+function looksLikeMojibake(value: string) {
+  return /[ÃÂÐÑâ]/u.test(value);
+}
+
+function countMatches(value: string, pattern: RegExp) {
+  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+  const matcher = new RegExp(pattern.source, flags);
+  let count = 0;
+
+  while (matcher.exec(value)) {
+    count += 1;
   }
-  await next();
-};
+
+  return count;
+}
+
+function repairMojibake(value: string) {
+  if (!looksLikeMojibake(value)) {
+    return value;
+  }
+
+  const repaired = Buffer.from(value, "latin1").toString("utf8");
+  const originalMarkers = countMatches(value, /[ÃÂÐÑâ]/gu);
+  const repairedMarkers = countMatches(repaired, /[ÃÂÐÑâ]/gu);
+  const originalCyrillic = countMatches(value, /[\u0400-\u04FF]/gu);
+  const repairedCyrillic = countMatches(repaired, /[\u0400-\u04FF]/gu);
+
+  if (repairedMarkers < originalMarkers || repairedCyrillic > originalCyrillic) {
+    return repaired;
+  }
+
+  return value;
+}
+
+function repairValue<T>(value: T): T {
+  if (typeof value === "string") {
+    return repairMojibake(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => repairValue(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entryValue]) => [key, repairValue(entryValue)]),
+    ) as T;
+  }
+
+  return value;
+}
+
+function normalizeAboutRecord<T extends Record<string, any>>(record: T): T {
+  const repairedRecord = repairValue(record);
+  const education = Array.isArray(record.education)
+    ? repairedRecord.education.map((item: Record<string, any>) => ({
+        ...item,
+        href: typeof item.href === "string" && item.href.trim() ? item.href : defaultEducationHref(String(item.name ?? "education")),
+      }))
+    : [];
+
+  const projects = Array.isArray(repairedRecord.projects)
+    ? repairedRecord.projects.map((item: Record<string, any>) => ({
+        ...item,
+        github: typeof item.github === "string" && item.github.trim() ? item.github.trim() : undefined,
+      }))
+    : [];
+
+  return {
+    ...repairedRecord,
+    education,
+    projects,
+  };
+}
 
 const aboutSchema = z.object({
   name: z.string().optional(),
@@ -43,7 +111,7 @@ const aboutSchema = z.object({
   education: z.array(z.object({ 
     name: z.string(), 
     desc: z.string(),
-    href: z.string()
+    href: z.string().optional()
   })).optional(),
   hobbies: z.array(z.object({ emoji: z.string(), title: z.string(), desc: z.string() })).optional(),
 });
@@ -95,9 +163,9 @@ aboutRouter.get("/", async (c) => {
           { emoji: "🎮", title: "Игры", desc: "CS2, Ghost of Tsushima, MK, Dota — атмосфера и геймплей" },
         ],
       } as any).returning();
-      return c.json(inserted[0]);
+      return c.json(normalizeAboutRecord(inserted[0]));
     }
-    return c.json(rows[0]);
+    return c.json(normalizeAboutRecord(rows[0]));
   } catch (err: any) {
     return c.json({ error: err.message }, 500);
   }
@@ -106,7 +174,7 @@ aboutRouter.get("/", async (c) => {
 // PATCH /api/about - Partially update about record
 aboutRouter.patch("/", adminAuth, zValidator("json", aboutSchema), async (c) => {
   try {
-    const data = c.req.valid("json");
+    const data = normalizeAboutRecord(c.req.valid("json"));
     // Ensure row exists
     let rows = await db.select().from(about).limit(1);
     let id = 1;
@@ -117,7 +185,7 @@ aboutRouter.patch("/", adminAuth, zValidator("json", aboutSchema), async (c) => 
       id = rows[0].id;
     }
     const updated = await db.update(about).set({ ...data, updatedAt: new Date() } as any).where(eq(about.id, id)).returning();
-    return c.json(updated[0]);
+    return c.json(normalizeAboutRecord(updated[0]));
   } catch (err: any) {
     return c.json({ error: err.message }, 500);
   }

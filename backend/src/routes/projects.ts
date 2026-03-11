@@ -4,6 +4,7 @@ import { projects } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import adminAuth from "../middleware/adminAuth";
 
 const projectSchema = z.object({
   slug: z.string(),
@@ -22,17 +23,6 @@ const projectSchema = z.object({
 });
 
 const projectsRouter = new Hono();
-
-// Auth Middleware
-const adminAuth = async (c: any, next: any) => {
-  const secret = c.req.header("x-admin-secret");
-  const adminSecret = process.env.VITE_ADMIN_SECRET || process.env.ADMIN_SECRET;
-  
-  if (!adminSecret || secret !== adminSecret) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-  await next();
-};
 
 projectsRouter.get("/", async (c) => {
   try {
@@ -59,7 +49,7 @@ projectsRouter.post("/", adminAuth, zValidator("json", projectSchema), async (c)
 });
 
 projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), async (c) => {
-  const id = parseInt(c.req.param("id"));
+  const id = Number.parseInt(c.req.param("id"), 10);
   const data = c.req.valid("json");
   const updatedProject = await db.update(projects).set(data).where(eq(projects.id, id)).returning();
   if (updatedProject.length === 0) {
@@ -69,7 +59,7 @@ projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), async (
 });
 
 projectsRouter.delete("/:id", adminAuth, async (c) => {
-  const id = parseInt(c.req.param("id"));
+  const id = Number.parseInt(c.req.param("id"), 10);
   const deletedProject = await db.delete(projects).where(eq(projects.id, id)).returning();
   if (deletedProject.length === 0) {
     return c.json({ error: "Not found" }, 404);
