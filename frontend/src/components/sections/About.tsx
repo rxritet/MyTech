@@ -121,19 +121,24 @@ const TECH_GROUPS = [
     names: ["Go", "Java", "TypeScript", "JavaScript", "Python", "Dart"],
   },
   {
-    title: "Backend & Data",
+    title: "Backend & БД",
     description: "Серверная логика, API, базы данных и инфраструктура данных.",
-    names: ["Django", "FastAPI", "Node.js", "PostgreSQL", "SQLite", "Nginx"],
+    names: ["Hono", "Django", "FastAPI", "PostgreSQL", "SQLite"],
   },
   {
-    title: "Frontend & UI",
+    title: "Frontend & Mobile",
     description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
     names: ["React", "TailwindCSS", "Vite", "Flutter", "HTML5", "CSS3", "Figma"],
   },
   {
-    title: "Dev Workflow",
-    description: "Инструменты поставки, командной разработки и инженерного цикла.",
-    names: ["Docker", "GitHub Actions", "AWS", "Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"],
+    title: "DevOps & Инфра",
+    description: "Инструменты поставки, инфраструктура и облачные решения.",
+    names: ["Docker", "Vercel", "AWS", "Nginx", "Linux"],
+  },
+  {
+    title: "Инструменты",
+    description: "Инструменты разработки, тестирования и повседневной работы.",
+    names: ["Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"],
   },
 ] as const;
 
