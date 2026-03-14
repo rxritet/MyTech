@@ -253,17 +253,76 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
               )}
 
               {activeTab === "stack" && (
-                <div className="space-y-6">
-                  <div>
-                    <label htmlFor="about-tech-groups" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Стек технологий (JSON)</label>
-                    <p className="text-[10px] text-gray-500 mb-2 italic">Массив объектов: &#123; title, description?, names: [] &#125;</p>
-                    <textarea 
-                      id="about-tech-groups"
-                       value={JSON.stringify(formData.techGroups, null, 2)} 
-                       onChange={(e) => handleJSONChange("techGroups", e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-96" 
-                    />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Категории стека</p>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({
+                        ...prev,
+                        techGroups: [...(prev.techGroups ?? []), { title: "", desc: "", names: [] }]
+                      }))}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+                    >
+                      + Добавить категорию
+                    </button>
                   </div>
+
+                  {(formData.techGroups ?? []).map((group, idx) => (
+                    <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          placeholder="Название категории"
+                          value={group.title}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            techGroups: (prev.techGroups ?? []).map((g, i) => i === idx ? { ...g, title: e.target.value } : g)
+                          }))}
+                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            techGroups: (prev.techGroups ?? []).filter((_, i) => i !== idx)
+                          }))}
+                          className="text-red-400 hover:text-red-300 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
+                        >
+                          Удалить
+                        </button>
+                      </div>
+                      <textarea
+                        placeholder="Описание категории (например: Go, Django, FastAPI + PostgreSQL)"
+                        value={"desc" in group ? (group as { title: string; desc?: string; description?: string; names?: string[] }).desc ?? group.description ?? "" : group.description ?? ""}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          techGroups: (prev.techGroups ?? []).map((g, i) => i === idx ? { ...g, desc: e.target.value, description: e.target.value } : g)
+                        }))}
+                        rows={2}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
+                      />
+                      <div>
+                        <label className="block text-[10px] text-gray-500 mb-1 italic">Технологии (через запятую, необязательно)</label>
+                        <input
+                          type="text"
+                          placeholder="Go, TypeScript, Docker..."
+                          value={(group.names ?? []).join(", ")}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            techGroups: (prev.techGroups ?? []).map((g, i) => i === idx
+                              ? { ...g, names: e.target.value.split(",").map(n => n.trim()).filter(Boolean) }
+                              : g)
+                          }))}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {(formData.techGroups ?? []).length === 0 && (
+                    <p className="text-center text-gray-600 text-sm py-6">Нет категорий. Нажмите «+ Добавить категорию».</p>
+                  )}
                 </div>
               )}
 

@@ -117,7 +117,8 @@ const aboutSchema = z.object({
   techGroups: z.array(z.object({
     title: z.string(),
     description: z.string().optional(),
-    names: z.array(z.string())
+    desc: z.string().optional(),
+    names: z.array(z.string()).optional().default([]),
   })).optional(),
 });
 
@@ -194,17 +195,6 @@ aboutRouter.get("/", async (c) => {
             names: ["Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"]
           }
         ],
-      } as any).returning();ame: "Frontend-Education", desc: "React, TypeScript, Tailwind", href: "https://github.com/rxritet/Frontend-Education" },
-          { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript", href: "https://github.com/rxritet/Advanced-JS-Education" },
-          { name: "Django-Education", desc: "Python / Django", href: "https://github.com/rxritet/Django-Education" },
-          { name: "FastAPI-Education", desc: "FastAPI", href: "https://github.com/rxritet/FastAPI-Education" },
-          { name: "Velora", desc: "Первое знакомство с Rust", href: "https://github.com/rxritet/Velora" },
-        ],
-        hobbies: [
-          { emoji: "⚽", title: "Футбол", desc: "Играть и смотреть. Командная игра — лучшая разгрузка" },
-          { emoji: "🎵", title: "Музыка", desc: "От lo-fi для фокуса до тяжёлых треков, зависит от задачи" },
-          { emoji: "🎮", title: "Игры", desc: "CS2, Ghost of Tsushima, MK, Dota — атмосфера и геймплей" },
-        ],
       } as any).returning();
       return c.json(normalizeAboutRecord(inserted[0]));
     }
@@ -215,7 +205,12 @@ aboutRouter.get("/", async (c) => {
 });
 
 // PATCH /api/about - Partially update about record
-aboutRouter.patch("/", adminAuth, zValidator("json", aboutSchema), async (c) => {
+aboutRouter.patch("/", adminAuth, zValidator("json", aboutSchema, (result, c) => {
+  if (!result.success) {
+    console.error("❌ Validation Error:", JSON.stringify(result.error.format(), null, 2));
+    return c.json({ error: "Validation failed", details: result.error.format() }, 400);
+  }
+}), async (c) => {
   try {
     const data = normalizeAboutRecord(c.req.valid("json"));
     // Ensure row exists

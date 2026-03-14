@@ -37,6 +37,7 @@ export interface AboutHobby {
 export interface AboutTechGroup {
   title: string;
   description?: string;
+  desc?: string;
   names: string[];
 }
 

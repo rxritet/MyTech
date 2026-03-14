@@ -302,6 +302,8 @@ export default function About() {
         <SectionHeading>Технологии</SectionHeading>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           {(data.techGroups ?? []).map((group) => {
+            const namesArr = (group.names ?? []);
+            const textDesc = (group as { title: string; desc?: string; description?: string; names?: string[] }).desc ?? group.description ?? "";
             return (
             <div
               key={group.title}
@@ -310,27 +312,31 @@ export default function About() {
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-white">{group.title}</h3>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{group.description}</p>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{textDesc}</p>
                 </div>
-                <span className="eyebrow-chip shrink-0">{group.names.length} items</span>
+                {namesArr.length > 0 && (
+                  <span className="eyebrow-chip shrink-0">{namesArr.length} items</span>
+                )}
               </div>
 
-              <div className="flex flex-wrap gap-2.5">
-                {group.names.map((name) => {
-                  const item = STATIC_STACK.find(s => s.name === name);
-                  const colorClasses = item?.color ?? "bg-gray-500/10 text-gray-400 border-gray-500/25";
-                  
-                  return (
-                    <div
-                      key={name}
-                      className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${colorClasses.split(" ").slice(0, 2).join(" ")} ${colorClasses.split(" ")[2]}`}
-                    >
-                      <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
-                      {name}
-                    </div>
-                  );
-                })}
-              </div>
+              {namesArr.length > 0 && (
+                <div className="flex flex-wrap gap-2.5">
+                  {namesArr.map((name) => {
+                    const item = STATIC_STACK.find(s => s.name === name);
+                    const colorClasses = item?.color ?? "bg-gray-500/10 text-gray-400 border-gray-500/25";
+                    
+                    return (
+                      <div
+                        key={name}
+                        className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${colorClasses.split(" ").slice(0, 2).join(" ")} ${colorClasses.split(" ")[2]}`}
+                      >
+                        <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
+                        {name}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             );
           })}
