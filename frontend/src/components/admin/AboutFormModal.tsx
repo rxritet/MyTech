@@ -234,20 +234,49 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     <label htmlFor="about-competencies" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Компетенции (через запятую)</label>
                     <textarea 
                       id="about-competencies"
-                       value={formData.competencies.join(", ")} 
-                       onChange={(e) => setFormData(prev => ({...prev, competencies: e.target.value.split(",").map(i => i.trim()).filter(Boolean)}))}
+                       defaultValue={formData.competencies.join(", ")} 
+                       onBlur={(e) => setFormData(prev => ({...prev, competencies: e.target.value.split(",").map(i => i.trim()).filter(Boolean)}))}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 h-32" 
                     />
                   </div>
                   <div>
-                    <label htmlFor="about-focus-areas" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Текущий фокус (JSON)</label>
-                    <p className="text-[10px] text-gray-500 mb-2 italic">Массив объектов: &#123; title, desc &#125;</p>
-                    <textarea 
-                      id="about-focus-areas"
-                       value={JSON.stringify(formData.focusAreas, null, 2)} 
-                       onChange={(e) => handleJSONChange("focusAreas", e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-64" 
-                    />
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Текущий фокус</p>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, focusAreas: [...prev.focusAreas, { title: "", desc: "" }] }))}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+                      >
+                        + Добавить
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {formData.focusAreas.map((fa, idx) => (
+                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              placeholder="Название направления"
+                              value={fa.title}
+                              onChange={(e) => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.map((f, i) => i === idx ? { ...f, title: e.target.value } : f) }))}
+                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.filter((_, i) => i !== idx) }))}
+                              className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
+                            >Удалить</button>
+                          </div>
+                          <textarea
+                            placeholder="Описание"
+                            value={fa.desc}
+                            onChange={(e) => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.map((f, i) => i === idx ? { ...f, desc: e.target.value } : f) }))}
+                            rows={2}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -409,22 +438,96 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="about-education-json" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Обучение (JSON)</label>
-                    <textarea 
-                      id="about-education-json"
-                       value={JSON.stringify(formData.education, null, 2)} 
-                       onChange={(e) => handleJSONChange("education", e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-48" 
-                    />
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Учебные репозитории</p>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, education: [...prev.education, { name: "", desc: "", href: "" }] }))}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+                      >
+                        + Добавить
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {formData.education.map((edu, idx) => (
+                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              placeholder="Название репозитория"
+                              value={edu.name}
+                              onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, name: e.target.value } : ed) }))}
+                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== idx) }))}
+                              className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
+                            >Удалить</button>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Описание"
+                            value={edu.desc}
+                            onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, desc: e.target.value } : ed) }))}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                          />
+                          <input
+                            type="text"
+                            placeholder="URL репозитория (необязательно)"
+                            value={edu.href ?? ""}
+                            onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, href: e.target.value } : ed) }))}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div>
-                    <label htmlFor="about-hobbies-json" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Хобби (JSON)</label>
-                    <textarea 
-                      id="about-hobbies-json"
-                       value={JSON.stringify(formData.hobbies, null, 2)} 
-                       onChange={(e) => handleJSONChange("hobbies", e.target.value)}
-                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-48" 
-                    />
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Вне кода</p>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, hobbies: [...prev.hobbies, { emoji: "", title: "", desc: "" }] }))}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+                      >
+                        + Добавить
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {formData.hobbies.map((hobby, idx) => (
+                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              placeholder="😀"
+                              value={hobby.emoji}
+                              onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, emoji: e.target.value } : h) }))}
+                              className="w-16 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-center text-lg focus:outline-none focus:border-orange-500/50"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Название"
+                              value={hobby.title}
+                              onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, title: e.target.value } : h) }))}
+                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.filter((_, i) => i !== idx) }))}
+                              className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
+                            >Удалить</button>
+                          </div>
+                          <textarea
+                            placeholder="Описание"
+                            value={hobby.desc}
+                            onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, desc: e.target.value } : h) }))}
+                            rows={2}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
