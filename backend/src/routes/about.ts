@@ -114,6 +114,11 @@ const aboutSchema = z.object({
     href: z.string().optional()
   })).optional(),
   hobbies: z.array(z.object({ emoji: z.string(), title: z.string(), desc: z.string() })).optional(),
+  techGroups: z.array(z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    names: z.array(z.string())
+  })).optional(),
 });
 
 // GET /api/about - Returns main about record (id=1)
@@ -152,6 +157,44 @@ aboutRouter.get("/", async (c) => {
         education: [
           { name: "GoLang-Education", desc: "Углублённое изучение Go", href: "https://github.com/rxritet/GoLang-Education" },
           { name: "Frontend-Education", desc: "React, TypeScript, Tailwind", href: "https://github.com/rxritet/Frontend-Education" },
+          { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript", href: "https://github.com/rxritet/Advanced-JS-Education" },
+          { name: "Django-Education", desc: "Python / Django", href: "https://github.com/rxritet/Django-Education" },
+          { name: "FastAPI-Education", desc: "FastAPI", href: "https://github.com/rxritet/FastAPI-Education" },
+          { name: "Velora", desc: "Первое знакомство с Rust", href: "https://github.com/rxritet/Velora" },
+        ],
+        hobbies: [
+          { emoji: "⚽", title: "Футбол", desc: "Играть и смотреть. Командная игра — лучшая разгрузка" },
+          { emoji: "🎵", title: "Музыка", desc: "От lo-fi для фокуса до тяжёлых треков, зависит от задачи" },
+          { emoji: "🎮", title: "Игры", desc: "CS2, Ghost of Tsushima, MK, Dota — атмосфера и геймплей" },
+        ],
+        techGroups: [
+          {
+            title: "Языки",
+            description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
+            names: ["Go", "Java", "TypeScript", "JavaScript", "Python", "Dart"]
+          },
+          {
+            title: "Backend & БД",
+            description: "Серверная логика, API, базы данных и инфраструктура данных.",
+            names: ["Hono", "Django", "FastAPI", "PostgreSQL", "SQLite"]
+          },
+          {
+            title: "Frontend & Mobile",
+            description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
+            names: ["React", "TailwindCSS", "Vite", "Flutter", "HTML5", "CSS3", "Figma"]
+          },
+          {
+            title: "DevOps & Инфра",
+            description: "Инструменты поставки, инфраструктура и облачные решения.",
+            names: ["Docker", "Vercel", "AWS", "Nginx", "Linux"]
+          },
+          {
+            title: "Инструменты",
+            description: "Инструменты разработки, тестирования и повседневной работы.",
+            names: ["Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"]
+          }
+        ],
+      } as any).returning();ame: "Frontend-Education", desc: "React, TypeScript, Tailwind", href: "https://github.com/rxritet/Frontend-Education" },
           { name: "Advanced-JS-Education", desc: "Продвинутый JavaScript", href: "https://github.com/rxritet/Advanced-JS-Education" },
           { name: "Django-Education", desc: "Python / Django", href: "https://github.com/rxritet/Django-Education" },
           { name: "FastAPI-Education", desc: "FastAPI", href: "https://github.com/rxritet/FastAPI-Education" },

@@ -52,6 +52,7 @@ export const about = pgTable("about", {
   projects: jsonb("projects").notNull().default([]),
   education: jsonb("education").notNull().default([]),
   hobbies: jsonb("hobbies").notNull().default([]),
+  techGroups: jsonb("tech_groups").notNull().default([]),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 

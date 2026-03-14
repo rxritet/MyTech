@@ -10,7 +10,7 @@ interface AboutFormModalProps {
   onSuccess: (updated: AboutData) => void;
 }
 
-type Tab = "general" | "bio" | "social" | "expertise" | "lists";
+type Tab = "general" | "bio" | "social" | "expertise" | "stack" | "lists";
 
 function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
   return (
@@ -113,6 +113,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
     { id: "bio",       label: "Био",      icon: <FileText size={16} /> },
     { id: "social",    label: "Соцсети",  icon: <Share2 size={16} /> },
     { id: "expertise", label: "Навыки",   icon: <Target size={16} /> },
+    { id: "stack",     label: "Стек",     icon: <Save size={16} /> },
     { id: "lists",     label: "Контент",  icon: <GraduationCap size={16} /> },
   ];
 
@@ -246,6 +247,21 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                        value={JSON.stringify(formData.focusAreas, null, 2)} 
                        onChange={(e) => handleJSONChange("focusAreas", e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-64" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "stack" && (
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="about-tech-groups" className="block text-xs font-mono uppercase text-gray-500 mb-2 tracking-widest">Стек технологий (JSON)</label>
+                    <p className="text-[10px] text-gray-500 mb-2 italic">Массив объектов: &#123; title, description?, names: [] &#125;</p>
+                    <textarea 
+                      id="about-tech-groups"
+                       value={JSON.stringify(formData.techGroups, null, 2)} 
+                       onChange={(e) => handleJSONChange("techGroups", e.target.value)}
+                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-orange-500/50 h-96" 
                     />
                   </div>
                 </div>

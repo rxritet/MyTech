@@ -34,6 +34,11 @@ export interface AboutHobby {
   title: string;
   desc: string;
 }
+export interface AboutTechGroup {
+  title: string;
+  description?: string;
+  names: string[];
+}
 
 export interface AboutData {
   id: number;
@@ -56,6 +61,7 @@ export interface AboutData {
   projects: AboutProject[];
   education: AboutEducation[];
   hobbies: AboutHobby[];
+  techGroups: AboutTechGroup[];
 }
 
 export interface ContactPayload {
