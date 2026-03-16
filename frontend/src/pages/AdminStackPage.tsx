@@ -298,7 +298,7 @@ export default function AdminStackPage() {
   ];
 
   return (
-    <main className="min-h-screen pt-16">
+    <main className="pt-16">
       <section className="max-w-[86rem] mx-auto px-3 py-12 md:px-5">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Управление стеком</h1>
         <p className="text-gray-400 mb-8">Настройка технологий для Home, About и общего каталога.</p>

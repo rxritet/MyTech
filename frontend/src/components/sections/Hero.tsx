@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
-import { useAdmin } from "../../context/AdminContext";
 
 // ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
 const kw = (text: string): Token => ({ kind: "keyword", text });
@@ -22,8 +21,6 @@ const STACK_LINES: Line[] = [
 ];
 
 export default function Hero() {
-  const { isAdmin } = useAdmin();
-
   return (
     <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-4 text-center gap-8 overflow-hidden dot-grid">
       <div className="animate-float-slow absolute top-1/4 left-1/2 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
@@ -57,14 +54,6 @@ export default function Hero() {
         >
           Обо мне
         </Link>
-        {isAdmin && (
-          <Link
-            to="/admin/stack"
-            className="button-secondary w-full sm:w-auto px-8 py-3.5"
-          >
-            Изменить стек
-          </Link>
-        )}
       </div>
     </section>
   );
