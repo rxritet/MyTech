@@ -22,7 +22,7 @@ const STACK_LINES: Line[] = [
 
 export default function Hero() {
   return (
-    <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-4 text-center gap-8 overflow-hidden dot-grid">
+    <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-4 text-center gap-8 overflow-hidden">
       <div className="animate-float-slow absolute top-1/4 left-1/2 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
       <div className="animate-float absolute top-1/3 left-1/3 w-96 h-96 rounded-full bg-amber-600/15 blur-[100px] pointer-events-none" />
       <div className="animate-float-reverse absolute bottom-1/4 right-1/4 w-[28rem] h-[28rem] rounded-full bg-orange-500/10 blur-[110px] pointer-events-none" />
