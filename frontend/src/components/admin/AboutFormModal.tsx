@@ -10,7 +10,7 @@ interface AboutFormModalProps {
   onSuccess: (updated: AboutData) => void;
 }
 
-type Tab = "general" | "bio" | "social" | "expertise" | "stack" | "lists";
+type Tab = "general" | "bio" | "social" | "expertise" | "lists";
 
 function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
   return (
@@ -71,56 +71,6 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
       ...prev,
       focusAreas: prev.focusAreas.map((item, currentIndex) => (
         currentIndex === index ? { ...item, desc } : item
-      )),
-    }));
-  };
-
-  const addTechGroup = () => {
-    setFormData((prev) => ({
-      ...prev,
-      techGroups: [...(prev.techGroups ?? []), { title: "", desc: "", names: [] }],
-    }));
-  };
-
-  const removeTechGroup = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      techGroups: (prev.techGroups ?? []).filter((_, currentIndex) => currentIndex !== index),
-    }));
-  };
-
-  const updateTechGroupTitle = (index: number, title: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
-        currentIndex === index ? { ...group, title } : group
-      )),
-    }));
-  };
-
-  const updateTechGroupDescription = (index: number, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
-        currentIndex === index ? { ...group, desc: value, description: value } : group
-      )),
-    }));
-  };
-
-  const parseNames = (value: string): string[] => value
-    .split(",")
-    .map((name) => name.trim())
-    .filter(Boolean);
-
-  const updateTechGroupNames = (index: number, value: string) => {
-    const names = parseNames(value);
-
-    setFormData((prev) => ({
-      ...prev,
-      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
-        currentIndex === index
-          ? { ...group, names }
-          : group
       )),
     }));
   };
@@ -230,7 +180,6 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
     { id: "bio",       label: "Био",      icon: <FileText size={16} /> },
     { id: "social",    label: "Соцсети",  icon: <Share2 size={16} /> },
     { id: "expertise", label: "Навыки",   icon: <Target size={16} /> },
-    { id: "stack",     label: "Стек",     icon: <Save size={16} /> },
     { id: "lists",     label: "Контент",  icon: <GraduationCap size={16} /> },
   ];
 
@@ -395,64 +344,6 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                       ))}
                     </div>
                   </div>
-                </div>
-              )}
-
-              {activeTab === "stack" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Категории стека</p>
-                    <button
-                      type="button"
-                      onClick={addTechGroup}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
-                    >
-                      + Добавить категорию
-                    </button>
-                  </div>
-
-                  {(formData.techGroups ?? []).map((group, idx) => (
-                    <div key={`group-${group.title}-${group.description ?? group.desc ?? ""}`} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="text"
-                          placeholder="Название категории"
-                          value={group.title}
-                          onChange={(e) => updateTechGroupTitle(idx, e.target.value)}
-                          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeTechGroup(idx)}
-                          className="text-red-400 hover:text-red-300 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
-                        >
-                          Удалить
-                        </button>
-                      </div>
-                      <textarea
-                        placeholder="Описание категории (например: Go, Django, FastAPI + PostgreSQL)"
-                        value={"desc" in group ? (group as { title: string; desc?: string; description?: string; names?: string[] }).desc ?? group.description ?? "" : group.description ?? ""}
-                        onChange={(e) => updateTechGroupDescription(idx, e.target.value)}
-                        rows={2}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
-                      />
-                      <div>
-                        <label htmlFor={`about-techgroup-names-${idx}`} className="block text-[10px] text-gray-500 mb-1 italic">Технологии (через запятую, необязательно)</label>
-                        <input
-                          id={`about-techgroup-names-${idx}`}
-                          type="text"
-                          placeholder="Go, TypeScript, Docker..."
-                          defaultValue={(group.names ?? []).join(", ")}
-                          onBlur={(e) => updateTechGroupNames(idx, e.target.value)}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                        />
-                      </div>
-                    </div>
-                  ))}
-
-                  {(formData.techGroups ?? []).length === 0 && (
-                    <p className="text-center text-gray-600 text-sm py-6">Нет категорий. Нажмите «+ Добавить категорию».</p>
-                  )}
                 </div>
               )}
 
