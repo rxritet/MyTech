@@ -46,8 +46,8 @@ interface CodeBlockProps {
 function CodeLine({ tokens }: Readonly<{ tokens: Token[] }>) {
   return (
     <div className="whitespace-pre">
-      {tokens.map((tok) => (
-        <span key={tok.text + tok.kind} className={TOKEN_CLASS[tok.kind]}>
+      {tokens.map((tok, index) => (
+        <span key={`${tok.kind}-${tok.text}-${index}`} className={TOKEN_CLASS[tok.kind]}>
           {tok.text}
         </span>
       ))}
