@@ -151,12 +151,20 @@ export default function ProjectsPage() {
             Нажми на проект, чтобы узнать подробности.
           </p>
           {isAdmin && (
-            <button
-              onClick={() => navigate("/projects/add")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-white text-sm font-semibold transition"
-            >
-              <Plus size={16} /> Добавить проект
-            </button>
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                onClick={() => navigate("/projects/add")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-white text-sm font-semibold transition"
+              >
+                <Plus size={16} /> Добавить проект
+              </button>
+              <button
+                onClick={() => navigate("/admin/stack")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-700 bg-gray-900/60 hover:bg-gray-800 rounded-lg text-gray-200 text-sm font-semibold transition"
+              >
+                Управление стеком
+              </button>
+            </div>
           )}
         </div>
 

@@ -10,6 +10,7 @@ import ProjectDetailPage from "./pages/ProjectDetailPage";
 import ContactPage from "./pages/ContactPage";
 import WorkTermsPage from "./pages/WorkTermsPage";
 import AddProjectPage from "./pages/AddProjectPage";
+import AdminStackPage from "./pages/AdminStackPage";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/add" element={<AddProjectPage />} />
+            <Route path="/admin/stack" element={<AdminStackPage />} />
             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/terms" element={<WorkTermsPage />} />
