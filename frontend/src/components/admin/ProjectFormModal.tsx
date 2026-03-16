@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import type { Project, DevelopmentStage } from "../../api";
+import { getTechnologies, type Project, type DevelopmentStage, type Technology } from "../../api";
 import { createProject, updateProject } from "../../hooks/useProjects";
 import { X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageUploadField from "./ImageUploadField";
 import DevelopmentTimeline from "./DevelopmentTimeline";
+import TechnologySelector from "./TechnologySelector";
 
 interface ProjectFormModalProps {
   readonly isOpen: boolean;
@@ -26,7 +27,8 @@ export default function ProjectFormModal({
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>("basic");
   const [featuresInput, setFeaturesInput] = useState("");
-  const [stackInput, setStackInput] = useState("");
+  const [technologies, setTechnologies] = useState<Technology[]>([]);
+  const [selectedTechnologyIds, setSelectedTechnologyIds] = useState<number[]>([]);
 
   const [formData, setFormData] = useState<Partial<Project>>({
     slug: "",
@@ -49,6 +51,7 @@ export default function ProjectFormModal({
   useEffect(() => {
     if (project) {
       setFormData(project);
+      setSelectedTechnologyIds(project.technologyIds ?? []);
     } else {
       setFormData({
         slug: "",
@@ -67,17 +70,54 @@ export default function ProjectFormModal({
         createdAt: "",
         developmentProcess: [],
       });
+      setSelectedTechnologyIds([]);
     }
     setCurrentTab("basic");
   }, [project, isOpen]);
+
+  useEffect(() => {
+    const loadTechnologies = async () => {
+      try {
+        const catalog = await getTechnologies();
+        setTechnologies(catalog);
+      } catch {
+        setTechnologies([]);
+      }
+    };
+
+    if (isOpen) {
+      void loadTechnologies();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     setFeaturesInput((formData.features ?? []).join(", "));
   }, [formData.features]);
 
   useEffect(() => {
-    setStackInput((formData.stack ?? []).join(", "));
-  }, [formData.stack]);
+    const selectedNames = technologies
+      .filter((technology) => selectedTechnologyIds.includes(technology.id))
+      .map((technology) => technology.name);
+    setFormData((prev) => ({ ...prev, stack: selectedNames }));
+  }, [selectedTechnologyIds, technologies]);
+
+  useEffect(() => {
+    if (!project || selectedTechnologyIds.length > 0 || technologies.length === 0) {
+      return;
+    }
+
+    if ((project.technologyIds ?? []).length > 0) {
+      return;
+    }
+
+    const fallbackIds = (project.stack ?? [])
+      .map((name) => technologies.find((technology) => technology.name === name)?.id)
+      .filter((id): id is number => typeof id === "number");
+
+    if (fallbackIds.length > 0) {
+      setSelectedTechnologyIds(fallbackIds);
+    }
+  }, [project, selectedTechnologyIds.length, technologies]);
 
   if (!isOpen) return null;
 
@@ -107,6 +147,14 @@ export default function ProjectFormModal({
     setFormData((prev) => ({ ...prev, developmentProcess: stages }));
   };
 
+  const toggleTechnology = (technologyId: number) => {
+    setSelectedTechnologyIds((prev) =>
+      prev.includes(technologyId)
+        ? prev.filter((id) => id !== technologyId)
+        : [...prev, technologyId],
+    );
+  };
+
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -115,7 +163,7 @@ export default function ProjectFormModal({
       const payload: Partial<Project> = {
         ...formData,
         features: parseCommaSeparated(featuresInput),
-        stack: parseCommaSeparated(stackInput),
+        technologyIds: selectedTechnologyIds,
       };
       if (project?.id) {
         await updateProject(project.id, payload, secret);
@@ -357,22 +405,18 @@ export default function ProjectFormModal({
             {/* TAB 5: Technologies & Links */}
             {currentTab === "tech" && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="modal-project-stack" className="block text-sm font-medium text-gray-300 mb-1">
-                      Стек технологий (через запятую) *
-                    </label>
-                    <input
-                      id="modal-project-stack"
-                      required
-                      value={stackInput}
-                      onChange={(e) => setStackInput(e.target.value)}
-                      onBlur={() => handleArrayChange("stack", stackInput)}
-                      placeholder="React, TypeScript, Tailwind"
-                      className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
-                    />
+                <div>
+                  <div className="text-sm font-medium text-gray-300 mb-3">
+                    Технологии проекта *
                   </div>
+                  <TechnologySelector
+                    technologies={technologies}
+                    selectedIds={selectedTechnologyIds}
+                    onToggle={toggleTechnology}
+                  />
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="modal-project-language" className="block text-sm font-medium text-gray-300 mb-1">
                       Основной язык *
