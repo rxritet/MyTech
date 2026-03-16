@@ -78,41 +78,11 @@ export default function ProjectFormModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const parseCommaSeparated = (value: string): string[] => {
-    const items: string[] = [];
-    let current = "";
-    let escaped = false;
-
-    for (const ch of value) {
-      if (escaped) {
-        current += ch;
-        escaped = false;
-        continue;
-      }
-
-      if (ch === "\\") {
-        escaped = true;
-        continue;
-      }
-
-      if (ch === ",") {
-        const item = current.trim();
-        if (item) items.push(item);
-        current = "";
-        continue;
-      }
-
-      current += ch;
-    }
-
-    if (escaped) current += "\\";
-    const last = current.trim();
-    if (last) items.push(last);
-    return items;
-  };
-
-  const stringifyCommaSeparated = (items: string[] = []): string =>
-    items.map((item) => item.split(",").join(String.raw`\,`)).join(", ");
+  const parseCommaSeparated = (value: string): string[] =>
+    value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
   const handleArrayChange = (name: keyof Project, value: string) => {
     const items = parseCommaSeparated(value);
@@ -306,12 +276,11 @@ export default function ProjectFormModal({
                   <input
                     id="modal-project-features"
                     required
-                    value={stringifyCommaSeparated(formData.features || [])}
+                    value={formData.features?.join(", ") || ""}
                     onChange={(e) => handleArrayChange("features", e.target.value)}
                     placeholder="Фича 1, Фича 2, Фича 3"
                     className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Запятая внутри одной особенности: \,</p>
                 </div>
               </div>
             )}
