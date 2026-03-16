@@ -174,8 +174,7 @@ export default function About() {
         const [fetched, stackRows] = await Promise.all([getAbout(), getAboutStack()]);
         setData(fetched);
         setAboutStackItems(stackRows);
-      } catch (err) {
-        console.error("Failed to fetch about data:", err);
+      } catch {
       } finally {
         setIsLoading(false);
       }
