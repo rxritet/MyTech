@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent, type UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -45,6 +45,80 @@ interface SortableRowProps {
   isActive?: boolean;
   onSelect?: () => void;
   onDelete: (event: MouseEvent<HTMLButtonElement>) => void;
+}
+
+const DEVICON_BY_NAME: Record<string, string> = {
+  go: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg",
+  typescript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
+  javascript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+  java: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+  python: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+  dart: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg",
+  react: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+  flutter: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg",
+  docker: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+  postgresql: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
+  sqlite: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg",
+  nginx: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg",
+  git: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
+  github: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
+  figma: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
+  html5: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+  css3: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
+};
+
+const FALLBACK_BADGE_BY_CATEGORY: Record<TechnologyCategory, string> = {
+  language: "bg-cyan-600",
+  backend: "bg-orange-600",
+  frontend: "bg-blue-600",
+  devops: "bg-emerald-600",
+  tool: "bg-indigo-600",
+  mobile: "bg-pink-600",
+};
+
+function normalizeTechKey(name: string): string {
+  return name.toLowerCase().replace(/[\s+.#-]/g, "");
+}
+
+function resolveAdminIconUrl(technology: Technology): string | null {
+  const normalized = normalizeTechKey(technology.name);
+  const devicon = DEVICON_BY_NAME[normalized];
+
+  if (technology.badgeUrl.includes("img.shields.io")) {
+    return devicon ?? null;
+  }
+
+  if (technology.badgeUrl.startsWith("http://") || technology.badgeUrl.startsWith("https://")) {
+    return technology.badgeUrl;
+  }
+
+  return devicon ?? null;
+}
+
+function AdminTechnologyIcon({ technology }: Readonly<{ technology: Technology }>) {
+  const [failed, setFailed] = useState(false);
+  const iconUrl = resolveAdminIconUrl(technology);
+
+  if (!iconUrl || failed) {
+    return (
+      <div
+        className={`h-6 w-6 rounded-md ${FALLBACK_BADGE_BY_CATEGORY[technology.category]} flex-shrink-0 flex items-center justify-center text-[11px] font-bold text-white`}
+      >
+        {technology.name.slice(0, 1).toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={iconUrl}
+      alt={technology.name}
+      width={24}
+      height={24}
+      className="h-6 w-6 rounded-md object-contain flex-shrink-0"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 function normalizeHomeCategories(categories: HomeStackCategory[]): HomeStackCategory[] {
@@ -145,6 +219,10 @@ export default function AdminStackPage() {
   const [editingMap, setEditingMap] = useState<Record<number, Partial<Technology>>>({});
   const [aboutDraftTechnologyId, setAboutDraftTechnologyId] = useState<number | null>(null);
   const [aboutDraftCategory, setAboutDraftCategory] = useState<TechnologyCategory>("language");
+  const [aboutSearchQuery, setAboutSearchQuery] = useState("");
+  const [aboutComboboxOpen, setAboutComboboxOpen] = useState(false);
+  const [addingAboutTechnology, setAddingAboutTechnology] = useState(false);
+  const aboutComboboxRef = useRef<HTMLDivElement | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
@@ -200,6 +278,19 @@ export default function AdminStackPage() {
     }
   }, [isAdmin]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: globalThis.MouseEvent) => {
+      if (!aboutComboboxRef.current) return;
+      if (aboutComboboxRef.current.contains(event.target as Node)) return;
+      setAboutComboboxOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const technologyMap = useMemo(
     () => new Map(technologies.map((technology) => [technology.id, technology])),
     [technologies],
@@ -220,7 +311,15 @@ export default function AdminStackPage() {
   }));
 
   const aboutAssignedIds = new Set(aboutItems.map((item) => item.technologyId));
-  const aboutAvailable = technologies.filter((technology) => !aboutAssignedIds.has(technology.id));
+  const filteredAboutTechnologies = technologies.filter((technology) => {
+    if (aboutAssignedIds.has(technology.id)) {
+      return false;
+    }
+    return technology.name.toLowerCase().includes(aboutSearchQuery.trim().toLowerCase());
+  });
+
+  const selectedAboutTechnology =
+    technologies.find((technology) => technology.id === aboutDraftTechnologyId) ?? null;
 
   if (!isAdmin || !secret) {
     return null;
@@ -490,6 +589,38 @@ export default function AdminStackPage() {
     setAboutItems((prev) => prev.filter((value) => value.technologyId !== technologyId));
   };
 
+  const handleAddAboutTechnology = async () => {
+    if (!aboutDraftTechnologyId) {
+      setError("Сначала выберите технологию");
+      return;
+    }
+
+    if (!aboutDraftCategory) {
+      setError("Выберите категорию");
+      return;
+    }
+
+    const alreadyAdded = aboutItems.some((item) => item.technologyId === aboutDraftTechnologyId);
+    if (alreadyAdded) {
+      setError("Эта технология уже добавлена");
+      return;
+    }
+
+    setAddingAboutTechnology(true);
+    setError(null);
+    try {
+      setAboutItems((prev) => [
+        ...prev,
+        { technologyId: aboutDraftTechnologyId, category: aboutDraftCategory },
+      ]);
+      setAboutDraftTechnologyId(null);
+      setAboutSearchQuery("");
+      setAboutComboboxOpen(false);
+    } finally {
+      setAddingAboutTechnology(false);
+    }
+  };
+
   const updateDraftField = <K extends keyof Technology>(
     technologyId: number,
     field: K,
@@ -681,18 +812,57 @@ export default function AdminStackPage() {
             {tab === "about" && (
               <div className="space-y-6">
                 <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <select
-                    value={aboutDraftTechnologyId ?? ""}
-                    onChange={(e) => setAboutDraftTechnologyId(Number(e.target.value) || null)}
-                    className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
-                  >
-                    <option value="">Выберите технологию</option>
-                    {aboutAvailable.map((technology) => (
-                      <option key={`about-available-${technology.id}`} value={technology.id}>
-                        {technology.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div ref={aboutComboboxRef} className="relative">
+                    <input
+                      value={aboutSearchQuery}
+                      onFocus={() => setAboutComboboxOpen(true)}
+                      onChange={(event) => {
+                        setAboutSearchQuery(event.target.value);
+                        setAboutDraftTechnologyId(null);
+                        setAboutComboboxOpen(true);
+                      }}
+                      placeholder="Поиск технологии..."
+                      className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 pr-9 text-white"
+                    />
+
+                    {aboutSearchQuery.trim().length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAboutSearchQuery("");
+                          setAboutDraftTechnologyId(null);
+                          setAboutComboboxOpen(false);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                      >
+                        ×
+                      </button>
+                    )}
+
+                    {aboutComboboxOpen && (
+                      <div className="absolute z-20 mt-2 w-full max-h-64 overflow-y-auto rounded-lg border border-gray-800 bg-gray-950 shadow-xl">
+                        {filteredAboutTechnologies.length === 0 && (
+                          <div className="px-3 py-2 text-sm text-gray-500">Ничего не найдено</div>
+                        )}
+
+                        {filteredAboutTechnologies.map((technology) => (
+                          <button
+                            key={`about-combobox-${technology.id}`}
+                            type="button"
+                            onClick={() => {
+                              setAboutDraftTechnologyId(technology.id);
+                              setAboutSearchQuery(technology.name);
+                              setAboutComboboxOpen(false);
+                            }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/5"
+                          >
+                            <AdminTechnologyIcon technology={technology} />
+                            <span className="truncate">{technology.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   <select
                     value={aboutDraftCategory}
@@ -708,17 +878,11 @@ export default function AdminStackPage() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!aboutDraftTechnologyId) return;
-                      setAboutItems((prev) => [
-                        ...prev,
-                        { technologyId: aboutDraftTechnologyId, category: aboutDraftCategory },
-                      ]);
-                      setAboutDraftTechnologyId(null);
-                    }}
-                    className="rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800"
+                    onClick={() => void handleAddAboutTechnology()}
+                    disabled={addingAboutTechnology || !selectedAboutTechnology}
+                    className="rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 disabled:opacity-50"
                   >
-                    Добавить в категорию
+                    {addingAboutTechnology ? "Добавляю..." : "Добавить в категорию"}
                   </button>
                 </div>
 
@@ -733,8 +897,8 @@ export default function AdminStackPage() {
                       return (
                         <div key={`about-item-${item.technologyId}`} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-4 py-2">
                           <div className="flex items-center gap-3">
-                            <img src={technology.badgeUrl} alt={technology.name} className="h-7 w-7 rounded" />
-                            <span className="text-white">{technology.name}</span>
+                            <AdminTechnologyIcon technology={technology} />
+                            <span className="text-sm font-medium text-white">{technology.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <button type="button" onClick={() => moveAboutItem(category, index, -1)} className="p-1.5 text-gray-400 hover:text-white">
