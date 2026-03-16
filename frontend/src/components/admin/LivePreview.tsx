@@ -8,9 +8,7 @@ interface LivePreviewProps {
 
 export default function LivePreview({ formData }: LivePreviewProps) {
   return (
-    <div className="sticky top-8 h-fit">
-      <h3 className="text-lg font-bold text-white mb-4">Предпросмотр проекта</h3>
-      
+    <div className="w-full">
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
         {/* Main Image */}
         {formData.image && (
@@ -130,69 +128,72 @@ export default function LivePreview({ formData }: LivePreviewProps) {
         </div>
       </div>
 
-      {/* Gallery Preview */}
-      {formData.gallery && formData.gallery.length > 0 && (
-        <div className="mt-6">
-          <h4 className="text-sm font-semibold text-gray-300 mb-3">Галерея</h4>
-          <div className="grid grid-cols-2 gap-2">
-            {formData.gallery.slice(0, 4).map((img, idx) => (
-              <div
-                key={idx}
-                className="aspect-video rounded-lg overflow-hidden border border-gray-800"
-              >
-                <img
-                  src={img}
-                  alt={`Gallery ${idx}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23374151' width='200' height='150'/%3E%3C/svg%3E";
-                  }}
-                />
-              </div>
-            ))}
-            {formData.gallery.length > 4 && (
-              <div className="aspect-video rounded-lg bg-gray-800 border border-gray-800 flex items-center justify-center">
-                <span className="text-gray-500 text-sm">
-                  +{formData.gallery.length - 4}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Development Timeline Preview */}
-      {formData.developmentProcess &&
-        formData.developmentProcess.length > 0 && (
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold text-gray-300 mb-3">
-              Процесс разработки
-            </h4>
-            <div className="space-y-2">
-              {formData.developmentProcess.map((stage, idx) => (
-                <div key={idx} className="flex gap-3">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">
-                      {idx + 1}
-                    </div>
-                    {idx < formData.developmentProcess!.length - 1 && (
-                      <div className="w-0.5 h-8 bg-indigo-600/30" />
-                    )}
-                  </div>
-                  <div className="pb-3">
-                    <p className="text-sm font-medium text-white">
-                      {stage.title}
-                    </p>
-                    <p className="text-xs text-gray-500 line-clamp-2">
-                      {stage.description}
-                    </p>
-                  </div>
+      {/* Additional Info Below Main Card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        {/* Gallery Preview */}
+        {formData.gallery && formData.gallery.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold text-gray-300 mb-3">Галерея</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {formData.gallery.slice(0, 4).map((img, idx) => (
+                <div
+                  key={idx}
+                  className="aspect-video rounded-lg overflow-hidden border border-gray-800"
+                >
+                  <img
+                    src={img}
+                    alt={`Gallery ${idx}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23374151' width='200' height='150'/%3E%3C/svg%3E";
+                    }}
+                  />
                 </div>
               ))}
+              {formData.gallery.length > 4 && (
+                <div className="aspect-video rounded-lg bg-gray-800 border border-gray-800 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">
+                    +{formData.gallery.length - 4}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}
+
+        {/* Development Timeline Preview */}
+        {formData.developmentProcess &&
+          formData.developmentProcess.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-300 mb-3">
+                Процесс разработки
+              </h4>
+              <div className="space-y-2 bg-gray-900 border border-gray-800 rounded-lg p-4">
+                {formData.developmentProcess.map((stage, idx) => (
+                  <div key={idx} className="flex gap-3">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">
+                        {idx + 1}
+                      </div>
+                      {idx < formData.developmentProcess!.length - 1 && (
+                        <div className="w-0.5 h-8 bg-indigo-600/30" />
+                      )}
+                    </div>
+                    <div className="pb-3">
+                      <p className="text-sm font-medium text-white">
+                        {stage.title}
+                      </p>
+                      <p className="text-xs text-gray-500 line-clamp-2">
+                        {stage.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+      </div>
     </div>
   );
 }

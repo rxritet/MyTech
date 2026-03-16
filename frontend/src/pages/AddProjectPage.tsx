@@ -96,7 +96,7 @@ export default function AddProjectPage() {
   return (
     <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <div className="border-b border-gray-800 sticky top-0 z-40 bg-gray-950/95 backdrop-blur">
+      <div className="border-b border-gray-800 sticky top-16 z-30 bg-gray-950/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -111,35 +111,33 @@ export default function AddProjectPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-2">
-            {/* Tab Navigation */}
-            <div className="flex gap-2 p-4 border border-gray-800 rounded-lg bg-gray-900 mb-6 overflow-x-auto">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setCurrentTab(tab.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
-                    currentTab === tab.id
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+        {/* Tab Navigation */}
+        <div className="flex gap-2 p-4 border border-gray-800 rounded-lg bg-gray-900 mb-6 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentTab(tab.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
+                currentTab === tab.id
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-900/50 border border-red-500/50 text-red-200 rounded-lg">
-                {error}
-              </div>
-            )}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/50 border border-red-500/50 text-red-200 rounded-lg">
+            {error}
+          </div>
+        )}
 
-            {/* Form */}
-            <form id="project-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Form - Full Width */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-8">
+          <form id="project-form" onSubmit={handleSubmit} className="space-y-6">
               {/* TAB 1: Basic Information */}
               {currentTab === "basic" && (
                 <div className="space-y-4">
@@ -420,12 +418,12 @@ export default function AddProjectPage() {
                 </button>
               </div>
             </div>
-          </div>
+        </div>
 
-          {/* Preview Section */}
-          <div className="lg:col-span-1">
-            <LivePreview formData={formData} />
-          </div>
+        {/* Live Preview Section - Below Form */}
+        <div className="mt-12 pt-8 border-t border-gray-800">
+          <h2 className="text-2xl font-bold text-white mb-6">Предпросмотр проекта</h2>
+          <LivePreview formData={formData} />
         </div>
       </div>
     </div>
