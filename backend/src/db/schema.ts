@@ -1,4 +1,13 @@
-import { pgTable, serial, text, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, serial, text, timestamp, jsonb, integer } from "drizzle-orm/pg-core";
+
+export const technologyCategoryEnum = pgEnum("technology_category", [
+  "language",
+  "backend",
+  "frontend",
+  "devops",
+  "tool",
+  "mobile",
+]);
 
 export const contacts = pgTable("contacts", {
   id: serial("id").primaryKey(),
@@ -32,6 +41,37 @@ export const projects = pgTable("projects", {
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+
+export const technologies = pgTable("technologies", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  category: technologyCategoryEnum("category").notNull(),
+  badgeUrl: text("badge_url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Technology = typeof technologies.$inferSelect;
+export type NewTechnology = typeof technologies.$inferInsert;
+
+export const projectTechnologies = pgTable("project_technologies", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  technologyId: integer("technology_id").notNull().references(() => technologies.id, { onDelete: "cascade" }),
+  order: integer("order").notNull().default(0),
+});
+
+export const homeStack = pgTable("home_stack", {
+  id: serial("id").primaryKey(),
+  technologyId: integer("technology_id").notNull().references(() => technologies.id, { onDelete: "cascade" }),
+  order: integer("order").notNull().default(0),
+});
+
+export const aboutStack = pgTable("about_stack", {
+  id: serial("id").primaryKey(),
+  technologyId: integer("technology_id").notNull().references(() => technologies.id, { onDelete: "cascade" }),
+  category: technologyCategoryEnum("category").notNull(),
+  order: integer("order").notNull().default(0),
+});
 
 export const about = pgTable("about", {
   id: serial("id").primaryKey(),
