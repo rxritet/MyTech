@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 interface TechIconProps {
   slug: string | null;
@@ -146,7 +146,7 @@ export default function TechIcon({ slug, name, size = 24, colored = true }: Read
     return <TechFallback name={name} size={size} />;
   }
 
-  const svgUrl = useMemo(() => SVG_ICON_BY_SLUG[normalizedSlug] ?? null, [normalizedSlug]);
+  const svgUrl = SVG_ICON_BY_SLUG[normalizedSlug] ?? null;
 
   if (svgUrl && !svgLoadFailed) {
     return (

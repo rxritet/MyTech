@@ -68,7 +68,7 @@ function buildStackLines(categories: HomeStackCategory[]): Line[] {
     const names = [...category.items]
       .sort((a, b) => a.order - b.order)
       .map((item) => item.name)
-      .filter((name): name is string => Boolean(name && name.trim()))
+      .filter((name): name is string => Boolean(name?.trim()))
       .map((name) => name.trim());
 
     const tokens: Token[] = [pl("  "), k(category.slug), p(":"), pl(" "), p("[")];

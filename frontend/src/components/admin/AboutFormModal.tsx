@@ -39,13 +39,130 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleJSONChange = (name: keyof AboutData, value: string) => {
-    try {
-      const parsed = JSON.parse(value);
-      setFormData((prev) => ({ ...prev, [name]: parsed }));
-    } catch {
-      // Ignore invalid JSON while typing
-    }
+  const updateCompetencies = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      competencies: value.split(",").map((item) => item.trim()).filter(Boolean),
+    }));
+  };
+
+  const addFocusArea = () => {
+    setFormData((prev) => ({ ...prev, focusAreas: [...prev.focusAreas, { title: "", desc: "" }] }));
+  };
+
+  const removeFocusArea = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      focusAreas: prev.focusAreas.filter((_, currentIndex) => currentIndex !== index),
+    }));
+  };
+
+  const updateFocusAreaTitle = (index: number, title: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      focusAreas: prev.focusAreas.map((item, currentIndex) => (
+        currentIndex === index ? { ...item, title } : item
+      )),
+    }));
+  };
+
+  const updateFocusAreaDesc = (index: number, desc: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      focusAreas: prev.focusAreas.map((item, currentIndex) => (
+        currentIndex === index ? { ...item, desc } : item
+      )),
+    }));
+  };
+
+  const addTechGroup = () => {
+    setFormData((prev) => ({
+      ...prev,
+      techGroups: [...(prev.techGroups ?? []), { title: "", desc: "", names: [] }],
+    }));
+  };
+
+  const removeTechGroup = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      techGroups: (prev.techGroups ?? []).filter((_, currentIndex) => currentIndex !== index),
+    }));
+  };
+
+  const updateTechGroupTitle = (index: number, title: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
+        currentIndex === index ? { ...group, title } : group
+      )),
+    }));
+  };
+
+  const updateTechGroupDescription = (index: number, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
+        currentIndex === index ? { ...group, desc: value, description: value } : group
+      )),
+    }));
+  };
+
+  const parseNames = (value: string): string[] => value
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+
+  const updateTechGroupNames = (index: number, value: string) => {
+    const names = parseNames(value);
+
+    setFormData((prev) => ({
+      ...prev,
+      techGroups: (prev.techGroups ?? []).map((group, currentIndex) => (
+        currentIndex === index
+          ? { ...group, names }
+          : group
+      )),
+    }));
+  };
+
+  const addEducation = () => {
+    setFormData((prev) => ({ ...prev, education: [...prev.education, { name: "", desc: "", href: "" }] }));
+  };
+
+  const removeEducation = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.filter((_, currentIndex) => currentIndex !== index),
+    }));
+  };
+
+  const updateEducationField = (index: number, field: "name" | "desc" | "href", value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.map((item, currentIndex) => (
+        currentIndex === index ? { ...item, [field]: value } : item
+      )),
+    }));
+  };
+
+  const addHobby = () => {
+    setFormData((prev) => ({ ...prev, hobbies: [...prev.hobbies, { emoji: "", title: "", desc: "" }] }));
+  };
+
+  const removeHobby = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      hobbies: prev.hobbies.filter((_, currentIndex) => currentIndex !== index),
+    }));
+  };
+
+  const updateHobbyField = (index: number, field: "emoji" | "title" | "desc", value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      hobbies: prev.hobbies.map((item, currentIndex) => (
+        currentIndex === index ? { ...item, [field]: value } : item
+      )),
+    }));
   };
 
   const handleProjectChange = (index: number, field: keyof AboutProject, value: string) => {
@@ -235,7 +352,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     <textarea 
                       id="about-competencies"
                        defaultValue={formData.competencies.join(", ")} 
-                       onBlur={(e) => setFormData(prev => ({...prev, competencies: e.target.value.split(",").map(i => i.trim()).filter(Boolean)}))}
+                       onBlur={(e) => updateCompetencies(e.target.value)}
                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500/50 h-32" 
                     />
                   </div>
@@ -244,7 +361,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                       <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Текущий фокус</p>
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, focusAreas: [...prev.focusAreas, { title: "", desc: "" }] }))}
+                        onClick={addFocusArea}
                         className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
                       >
                         + Добавить
@@ -252,25 +369,25 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     </div>
                     <div className="space-y-3">
                       {formData.focusAreas.map((fa, idx) => (
-                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                        <div key={`focus-${fa.title}-${fa.desc}`} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-3">
                             <input
                               type="text"
                               placeholder="Название направления"
                               value={fa.title}
-                              onChange={(e) => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.map((f, i) => i === idx ? { ...f, title: e.target.value } : f) }))}
+                              onChange={(e) => updateFocusAreaTitle(idx, e.target.value)}
                               className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                             />
                             <button
                               type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.filter((_, i) => i !== idx) }))}
+                              onClick={() => removeFocusArea(idx)}
                               className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
                             >Удалить</button>
                           </div>
                           <textarea
                             placeholder="Описание"
                             value={fa.desc}
-                            onChange={(e) => setFormData(prev => ({ ...prev, focusAreas: prev.focusAreas.map((f, i) => i === idx ? { ...f, desc: e.target.value } : f) }))}
+                            onChange={(e) => updateFocusAreaDesc(idx, e.target.value)}
                             rows={2}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
                           />
@@ -287,10 +404,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Категории стека</p>
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({
-                        ...prev,
-                        techGroups: [...(prev.techGroups ?? []), { title: "", desc: "", names: [] }]
-                      }))}
+                      onClick={addTechGroup}
                       className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
                     >
                       + Добавить категорию
@@ -298,24 +412,18 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                   </div>
 
                   {(formData.techGroups ?? []).map((group, idx) => (
-                    <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                    <div key={`group-${group.title}-${group.description ?? group.desc ?? ""}`} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
                       <div className="flex items-center gap-3">
                         <input
                           type="text"
                           placeholder="Название категории"
                           value={group.title}
-                          onChange={(e) => setFormData(prev => ({
-                            ...prev,
-                            techGroups: (prev.techGroups ?? []).map((g, i) => i === idx ? { ...g, title: e.target.value } : g)
-                          }))}
+                          onChange={(e) => updateTechGroupTitle(idx, e.target.value)}
                           className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                         />
                         <button
                           type="button"
-                          onClick={() => setFormData(prev => ({
-                            ...prev,
-                            techGroups: (prev.techGroups ?? []).filter((_, i) => i !== idx)
-                          }))}
+                          onClick={() => removeTechGroup(idx)}
                           className="text-red-400 hover:text-red-300 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
                         >
                           Удалить
@@ -324,10 +432,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                       <textarea
                         placeholder="Описание категории (например: Go, Django, FastAPI + PostgreSQL)"
                         value={"desc" in group ? (group as { title: string; desc?: string; description?: string; names?: string[] }).desc ?? group.description ?? "" : group.description ?? ""}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          techGroups: (prev.techGroups ?? []).map((g, i) => i === idx ? { ...g, desc: e.target.value, description: e.target.value } : g)
-                        }))}
+                        onChange={(e) => updateTechGroupDescription(idx, e.target.value)}
                         rows={2}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
                       />
@@ -338,12 +443,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                           type="text"
                           placeholder="Go, TypeScript, Docker..."
                           defaultValue={(group.names ?? []).join(", ")}
-                          onBlur={(e) => setFormData(prev => ({
-                            ...prev,
-                            techGroups: (prev.techGroups ?? []).map((g, i) => i === idx
-                              ? { ...g, names: e.target.value.split(",").map(n => n.trim()).filter(Boolean) }
-                              : g)
-                          }))}
+                          onBlur={(e) => updateTechGroupNames(idx, e.target.value)}
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                         />
                       </div>
@@ -443,7 +543,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                       <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Учебные репозитории</p>
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, education: [...prev.education, { name: "", desc: "", href: "" }] }))}
+                        onClick={addEducation}
                         className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
                       >
                         + Добавить
@@ -451,18 +551,18 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     </div>
                     <div className="space-y-3">
                       {formData.education.map((edu, idx) => (
-                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                        <div key={`edu-${edu.name}-${edu.href}`} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-3">
                             <input
                               type="text"
                               placeholder="Название репозитория"
                               value={edu.name}
-                              onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, name: e.target.value } : ed) }))}
+                              onChange={(e) => updateEducationField(idx, "name", e.target.value)}
                               className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                             />
                             <button
                               type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== idx) }))}
+                              onClick={() => removeEducation(idx)}
                               className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
                             >Удалить</button>
                           </div>
@@ -470,14 +570,14 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                             type="text"
                             placeholder="Описание"
                             value={edu.desc}
-                            onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, desc: e.target.value } : ed) }))}
+                            onChange={(e) => updateEducationField(idx, "desc", e.target.value)}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                           />
                           <input
                             type="text"
                             placeholder="URL репозитория (необязательно)"
                             value={edu.href ?? ""}
-                            onChange={(e) => setFormData(prev => ({ ...prev, education: prev.education.map((ed, i) => i === idx ? { ...ed, href: e.target.value } : ed) }))}
+                            onChange={(e) => updateEducationField(idx, "href", e.target.value)}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                           />
                         </div>
@@ -489,7 +589,7 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                       <p className="text-xs font-mono uppercase text-gray-500 tracking-widest">Вне кода</p>
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, hobbies: [...prev.hobbies, { emoji: "", title: "", desc: "" }] }))}
+                        onClick={addHobby}
                         className="text-xs px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
                       >
                         + Добавить
@@ -497,32 +597,32 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                     </div>
                     <div className="space-y-3">
                       {formData.hobbies.map((hobby, idx) => (
-                        <div key={idx} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
+                        <div key={`hobby-${hobby.emoji}-${hobby.title}-${hobby.desc}`} className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-3">
                             <input
                               type="text"
                               placeholder="😀"
                               value={hobby.emoji}
-                              onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, emoji: e.target.value } : h) }))}
+                              onChange={(e) => updateHobbyField(idx, "emoji", e.target.value)}
                               className="w-16 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-center text-lg focus:outline-none focus:border-orange-500/50"
                             />
                             <input
                               type="text"
                               placeholder="Название"
                               value={hobby.title}
-                              onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, title: e.target.value } : h) }))}
+                              onChange={(e) => updateHobbyField(idx, "title", e.target.value)}
                               className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
                             />
                             <button
                               type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.filter((_, i) => i !== idx) }))}
+                              onClick={() => removeHobby(idx)}
                               className="text-red-400 text-xs px-2 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-colors shrink-0"
                             >Удалить</button>
                           </div>
                           <textarea
                             placeholder="Описание"
                             value={hobby.desc}
-                            onChange={(e) => setFormData(prev => ({ ...prev, hobbies: prev.hobbies.map((h, i) => i === idx ? { ...h, desc: e.target.value } : h) }))}
+                            onChange={(e) => updateHobbyField(idx, "desc", e.target.value)}
                             rows={2}
                             className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
                           />

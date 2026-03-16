@@ -65,14 +65,14 @@ function normalizeHomeCategories(categories: HomeStackCategory[]): HomeStackCate
     }));
 }
 
-function SortableRow({ id, label, isActive = false, onSelect, onDelete }: SortableRowProps) {
+function SortableRow({ id, label, isActive = false, onSelect, onDelete }: Readonly<SortableRowProps>) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const isSelectable = typeof onSelect === "function";
 
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      onClick={onSelect}
       className={`flex items-center justify-between rounded-lg border px-3 py-2 transition ${
         isActive
           ? "border-gray-700 border-l-2 border-l-orange-500 bg-white/10"
@@ -88,7 +88,17 @@ function SortableRow({ id, label, isActive = false, onSelect, onDelete }: Sortab
         >
           <GripVertical size={15} />
         </span>
-        <span className="text-left text-sm text-white truncate">{label}</span>
+        {isSelectable ? (
+          <button
+            type="button"
+            onClick={onSelect}
+            className="text-left text-sm text-white truncate"
+          >
+            {label}
+          </button>
+        ) : (
+          <span className="text-left text-sm text-white truncate">{label}</span>
+        )}
       </div>
       <button
         type="button"
@@ -915,7 +925,7 @@ export default function AdminStackPage() {
                     const draft = editingMap[technology.id] ?? {};
                     return (
                       <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
-                        <TechIcon slug={(draft.deviconSlug as string | null | undefined) ?? technology.deviconSlug} name={draft.name ?? technology.name} size={24} />
+                        <TechIcon slug={draft.deviconSlug ?? technology.deviconSlug} name={draft.name ?? technology.name} size={24} />
                         <input
                           value={draft.name ?? technology.name}
                           onChange={(e) => updateDraftField(technology.id, "name", e.target.value)}
@@ -938,7 +948,7 @@ export default function AdminStackPage() {
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <input
-                          value={(draft.deviconSlug as string | null | undefined) ?? technology.deviconSlug ?? ""}
+                          value={draft.deviconSlug ?? technology.deviconSlug ?? ""}
                           onChange={(e) => updateDraftField(technology.id, "deviconSlug", e.target.value || null)}
                           placeholder="Devicon slug"
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
