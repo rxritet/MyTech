@@ -250,7 +250,7 @@ export default function AddProjectPage() {
                           .filter(Boolean);
                         setFormData((prev) => ({ ...prev, features: items }));
                       }}
-                      placeholder="Фича 1&#10;Фича 2&#10;Фича 3"
+                      placeholder="Фича 1\nФича 2\nФича 3"
                       rows={3}
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
@@ -315,7 +315,7 @@ export default function AddProjectPage() {
                           .filter(Boolean);
                         setFormData((prev) => ({ ...prev, stack: items }));
                       }}
-                      placeholder="React&#10;TypeScript&#10;Tailwind"
+                      placeholder="React\nTypeScript\nTailwind"
                       rows={3}
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
@@ -323,6 +323,7 @@ export default function AddProjectPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
                       <label className="block text-sm font-medium text-gray-300 mb-1">
                         Основной язык *
                       </label>
