@@ -1,0 +1,10 @@
+UPDATE technologies SET devicon_slug = 'vitejs'            WHERE name = 'Vite';
+UPDATE technologies SET devicon_slug = 'tailwindcss'       WHERE name = 'TailwindCSS';
+UPDATE technologies SET devicon_slug = 'tailwindcss'       WHERE name = 'Tailwind';
+UPDATE technologies SET devicon_slug = 'nodejs'            WHERE name = 'Node.js';
+UPDATE technologies SET devicon_slug = 'amazonwebservices' WHERE name = 'AWS';
+UPDATE technologies SET devicon_slug = 'vscode'            WHERE name = 'VS Code';
+UPDATE technologies SET devicon_slug = NULL                WHERE name = 'Vercel';
+UPDATE technologies SET devicon_slug = NULL                WHERE name = 'Hono';
+UPDATE technologies SET devicon_slug = NULL                WHERE name = 'Burp Suite';
+UPDATE technologies SET devicon_slug = NULL                WHERE name = 'Antigravity';
