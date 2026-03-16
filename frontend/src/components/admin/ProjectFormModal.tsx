@@ -12,6 +12,7 @@ interface ProjectFormModalProps {
   readonly project?: Project | null;
   readonly secret: string;
   readonly onSuccess: () => void;
+  readonly initialTab?: TabType;
 }
 
 type TabType = "basic" | "description" | "media" | "development" | "tech";
@@ -22,6 +23,7 @@ export default function ProjectFormModal({
   project,
   secret,
   onSuccess,
+  initialTab,
 }: Readonly<ProjectFormModalProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +74,8 @@ export default function ProjectFormModal({
       });
       setSelectedTechnologyIds([]);
     }
-    setCurrentTab("basic");
-  }, [project, isOpen]);
+    setCurrentTab(initialTab ?? "basic");
+  }, [project, isOpen, initialTab]);
 
   useEffect(() => {
     const loadTechnologies = async () => {
