@@ -50,11 +50,13 @@ stackRouter.get("/home", async (c) => {
       slug: category.slug,
       label: category.label,
       order: category.order,
-      items: (groupedItems.get(category.id) ?? []).map((item) => ({
-        id: item.id,
-        name: item.name,
-        order: item.order,
-      })),
+      items: (groupedItems.get(category.id) ?? [])
+        .map((item) => ({
+          id: item.id,
+          name: item.name.trim(),
+          order: item.order,
+        }))
+        .filter((item) => item.name.length > 0),
     })),
   );
 });

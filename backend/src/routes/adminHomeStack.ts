@@ -7,13 +7,13 @@ import { homeStackCategories, homeStackItems } from "../db/schema";
 import adminAuth from "../middleware/adminAuth";
 
 const createCategorySchema = z.object({
-  slug: z.string().min(1),
-  label: z.string().min(1),
+  slug: z.string().trim().min(1),
+  label: z.string().trim().min(1),
 });
 
 const createItemSchema = z.object({
   category_id: z.number().int().positive(),
-  name: z.string().min(1),
+  name: z.string().trim().min(1),
 });
 
 const updateOrderSchema = z.object({
@@ -91,21 +91,37 @@ adminHomeStackRouter.post(
       return c.json({ error: "Category not found" }, 404);
     }
 
+    const normalizedName = data.name.trim();
+
     const currentItems = await db
-      .select({ id: homeStackItems.id })
+      .select({ id: homeStackItems.id, name: homeStackItems.name })
       .from(homeStackItems)
       .where(eq(homeStackItems.categoryId, data.category_id));
+
+    const duplicateExists = currentItems.some(
+      (item) => item.name.trim().toLowerCase() === normalizedName.toLowerCase(),
+    );
+    if (duplicateExists) {
+      return c.json({ error: "Duplicate item in category" }, 409);
+    }
 
     const inserted = await db
       .insert(homeStackItems)
       .values({
         categoryId: data.category_id,
-        name: data.name,
+        name: normalizedName,
         order: currentItems.length,
       })
       .returning();
 
-    return c.json(inserted[0], 201);
+    return c.json(
+      {
+        id: inserted[0].id,
+        name: inserted[0].name.trim(),
+        order: inserted[0].order,
+      },
+      201,
+    );
   },
 );
 
@@ -171,7 +187,13 @@ adminHomeStackRouter.put(
     return c.json(
       categories.map((category) => ({
         ...category,
-        items: groupedItems.get(category.id) ?? [],
+        items: (groupedItems.get(category.id) ?? [])
+          .map((item) => ({
+            id: item.id,
+            name: item.name.trim(),
+            order: item.order,
+          }))
+          .filter((item) => item.name.length > 0),
       })),
     );
   },

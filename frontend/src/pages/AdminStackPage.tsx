@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent, type UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -44,7 +44,7 @@ interface SortableRowProps {
   label: string;
   isActive?: boolean;
   onSelect?: () => void;
-  onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onDelete: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 function normalizeHomeCategories(categories: HomeStackCategory[]): HomeStackCategory[] {
