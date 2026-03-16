@@ -207,7 +207,6 @@ aboutRouter.get("/", async (c) => {
 // PATCH /api/about - Partially update about record
 aboutRouter.patch("/", adminAuth, zValidator("json", aboutSchema, (result, c) => {
   if (!result.success) {
-    console.error("❌ Validation Error:", JSON.stringify(result.error.format(), null, 2));
     return c.json({ error: "Validation failed", details: result.error.format() }, 400);
   }
 }), async (c) => {

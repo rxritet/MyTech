@@ -151,13 +151,11 @@ projectsRouter.post("/", adminAuth, zValidator("json", projectSchema), async (c)
     if (isProjectSlugConflict(error)) {
       return c.json({ error: "Проект с таким slug уже существует" }, 409);
     }
-
-    console.error(error);
     return c.json({ error: "Не удалось создать проект" }, 500);
   }
 });
 
-projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), async (c) => {
+async function updateProjectHandler(c: any) {
   try {
     const id = Number.parseInt(c.req.param("id"), 10);
     const data = c.req.valid("json");
@@ -183,43 +181,13 @@ projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), async (
     if (isProjectSlugConflict(error)) {
       return c.json({ error: "Проект с таким slug уже существует" }, 409);
     }
-
-    console.error(error);
     return c.json({ error: "Не удалось обновить проект" }, 500);
   }
-});
+}
 
-projectsRouter.patch("/:id", adminAuth, zValidator("json", projectSchema), async (c) => {
-  try {
-    const id = Number.parseInt(c.req.param("id"), 10);
-    const data = c.req.valid("json");
-    const { technologyIds, ...payload } = data;
+projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), updateProjectHandler);
 
-    const updatedProject = await db
-      .update(projects)
-      .set({
-        ...payload,
-        stack: [],
-      })
-      .where(eq(projects.id, id))
-      .returning();
-
-    if (updatedProject.length === 0) {
-      return c.json({ error: "Not found" }, 404);
-    }
-
-    await syncProjectTechnologies(id, technologyIds ?? []);
-    const hydrated = await hydrateProjectsWithTechnologies(updatedProject);
-    return c.json(hydrated[0]);
-  } catch (error: unknown) {
-    if (isProjectSlugConflict(error)) {
-      return c.json({ error: "Проект с таким slug уже существует" }, 409);
-    }
-
-    console.error(error);
-    return c.json({ error: "Не удалось обновить проект" }, 500);
-  }
-});
+projectsRouter.patch("/:id", adminAuth, zValidator("json", projectSchema), updateProjectHandler);
 
 projectsRouter.delete("/:id", adminAuth, async (c) => {
   const id = Number.parseInt(c.req.param("id"), 10);
