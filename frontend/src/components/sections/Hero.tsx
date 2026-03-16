@@ -55,6 +55,11 @@ export default function Hero() {
           Обо мне
         </Link>
       </div>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[1] h-28 bg-gradient-to-b from-transparent to-[var(--bg)]"
+      />
     </section>
   );
 }
