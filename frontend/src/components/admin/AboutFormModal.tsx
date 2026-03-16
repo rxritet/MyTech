@@ -332,12 +332,13 @@ export default function AboutFormModal({ isOpen, onClose, initialData, secret, o
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50 resize-none"
                       />
                       <div>
-                        <label className="block text-[10px] text-gray-500 mb-1 italic">Технологии (через запятую, необязательно)</label>
+                        <label htmlFor={`about-techgroup-names-${idx}`} className="block text-[10px] text-gray-500 mb-1 italic">Технологии (через запятую, необязательно)</label>
                         <input
+                          id={`about-techgroup-names-${idx}`}
                           type="text"
                           placeholder="Go, TypeScript, Docker..."
-                          value={(group.names ?? []).join(", ")}
-                          onChange={(e) => setFormData(prev => ({
+                          defaultValue={(group.names ?? []).join(", ")}
+                          onBlur={(e) => setFormData(prev => ({
                             ...prev,
                             techGroups: (prev.techGroups ?? []).map((g, i) => i === idx
                               ? { ...g, names: e.target.value.split(",").map(n => n.trim()).filter(Boolean) }

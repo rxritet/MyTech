@@ -21,6 +21,8 @@ export default function AddProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [routeStatus, setRouteStatus] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>("basic");
+  const [featuresInput, setFeaturesInput] = useState("");
+  const [stackInput, setStackInput] = useState("");
   const [aboutData, setAboutData] = useState<AboutData | null>(null);
   const [projectTechCatalog, setProjectTechCatalog] = useState<string[]>([]);
   const [newTechName, setNewTechName] = useState("");
@@ -77,6 +79,14 @@ export default function AddProjectPage() {
       void loadTechSettings();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    setFeaturesInput((formData.features ?? []).join(", "));
+  }, [formData.features]);
+
+  useEffect(() => {
+    setStackInput((formData.stack ?? []).join(", "));
+  }, [formData.stack]);
 
   if (!isAdmin || !secret) {
     return null;
@@ -178,7 +188,12 @@ export default function AddProjectPage() {
     setLoading(true);
     setError(null);
     try {
-      await createProject(formData, secret);
+      const payload: Partial<Project> = {
+        ...formData,
+        features: parseCommaSeparated(featuresInput),
+        stack: parseCommaSeparated(stackInput),
+      };
+      await createProject(payload, secret);
       navigate("/projects");
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -354,8 +369,9 @@ export default function AddProjectPage() {
                     <input
                       id="project-features"
                       required
-                      value={formData.features?.join(", ") || ""}
-                      onChange={(e) => handleArrayChange("features", e.target.value)}
+                      value={featuresInput}
+                      onChange={(e) => setFeaturesInput(e.target.value)}
+                      onBlur={() => handleArrayChange("features", featuresInput)}
                       placeholder="Фича 1, Фича 2, Фича 3"
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
@@ -414,8 +430,9 @@ export default function AddProjectPage() {
                     <input
                       id="project-stack"
                       required
-                      value={formData.stack?.join(", ") || ""}
-                      onChange={(e) => handleArrayChange("stack", e.target.value)}
+                      value={stackInput}
+                      onChange={(e) => setStackInput(e.target.value)}
+                      onBlur={() => handleArrayChange("stack", stackInput)}
                       placeholder="React, TypeScript, Tailwind"
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
@@ -427,7 +444,11 @@ export default function AddProjectPage() {
                           <button
                             key={`catalog-${tech}`}
                             type="button"
-                            onClick={() => setFormData((prev) => ({ ...prev, stack: addTechToList(prev.stack ?? [], tech) }))}
+                            onClick={() => {
+                              const updated = addTechToList(parseCommaSeparated(stackInput), tech);
+                              setStackInput(updated.join(", "));
+                              setFormData((prev) => ({ ...prev, stack: updated }));
+                            }}
                             className="px-2.5 py-1 text-xs rounded-full border border-orange-500/30 text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 transition"
                           >
                             + {tech}

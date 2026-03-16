@@ -25,6 +25,8 @@ export default function ProjectFormModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>("basic");
+  const [featuresInput, setFeaturesInput] = useState("");
+  const [stackInput, setStackInput] = useState("");
 
   const [formData, setFormData] = useState<Partial<Project>>({
     slug: "",
@@ -69,6 +71,14 @@ export default function ProjectFormModal({
     setCurrentTab("basic");
   }, [project, isOpen]);
 
+  useEffect(() => {
+    setFeaturesInput((formData.features ?? []).join(", "));
+  }, [formData.features]);
+
+  useEffect(() => {
+    setStackInput((formData.stack ?? []).join(", "));
+  }, [formData.stack]);
+
   if (!isOpen) return null;
 
   const handleChange = (
@@ -102,10 +112,15 @@ export default function ProjectFormModal({
     setLoading(true);
     setError(null);
     try {
+      const payload: Partial<Project> = {
+        ...formData,
+        features: parseCommaSeparated(featuresInput),
+        stack: parseCommaSeparated(stackInput),
+      };
       if (project?.id) {
-        await updateProject(project.id, formData, secret);
+        await updateProject(project.id, payload, secret);
       } else {
-        await createProject(formData, secret);
+        await createProject(payload, secret);
       }
       onSuccess();
       onClose();
@@ -276,8 +291,9 @@ export default function ProjectFormModal({
                   <input
                     id="modal-project-features"
                     required
-                    value={formData.features?.join(", ") || ""}
-                    onChange={(e) => handleArrayChange("features", e.target.value)}
+                    value={featuresInput}
+                    onChange={(e) => setFeaturesInput(e.target.value)}
+                    onBlur={() => handleArrayChange("features", featuresInput)}
                     placeholder="Фича 1, Фича 2, Фича 3"
                     className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
                   />
@@ -349,8 +365,9 @@ export default function ProjectFormModal({
                     <input
                       id="modal-project-stack"
                       required
-                      value={formData.stack?.join(", ") || ""}
-                      onChange={(e) => handleArrayChange("stack", e.target.value)}
+                      value={stackInput}
+                      onChange={(e) => setStackInput(e.target.value)}
+                      onBlur={() => handleArrayChange("stack", stackInput)}
                       placeholder="React, TypeScript, Tailwind"
                       className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
                     />
