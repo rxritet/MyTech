@@ -31,7 +31,11 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-20 px-3 pb-8 pt-4 md:px-5">
+    <footer className="mt-8 px-3 pb-8 pt-4 md:px-5">
+      <div
+        aria-hidden="true"
+        className="max-w-[86rem] mx-auto h-20 bg-gradient-to-b from-transparent via-orange-500/6 to-transparent"
+      />
       <div className="surface-panel max-w-[86rem] mx-auto rounded-[2rem] px-5 py-10 md:px-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.9fr_0.9fr] gap-10">
           {/* Col 1 — Brand info */}
