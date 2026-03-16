@@ -112,7 +112,7 @@ export default function ProjectFormModal({
   };
 
   const stringifyCommaSeparated = (items: string[] = []): string =>
-    items.map((item) => item.replace(/,/g, "\\,")).join(", ");
+    items.map((item) => item.split(",").join(String.raw`\,`)).join(", ");
 
   const handleArrayChange = (name: keyof Project, value: string) => {
     const items = parseCommaSeparated(value);
@@ -141,7 +141,7 @@ export default function ProjectFormModal({
       onClose();
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError(String(err));
+      else setError("Неизвестная ошибка");
     } finally {
       setLoading(false);
     }
@@ -202,10 +202,11 @@ export default function ProjectFormModal({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-name" className="block text-sm font-medium text-gray-300 mb-1">
                       Название проекта *
                     </label>
                     <input
+                      id="modal-project-name"
                       required
                       name="name"
                       value={formData.name || ""}
@@ -216,10 +217,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-slug" className="block text-sm font-medium text-gray-300 mb-1">
                       Slug (URL) *
                     </label>
                     <input
+                      id="modal-project-slug"
                       required
                       name="slug"
                       value={formData.slug || ""}
@@ -230,10 +232,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-created-at" className="block text-sm font-medium text-gray-300 mb-1">
                       Дата создания *
                     </label>
                     <input
+                      id="modal-project-created-at"
                       required
                       name="createdAt"
                       value={formData.createdAt || ""}
@@ -244,10 +247,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-dev-time" className="block text-sm font-medium text-gray-300 mb-1">
                       Время разработки *
                     </label>
                     <input
+                      id="modal-project-dev-time"
                       required
                       name="devTime"
                       value={formData.devTime || ""}
@@ -264,10 +268,11 @@ export default function ProjectFormModal({
             {currentTab === "description" && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label htmlFor="modal-project-description" className="block text-sm font-medium text-gray-300 mb-1">
                     Краткое описание *
                   </label>
                   <textarea
+                    id="modal-project-description"
                     required
                     name="description"
                     value={formData.description || ""}
@@ -279,10 +284,11 @@ export default function ProjectFormModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label htmlFor="modal-project-long-description" className="block text-sm font-medium text-gray-300 mb-1">
                     Подробное описание *
                   </label>
                   <textarea
+                    id="modal-project-long-description"
                     required
                     name="longDescription"
                     value={formData.longDescription || ""}
@@ -294,10 +300,11 @@ export default function ProjectFormModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                  <label htmlFor="modal-project-features" className="block text-sm font-medium text-gray-300 mb-1">
                     Особенности (через запятую) *
                   </label>
                   <input
+                    id="modal-project-features"
                     required
                     value={stringifyCommaSeparated(formData.features || [])}
                     onChange={(e) => handleArrayChange("features", e.target.value)}
@@ -313,10 +320,11 @@ export default function ProjectFormModal({
             {currentTab === "media" && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="modal-project-image" className="block text-sm font-medium text-gray-300 mb-2">
                     Превью проекта (основное изображение) *
                   </label>
                   <input
+                    id="modal-project-image"
                     name="image"
                     value={formData.image || ""}
                     onChange={handleChange}
@@ -366,10 +374,11 @@ export default function ProjectFormModal({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-stack" className="block text-sm font-medium text-gray-300 mb-1">
                       Стек технологий (через запятую) *
                     </label>
                     <input
+                      id="modal-project-stack"
                       required
                       value={formData.stack?.join(", ") || ""}
                       onChange={(e) => handleArrayChange("stack", e.target.value)}
@@ -379,10 +388,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-language" className="block text-sm font-medium text-gray-300 mb-1">
                       Основной язык *
                     </label>
                     <input
+                      id="modal-project-language"
                       required
                       name="language"
                       value={formData.language || ""}
@@ -393,10 +403,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-github" className="block text-sm font-medium text-gray-300 mb-1">
                       URL GitHub
                     </label>
                     <input
+                      id="modal-project-github"
                       name="github"
                       value={formData.github || ""}
                       onChange={handleChange}
@@ -406,10 +417,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-demo" className="block text-sm font-medium text-gray-300 mb-1">
                       URL Demo
                     </label>
                     <input
+                      id="modal-project-demo"
                       name="demo"
                       value={formData.demo || ""}
                       onChange={handleChange}
@@ -419,10 +431,11 @@ export default function ProjectFormModal({
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="modal-project-accent-color" className="block text-sm font-medium text-gray-300 mb-1">
                       Цвет акцента (Tailwind градиент) *
                     </label>
                     <input
+                      id="modal-project-accent-color"
                       required
                       name="accentColor"
                       value={formData.accentColor || ""}

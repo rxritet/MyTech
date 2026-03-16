@@ -67,7 +67,7 @@ export default function ImageUploadField({
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {images.map((img, idx) => (
-          <div key={`image-${idx}`} className="relative group rounded-lg overflow-hidden bg-gray-950 border border-gray-800 aspect-video">
+          <div key={`image-${img}`} className="relative group rounded-lg overflow-hidden bg-gray-950 border border-gray-800 aspect-video">
             <img
               src={img}
               alt={`Preview ${idx}`}

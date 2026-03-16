@@ -45,9 +45,9 @@ export default function LivePreview({ formData }: Readonly<LivePreviewProps>) {
           {/* Stack */}
           {formData.stack && formData.stack.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {formData.stack.map((tech, idx) => (
+              {formData.stack.map((tech) => (
                 <span
-                  key={`tech-${idx}-${tech}`}
+                  key={`tech-${tech}`}
                   className="px-3 py-1 bg-indigo-900/30 border border-indigo-500/50 text-indigo-300 text-xs rounded-full"
                 >
                   {tech}
@@ -63,8 +63,8 @@ export default function LivePreview({ formData }: Readonly<LivePreviewProps>) {
                 Особенности:
               </h4>
               <ul className="space-y-1">
-                {formData.features.slice(0, 3).map((feature, idx) => (
-                  <li key={`feature-${idx}-${feature}`} className="text-sm text-gray-400 flex items-start gap-2">
+                {formData.features.slice(0, 3).map((feature) => (
+                  <li key={`feature-${feature}`} className="text-sm text-gray-400 flex items-start gap-2">
                     <Star size={14} className="mt-1 text-indigo-400 flex-shrink-0" />
                     {feature}
                   </li>
@@ -135,14 +135,14 @@ export default function LivePreview({ formData }: Readonly<LivePreviewProps>) {
           <div>
             <h4 className="text-sm font-semibold text-gray-300 mb-3">Галерея</h4>
             <div className="grid grid-cols-2 gap-2">
-              {formData.gallery.slice(0, 4).map((img, idx) => (
+              {formData.gallery.slice(0, 4).map((img) => (
                 <div
-                  key={`gallery-${idx}`}
+                  key={`gallery-${img}`}
                   className="aspect-video rounded-lg overflow-hidden border border-gray-800"
                 >
                   <img
                     src={img}
-                    alt={`Gallery ${idx}`}
+                    alt="Gallery"
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src =
@@ -171,12 +171,12 @@ export default function LivePreview({ formData }: Readonly<LivePreviewProps>) {
               </h4>
               <div className="space-y-2 bg-gray-900 border border-gray-800 rounded-lg p-4">
                 {formData.developmentProcess.map((stage, idx) => (
-                  <div key={`stage-${idx}-${stage.title}`} className="flex gap-3">
+                  <div key={`stage-${stage.title}-${stage.description}`} className="flex gap-3">
                     <div className="flex flex-col items-center gap-1">
                       <div className="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">
                         {idx + 1}
                       </div>
-                      {idx < formData.developmentProcess!.length - 1 && (
+                      {idx < (formData.developmentProcess?.length ?? 0) - 1 && (
                         <div className="w-0.5 h-8 bg-indigo-600/30" />
                       )}
                     </div>

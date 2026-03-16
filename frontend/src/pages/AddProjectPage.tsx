@@ -86,7 +86,7 @@ export default function AddProjectPage() {
   };
 
   const stringifyCommaSeparated = (items: string[] = []): string =>
-    items.map((item) => item.replace(/,/g, "\\,")).join(", ");
+    items.map((item) => item.split(",").join(String.raw`\,`)).join(", ");
 
   const handleArrayChange = (name: keyof Project, value: string) => {
     const items = parseCommaSeparated(value);
@@ -110,7 +110,7 @@ export default function AddProjectPage() {
       navigate("/projects");
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError(String(err));
+      else setError("Неизвестная ошибка");
     } finally {
       setLoading(false);
     }
@@ -178,10 +178,11 @@ export default function AddProjectPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-name" className="block text-sm font-medium text-gray-300 mb-1">
                         Название проекта *
                       </label>
                       <input
+                        id="project-name"
                         required
                         name="name"
                         value={formData.name || ""}
@@ -192,10 +193,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-slug" className="block text-sm font-medium text-gray-300 mb-1">
                         Slug (URL) *
                       </label>
                       <input
+                        id="project-slug"
                         required
                         name="slug"
                         value={formData.slug || ""}
@@ -206,10 +208,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-created-at" className="block text-sm font-medium text-gray-300 mb-1">
                         Дата создания *
                       </label>
                       <input
+                        id="project-created-at"
                         required
                         name="createdAt"
                         value={formData.createdAt || ""}
@@ -220,10 +223,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-dev-time" className="block text-sm font-medium text-gray-300 mb-1">
                         Время разработки *
                       </label>
                       <input
+                        id="project-dev-time"
                         required
                         name="devTime"
                         value={formData.devTime || ""}
@@ -240,10 +244,11 @@ export default function AddProjectPage() {
               {currentTab === "description" && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="project-description" className="block text-sm font-medium text-gray-300 mb-1">
                       Краткое описание *
                     </label>
                     <textarea
+                      id="project-description"
                       required
                       name="description"
                       value={formData.description || ""}
@@ -255,10 +260,11 @@ export default function AddProjectPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="project-long-description" className="block text-sm font-medium text-gray-300 mb-1">
                       Подробное описание *
                     </label>
                     <textarea
+                      id="project-long-description"
                       required
                       name="longDescription"
                       value={formData.longDescription || ""}
@@ -270,10 +276,11 @@ export default function AddProjectPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="project-features" className="block text-sm font-medium text-gray-300 mb-1">
                       Особенности (через запятую) *
                     </label>
                     <input
+                      id="project-features"
                       required
                       value={stringifyCommaSeparated(formData.features || [])}
                       onChange={(e) => handleArrayChange("features", e.target.value)}
@@ -289,10 +296,11 @@ export default function AddProjectPage() {
               {currentTab === "media" && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="project-image" className="block text-sm font-medium text-gray-300 mb-2">
                       Превью проекта (основное изображение) *
                     </label>
                     <input
+                      id="project-image"
                       name="image"
                       value={formData.image || ""}
                       onChange={handleChange}
@@ -328,10 +336,11 @@ export default function AddProjectPage() {
               {currentTab === "tech" && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                    <label htmlFor="project-stack" className="block text-sm font-medium text-gray-300 mb-1">
                       Стек технологий (через запятую) *
                     </label>
                     <input
+                      id="project-stack"
                       required
                       value={formData.stack?.join(", ") || ""}
                       onChange={(e) => {
@@ -349,10 +358,11 @@ export default function AddProjectPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-language" className="block text-sm font-medium text-gray-300 mb-1">
                         Основной язык *
                       </label>
                       <input
+                        id="project-language"
                         required
                         name="language"
                         value={formData.language || ""}
@@ -363,10 +373,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-github" className="block text-sm font-medium text-gray-300 mb-1">
                         URL GitHub
                       </label>
                       <input
+                        id="project-github"
                         name="github"
                         value={formData.github || ""}
                         onChange={handleChange}
@@ -376,10 +387,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-demo" className="block text-sm font-medium text-gray-300 mb-1">
                         URL Demo
                       </label>
                       <input
+                        id="project-demo"
                         name="demo"
                         value={formData.demo || ""}
                         onChange={handleChange}
@@ -389,10 +401,11 @@ export default function AddProjectPage() {
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                      <label htmlFor="project-accent-color" className="block text-sm font-medium text-gray-300 mb-1">
                         Цвет акцента (Tailwind градиент) *
                       </label>
                       <input
+                        id="project-accent-color"
                         required
                         name="accentColor"
                         value={formData.accentColor || ""}
