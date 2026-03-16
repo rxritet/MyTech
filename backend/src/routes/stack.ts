@@ -3,15 +3,16 @@ import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "../db/client";
-import { aboutStack, homeStack, technologies, technologyCategoryEnum } from "../db/schema";
+import {
+  aboutStack,
+  homeStackCategories,
+  homeStackItems,
+  technologies,
+  technologyCategoryEnum,
+} from "../db/schema";
 import adminAuth from "../middleware/adminAuth";
 
 const categoryValues = technologyCategoryEnum.enumValues;
-
-const updateHomeSchema = z.object({
-  ids: z.array(z.number().int().positive()),
-  order: z.array(z.number().int()),
-});
 
 const updateAboutSchema = z.object({
   items: z.array(
@@ -26,60 +27,37 @@ const updateAboutSchema = z.object({
 const stackRouter = new Hono();
 
 stackRouter.get("/home", async (c) => {
-  const rows = await db
-    .select({
-      id: homeStack.id,
-      technologyId: technologies.id,
-      name: technologies.name,
-      category: technologies.category,
-      badgeUrl: technologies.badgeUrl,
-      order: homeStack.order,
-    })
-    .from(homeStack)
-    .innerJoin(technologies, eq(homeStack.technologyId, technologies.id))
-    .orderBy(asc(homeStack.order), asc(technologies.id));
+  const categories = await db
+    .select()
+    .from(homeStackCategories)
+    .orderBy(asc(homeStackCategories.order), asc(homeStackCategories.id));
 
-  return c.json(rows);
+  const items = await db
+    .select()
+    .from(homeStackItems)
+    .orderBy(asc(homeStackItems.order), asc(homeStackItems.id));
+
+  const groupedItems = new Map<number, Array<typeof homeStackItems.$inferSelect>>();
+  for (const item of items) {
+    const current = groupedItems.get(item.categoryId) ?? [];
+    current.push(item);
+    groupedItems.set(item.categoryId, current);
+  }
+
+  return c.json(
+    categories.map((category) => ({
+      id: category.id,
+      slug: category.slug,
+      label: category.label,
+      order: category.order,
+      items: (groupedItems.get(category.id) ?? []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        order: item.order,
+      })),
+    })),
+  );
 });
-
-stackRouter.put(
-  "/home",
-  adminAuth,
-  zValidator("json", updateHomeSchema),
-  async (c) => {
-    const data = c.req.valid("json");
-
-    if (data.ids.length !== data.order.length) {
-      return c.json({ error: "ids and order length mismatch" }, 400);
-    }
-
-    await db.delete(homeStack);
-
-    if (data.ids.length > 0) {
-      await db.insert(homeStack).values(
-        data.ids.map((technologyId, index) => ({
-          technologyId,
-          order: data.order[index],
-        })),
-      );
-    }
-
-    const rows = await db
-      .select({
-        id: homeStack.id,
-        technologyId: technologies.id,
-        name: technologies.name,
-        category: technologies.category,
-        badgeUrl: technologies.badgeUrl,
-        order: homeStack.order,
-      })
-      .from(homeStack)
-      .innerJoin(technologies, eq(homeStack.technologyId, technologies.id))
-      .orderBy(asc(homeStack.order), asc(technologies.id));
-
-    return c.json(rows);
-  },
-);
 
 stackRouter.get("/about", async (c) => {
   const rows = await db

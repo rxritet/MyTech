@@ -66,6 +66,20 @@ export const homeStack = pgTable("home_stack", {
   order: integer("order").notNull().default(0),
 });
 
+export const homeStackCategories = pgTable("home_stack_categories", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  label: text("label").notNull(),
+  order: integer("order").notNull().default(0),
+});
+
+export const homeStackItems = pgTable("home_stack_items", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").notNull().references(() => homeStackCategories.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  order: integer("order").notNull().default(0),
+});
+
 export const aboutStack = pgTable("about_stack", {
   id: serial("id").primaryKey(),
   technologyId: integer("technology_id").notNull().references(() => technologies.id, { onDelete: "cascade" }),

@@ -6,6 +6,7 @@ import projectsRouter from "./routes/projects";
 import aboutRouter from "./routes/about";
 import technologiesRouter from "./routes/technologies";
 import stackRouter from "./routes/stack";
+import adminHomeStackRouter from "./routes/adminHomeStack";
 
 config();
 
@@ -20,5 +21,6 @@ app.route("/api/projects", projectsRouter);
 app.route("/api/about", aboutRouter);
 app.route("/api/technologies", technologiesRouter);
 app.route("/api/stack", stackRouter);
+app.route("/api/admin/stack/home", adminHomeStackRouter);
 
 export default app;
