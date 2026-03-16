@@ -108,6 +108,31 @@ export interface DevelopmentStage {
   description: string;
 }
 
+export type TechnologyCategory =
+  | "language"
+  | "backend"
+  | "frontend"
+  | "devops"
+  | "tool"
+  | "mobile";
+
+export interface Technology {
+  id: number;
+  name: string;
+  category: TechnologyCategory;
+  badgeUrl: string;
+  createdAt: string;
+}
+
+export interface PublicStackItem {
+  id: number;
+  technologyId: number;
+  name: string;
+  category: TechnologyCategory;
+  badgeUrl: string;
+  order: number;
+}
+
 export interface Project {
   id: number;
   slug: string;
@@ -125,6 +150,7 @@ export interface Project {
   language: string;
   createdAt: string;
   developmentProcess?: DevelopmentStage[];
+  technologyIds?: number[];
 }
 
 export async function getProjects(): Promise<Project[]> {
@@ -163,5 +189,77 @@ export async function deleteProject(id: number, secret: string): Promise<{ succe
     headers: {
       "x-admin-secret": secret,
     },
+  });
+}
+
+export async function getTechnologies(): Promise<Technology[]> {
+  return apiRequest<Technology[]>("/api/technologies");
+}
+
+export async function createTechnology(payload: Pick<Technology, "name" | "category" | "badgeUrl">, secret: string): Promise<Technology> {
+  return apiRequest<Technology>("/api/technologies", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateTechnology(
+  id: number,
+  payload: Partial<Pick<Technology, "name" | "category" | "badgeUrl">>,
+  secret: string,
+): Promise<Technology> {
+  return apiRequest<Technology>(`/api/technologies/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteTechnology(id: number, secret: string): Promise<{ success: boolean }> {
+  return apiRequest<{ success: boolean }>(`/api/technologies/${id}`, {
+    method: "DELETE",
+    headers: {
+      "x-admin-secret": secret,
+    },
+  });
+}
+
+export async function getHomeStack(): Promise<PublicStackItem[]> {
+  return apiRequest<PublicStackItem[]>("/api/stack/home");
+}
+
+export async function updateHomeStack(payload: { ids: number[]; order: number[] }, secret: string): Promise<PublicStackItem[]> {
+  return apiRequest<PublicStackItem[]>("/api/stack/home", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getAboutStack(): Promise<PublicStackItem[]> {
+  return apiRequest<PublicStackItem[]>("/api/stack/about");
+}
+
+export async function updateAboutStack(
+  payload: { items: Array<{ technologyId: number; category: TechnologyCategory; order: number }> },
+  secret: string,
+): Promise<PublicStackItem[]> {
+  return apiRequest<PublicStackItem[]>("/api/stack/about", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-secret": secret,
+    },
+    body: JSON.stringify(payload),
   });
 }
