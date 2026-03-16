@@ -23,17 +23,25 @@ const deviconSlugSchema = z.preprocess(
   z.string().regex(/^[a-z0-9]+$/).nullable(),
 );
 
+const badgeUrlSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+    return value.trim();
+  },
+  z.string().url().or(z.literal("")),
+);
+
 const createTechnologySchema = z.object({
   name: z.string().min(1),
   category: z.enum(categoryValues),
-  badgeUrl: z.string().url(),
+  badgeUrl: badgeUrlSchema.optional(),
   deviconSlug: deviconSlugSchema.optional(),
 });
 
 const updateTechnologySchema = z.object({
   name: z.string().min(1).optional(),
   category: z.enum(categoryValues).optional(),
-  badgeUrl: z.string().url().optional(),
+  badgeUrl: badgeUrlSchema.optional(),
   deviconSlug: deviconSlugSchema.optional(),
 });
 
@@ -50,7 +58,13 @@ technologiesRouter.post(
   zValidator("json", createTechnologySchema),
   async (c) => {
     const data = c.req.valid("json");
-    const inserted = await db.insert(technologies).values(data).returning();
+    const inserted = await db
+      .insert(technologies)
+      .values({
+        ...data,
+        badgeUrl: data.badgeUrl ?? "",
+      })
+      .returning();
     return c.json(inserted[0], 201);
   },
 );

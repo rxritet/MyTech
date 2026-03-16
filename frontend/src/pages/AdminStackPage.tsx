@@ -463,8 +463,13 @@ export default function AdminStackPage() {
   };
 
   const handleCreateTechnology = async () => {
-    if (!newTechnologyName.trim() || !newTechnologyBadgeUrl.trim()) {
-      setError("Заполните название и ссылку на бейдж");
+    if (!newTechnologyName.trim()) {
+      setError("Заполните название технологии");
+      return;
+    }
+
+    if (!newTechnologyDeviconSlug.trim() && !newTechnologyBadgeUrl.trim()) {
+      setError("Укажите Devicon slug или кастомный URL иконки");
       return;
     }
 
@@ -796,7 +801,12 @@ export default function AdminStackPage() {
                             }}
                             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/5"
                           >
-                            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
+                            <TechIcon
+                              slug={technology.deviconSlug}
+                              name={technology.name}
+                              size={24}
+                              fallbackSrc={technology.badgeUrl}
+                            />
                             <span className="truncate">{technology.name}</span>
                           </button>
                         ))}
@@ -837,7 +847,12 @@ export default function AdminStackPage() {
                       return (
                         <div key={`about-item-${item.technologyId}`} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-4 py-2">
                           <div className="flex items-center gap-3">
-                            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
+                            <TechIcon
+                              slug={technology.deviconSlug}
+                              name={technology.name}
+                              size={24}
+                              fallbackSrc={technology.badgeUrl}
+                            />
                             <span className="text-sm font-medium text-white">{technology.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -895,11 +910,16 @@ export default function AdminStackPage() {
                   <input
                     value={newTechnologyBadgeUrl}
                     onChange={(e) => setNewTechnologyBadgeUrl(e.target.value)}
-                    placeholder="Badge URL"
+                    placeholder="Кастомный URL иконки (опционально)"
                     className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                   />
                   <div className="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
-                    <TechIcon slug={newTechnologyDeviconSlug.trim() || null} name={newTechnologyName || "preview"} size={28} />
+                    <TechIcon
+                      slug={newTechnologyDeviconSlug.trim() || null}
+                      name={newTechnologyName || "preview"}
+                      size={28}
+                      fallbackSrc={newTechnologyBadgeUrl.trim() || null}
+                    />
                     <input
                       value={newTechnologyDeviconSlug}
                       onChange={(e) => setNewTechnologyDeviconSlug(e.target.value)}
@@ -908,7 +928,7 @@ export default function AdminStackPage() {
                     />
                   </div>
                   <p className="md:col-span-4 text-xs text-gray-500">
-                    Найти slug: devicon.dev (например: go, typescript, docker). Если не поддерживается, оставьте пустым.
+                    Найти slug: devicon.dev (например: go, typescript, docker)
                   </p>
                   <button
                     type="button"
@@ -923,9 +943,16 @@ export default function AdminStackPage() {
                 <div className="space-y-2">
                   {technologies.map((technology) => {
                     const draft = editingMap[technology.id] ?? {};
+                    const draftBadge = draft.badgeUrl;
+                    const effectiveBadgeUrl = typeof draftBadge === "string" ? draftBadge : technology.badgeUrl;
                     return (
                       <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
-                        <TechIcon slug={draft.deviconSlug ?? technology.deviconSlug} name={draft.name ?? technology.name} size={24} />
+                        <TechIcon
+                          slug={draft.deviconSlug ?? technology.deviconSlug}
+                          name={draft.name ?? technology.name}
+                          size={24}
+                          fallbackSrc={effectiveBadgeUrl}
+                        />
                         <input
                           value={draft.name ?? technology.name}
                           onChange={(e) => updateDraftField(technology.id, "name", e.target.value)}
@@ -945,6 +972,7 @@ export default function AdminStackPage() {
                         <input
                           value={draft.badgeUrl ?? technology.badgeUrl}
                           onChange={(e) => updateDraftField(technology.id, "badgeUrl", e.target.value)}
+                          placeholder="Кастомный URL иконки (опционально)"
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <input

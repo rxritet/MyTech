@@ -227,7 +227,7 @@ export async function getTechnologies(): Promise<Technology[]> {
 }
 
 export async function createTechnology(
-  payload: Pick<Technology, "name" | "category" | "badgeUrl" | "deviconSlug">,
+  payload: Pick<Technology, "name" | "category" | "deviconSlug"> & { badgeUrl?: string },
   secret: string,
 ): Promise<Technology> {
   return apiRequest<Technology>("/api/technologies", {
@@ -242,7 +242,7 @@ export async function createTechnology(
 
 export async function updateTechnology(
   id: number,
-  payload: Partial<Pick<Technology, "name" | "category" | "badgeUrl" | "deviconSlug">>,
+  payload: Partial<Pick<Technology, "name" | "category" | "deviconSlug">> & { badgeUrl?: string },
   secret: string,
 ): Promise<Technology> {
   return apiRequest<Technology>(`/api/technologies/${id}`, {

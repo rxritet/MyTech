@@ -387,7 +387,12 @@ export default function About() {
                         className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${colorClasses.split(" ").slice(0, 2).join(" ")} ${colorClasses.split(" ")[2]}`}
                       >
                         <span className="mr-2 inline-flex items-center justify-center">
-                          <TechIcon slug={apiItem?.deviconSlug ?? null} name={name} size={16} />
+                          <TechIcon
+                            slug={apiItem?.deviconSlug ?? null}
+                            name={name}
+                            size={16}
+                            fallbackSrc={apiItem?.badgeUrl ?? null}
+                          />
                         </span>
                         <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
                         {name}

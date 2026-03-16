@@ -35,7 +35,12 @@ export default function TechnologySelector({
                 : "border-gray-800 bg-gray-950/50 text-gray-300 hover:border-gray-700"
             }`}
           >
-            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
+            <TechIcon
+              slug={technology.deviconSlug}
+              name={technology.name}
+              size={24}
+              fallbackSrc={technology.badgeUrl}
+            />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{technology.name}</p>
               <p className="truncate text-xs text-gray-500">{technology.category}</p>
