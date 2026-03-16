@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DndContext, DragOverlay, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent, type UniqueIdentifier } from "@dnd-kit/core";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   createHomeStackCategory,
   createHomeStackItem,
@@ -18,7 +21,7 @@ import {
   updateTechnology,
 } from "../api";
 import { useAdmin } from "../context/AdminContext";
-import { ArrowDown, ArrowUp, Loader2, Trash2 } from "lucide-react";
+import { GripVertical, ArrowDown, ArrowUp, Loader2, Trash2 } from "lucide-react";
 
 const CATEGORIES: TechnologyCategory[] = [
   "language",
@@ -34,6 +37,67 @@ type TabType = "home" | "about" | "catalog";
 interface AboutEditorItem {
   technologyId: number;
   category: TechnologyCategory;
+}
+
+interface SortableRowProps {
+  id: UniqueIdentifier;
+  label: string;
+  isActive?: boolean;
+  onSelect?: () => void;
+  onDelete: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+function normalizeHomeCategories(categories: HomeStackCategory[]): HomeStackCategory[] {
+  return [...categories]
+    .sort((a, b) => a.order - b.order)
+    .map((category, categoryIndex) => ({
+      ...category,
+      order: categoryIndex,
+      items: [...category.items]
+        .sort((a, b) => a.order - b.order)
+        .map((item, itemIndex) => ({
+          ...item,
+          order: itemIndex,
+          name: item.name.trim(),
+        }))
+        .filter((item) => item.name.length > 0),
+    }));
+}
+
+function SortableRow({ id, label, isActive = false, onSelect, onDelete }: SortableRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      onClick={onSelect}
+      className={`flex items-center justify-between rounded-lg border px-3 py-2 transition ${
+        isActive
+          ? "border-gray-700 border-l-2 border-l-orange-500 bg-white/10"
+          : "border-gray-800 bg-gray-950"
+      } ${isDragging ? "opacity-50 outline outline-1 outline-dashed outline-orange-400" : ""}`}
+    >
+      <div className="flex items-center gap-2 min-w-0">
+        <span
+          {...attributes}
+          {...listeners}
+          className="inline-flex cursor-grab active:cursor-grabbing text-gray-400 hover:text-white"
+          aria-label="Перетащить"
+        >
+          <GripVertical size={15} />
+        </span>
+        <span className="text-left text-sm text-white truncate">{label}</span>
+      </div>
+      <button
+        type="button"
+        onClick={onDelete}
+        className="p-1 text-red-400 hover:text-red-300"
+      >
+        <Trash2 size={14} />
+      </button>
+    </div>
+  );
 }
 
 function categoryLabel(category: TechnologyCategory): string {
@@ -67,6 +131,8 @@ export default function AdminStackPage() {
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [homeCategories, setHomeCategories] = useState<HomeStackCategory[]>([]);
   const [selectedHomeCategoryId, setSelectedHomeCategoryId] = useState<number | null>(null);
+  const [activeCategoryDragId, setActiveCategoryDragId] = useState<number | null>(null);
+  const [activeItemDragId, setActiveItemDragId] = useState<number | null>(null);
   const [newHomeCategorySlug, setNewHomeCategorySlug] = useState("");
   const [newHomeCategoryLabel, setNewHomeCategoryLabel] = useState("");
   const [newHomeItemName, setNewHomeItemName] = useState("");
@@ -79,6 +145,7 @@ export default function AdminStackPage() {
   const [editingMap, setEditingMap] = useState<Record<number, Partial<Technology>>>({});
   const [aboutDraftTechnologyId, setAboutDraftTechnologyId] = useState<number | null>(null);
   const [aboutDraftCategory, setAboutDraftCategory] = useState<TechnologyCategory>("language");
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
     if (!isAdmin) {
@@ -97,7 +164,7 @@ export default function AdminStackPage() {
       ]);
 
       setTechnologies(catalog);
-      const sortedHome = [...homeStack].sort((a, b) => a.order - b.order);
+      const sortedHome = normalizeHomeCategories(homeStack);
       setHomeCategories(sortedHome);
       setSelectedHomeCategoryId((prev) => {
         if (prev && sortedHome.some((category) => category.id === prev)) {
@@ -141,6 +208,12 @@ export default function AdminStackPage() {
   const selectedHomeCategory =
     homeCategories.find((category) => category.id === selectedHomeCategoryId) ?? null;
 
+  const activeCategoryLabel =
+    homeCategories.find((category) => category.id === activeCategoryDragId)?.slug ?? "";
+
+  const activeItemLabel =
+    selectedHomeCategory?.items.find((item) => item.id === activeItemDragId)?.name ?? "";
+
   const aboutByCategory = CATEGORIES.map((category) => ({
     category,
     items: aboutItems.filter((item) => item.category === category),
@@ -153,34 +226,82 @@ export default function AdminStackPage() {
     return null;
   }
 
-  const moveHomeCategory = (index: number, direction: -1 | 1) => {
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= homeCategories.length) return;
+  const persistHomeOrder = async (
+    nextCategories: HomeStackCategory[],
+    rollbackCategories: HomeStackCategory[],
+  ) => {
+    try {
+      const saved = await updateHomeStackOrder(
+        {
+          categories: nextCategories.map((category, index) => ({
+            id: category.id,
+            order: index,
+          })),
+          items: nextCategories.flatMap((category) =>
+            category.items.map((item, index) => ({
+              id: item.id,
+              order: index,
+            })),
+          ),
+        },
+        secret,
+      );
 
-    setHomeCategories((prev) => {
-      const next = [...prev];
-      const current = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = current;
-      return next;
-    });
+      setHomeCategories(normalizeHomeCategories(saved));
+      setError(null);
+    } catch {
+      setHomeCategories(rollbackCategories);
+      setError("Не удалось сохранить новый порядок");
+    }
   };
 
-  const moveHomeItem = (itemIndex: number, direction: -1 | 1) => {
-    if (!selectedHomeCategory) return;
-    const targetIndex = itemIndex + direction;
-    if (targetIndex < 0 || targetIndex >= selectedHomeCategory.items.length) return;
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveCategoryDragId(null);
+    if (!over || active.id === over.id) return;
 
-    setHomeCategories((prev) =>
-      prev.map((category) => {
-        if (category.id !== selectedHomeCategory.id) return category;
-        const items = [...category.items];
-        const current = items[itemIndex];
-        items[itemIndex] = items[targetIndex];
-        items[targetIndex] = current;
-        return { ...category, items };
-      }),
+    const oldIndex = homeCategories.findIndex((category) => category.id === Number(active.id));
+    const newIndex = homeCategories.findIndex((category) => category.id === Number(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const rollback = homeCategories;
+    const moved = arrayMove(homeCategories, oldIndex, newIndex).map((category, index) => ({
+      ...category,
+      order: index,
+    }));
+
+    setHomeCategories(moved);
+    void persistHomeOrder(moved, rollback);
+  };
+
+  const handleItemDragEnd = (event: DragEndEvent) => {
+    if (!selectedHomeCategory) {
+      setActiveItemDragId(null);
+      return;
+    }
+
+    const { active, over } = event;
+    setActiveItemDragId(null);
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = selectedHomeCategory.items.findIndex((item) => item.id === Number(active.id));
+    const newIndex = selectedHomeCategory.items.findIndex((item) => item.id === Number(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const rollback = homeCategories;
+    const reorderedItems = arrayMove(selectedHomeCategory.items, oldIndex, newIndex).map((item, index) => ({
+      ...item,
+      order: index,
+    }));
+
+    const nextCategories = homeCategories.map((category) =>
+      category.id === selectedHomeCategory.id
+        ? { ...category, items: reorderedItems }
+        : category,
     );
+
+    setHomeCategories(nextCategories);
+    void persistHomeOrder(nextCategories, rollback);
   };
 
   const moveAboutItem = (category: TechnologyCategory, index: number, direction: -1 | 1) => {
@@ -200,33 +321,6 @@ export default function AdminStackPage() {
     setAboutItems(next);
   };
 
-  const saveHome = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      await updateHomeStackOrder(
-        {
-          categories: homeCategories.map((category, index) => ({
-            id: category.id,
-            order: index,
-          })),
-          items: homeCategories.flatMap((category) =>
-            category.items.map((item, index) => ({
-              id: item.id,
-              order: index,
-            })),
-          ),
-        },
-        secret,
-      );
-      await reload();
-    } catch {
-      setError("Не удалось сохранить стек главной страницы");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleCreateHomeCategory = async () => {
     const slug = newHomeCategorySlug.trim();
     const label = newHomeCategoryLabel.trim() || slug;
@@ -242,7 +336,7 @@ export default function AdminStackPage() {
       setNewHomeCategorySlug("");
       setNewHomeCategoryLabel("");
       await reload();
-      setSelectedHomeCategoryId(created.id);
+      setSelectedHomeCategoryId(Number(created.id));
     } catch {
       setError("Не удалось создать категорию");
     } finally {
@@ -272,6 +366,14 @@ export default function AdminStackPage() {
     const name = newHomeItemName.trim();
     if (!name) {
       setError("Введите название технологии");
+      return;
+    }
+
+    const hasDuplicate = selectedHomeCategory?.items.some(
+      (item) => item.name.trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (hasDuplicate) {
+      setError("Такая технология уже есть в выбранной категории");
       return;
     }
 
@@ -448,49 +550,41 @@ export default function AdminStackPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
                   <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 space-y-3">
                     <p className="text-sm font-medium text-gray-200">Категории</p>
-                    <div className="space-y-2">
-                      {homeCategories.map((category, index) => (
-                        <div
-                          key={category.id}
-                          className={`flex items-center justify-between rounded-lg border px-3 py-2 ${
-                            selectedHomeCategoryId === category.id
-                              ? "border-orange-500/40 bg-orange-500/10"
-                              : "border-gray-800 bg-gray-950"
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedHomeCategoryId(category.id)}
-                            className="text-left text-sm text-white"
-                          >
-                            {category.slug}
-                          </button>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => moveHomeCategory(index, -1)}
-                              className="p-1 text-gray-400 hover:text-white"
-                            >
-                              <ArrowUp size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveHomeCategory(index, 1)}
-                              className="p-1 text-gray-400 hover:text-white"
-                            >
-                              <ArrowDown size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void handleDeleteHomeCategory(category.id)}
-                              className="p-1 text-red-400 hover:text-red-300"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragStart={(event) => setActiveCategoryDragId(Number(event.active.id))}
+                      onDragEnd={handleCategoryDragEnd}
+                      onDragCancel={() => setActiveCategoryDragId(null)}
+                    >
+                      <SortableContext
+                        items={homeCategories.map((category) => category.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-2">
+                          {homeCategories.map((category) => (
+                            <SortableRow
+                              key={category.id}
+                              id={category.id}
+                              label={category.slug}
+                              isActive={selectedHomeCategoryId === category.id}
+                              onSelect={() => setSelectedHomeCategoryId(Number(category.id))}
+                              onDelete={(event) => {
+                                event.stopPropagation();
+                                void handleDeleteHomeCategory(category.id);
+                              }}
+                            />
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </SortableContext>
+                      <DragOverlay>
+                        {activeCategoryLabel ? (
+                          <div className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white shadow-xl">
+                            {activeCategoryLabel}
+                          </div>
+                        ) : null}
+                      </DragOverlay>
+                    </DndContext>
 
                     <div className="space-y-2 pt-2 border-t border-gray-800">
                       <input
@@ -508,7 +602,7 @@ export default function AdminStackPage() {
                       <button
                         type="button"
                         onClick={() => void handleCreateHomeCategory()}
-                        disabled={saving}
+                        disabled={saving || newHomeCategorySlug.trim().length === 0}
                         className="w-full rounded-lg border border-gray-700 bg-gray-900/80 px-3 py-2 text-sm text-gray-200 hover:bg-gray-800 disabled:opacity-50"
                       >
                         + Категория
@@ -527,38 +621,39 @@ export default function AdminStackPage() {
 
                     {selectedHomeCategory && (
                       <>
-                        <div className="space-y-2">
-                          {[...selectedHomeCategory.items]
-                            .sort((a, b) => a.order - b.order)
-                            .map((item, index) => (
-                              <div key={item.id} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
-                                <span className="text-sm text-white">{item.name}</span>
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => moveHomeItem(index, -1)}
-                                    className="p-1 text-gray-400 hover:text-white"
-                                  >
-                                    <ArrowUp size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => moveHomeItem(index, 1)}
-                                    className="p-1 text-gray-400 hover:text-white"
-                                  >
-                                    <ArrowDown size={14} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => void handleDeleteHomeItem(item.id)}
-                                    className="p-1 text-red-400 hover:text-red-300"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragStart={(event) => setActiveItemDragId(Number(event.active.id))}
+                          onDragEnd={handleItemDragEnd}
+                          onDragCancel={() => setActiveItemDragId(null)}
+                        >
+                          <SortableContext
+                            items={selectedHomeCategory.items.map((item) => item.id)}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            <div className="space-y-2">
+                              {selectedHomeCategory.items.map((item) => (
+                                <SortableRow
+                                  key={item.id}
+                                  id={item.id}
+                                  label={item.name}
+                                  onDelete={(event) => {
+                                    event.stopPropagation();
+                                    void handleDeleteHomeItem(item.id);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </SortableContext>
+                          <DragOverlay>
+                            {activeItemLabel ? (
+                              <div className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-white shadow-xl">
+                                {activeItemLabel}
                               </div>
-                            ))}
-                        </div>
+                            ) : null}
+                          </DragOverlay>
+                        </DndContext>
 
                         <div className="flex flex-col md:flex-row gap-2 pt-2 border-t border-gray-800">
                           <input
@@ -570,7 +665,7 @@ export default function AdminStackPage() {
                           <button
                             type="button"
                             onClick={() => void handleCreateHomeItem()}
-                            disabled={saving}
+                            disabled={saving || newHomeItemName.trim().length === 0}
                             className="rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
                           >
                             Добавить
@@ -578,15 +673,6 @@ export default function AdminStackPage() {
                         </div>
                       </>
                     )}
-
-                    <button
-                      type="button"
-                      onClick={() => void saveHome()}
-                      disabled={saving}
-                      className="rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
-                    >
-                      Сохранить порядок
-                    </button>
                   </div>
                 </div>
               </div>

@@ -65,12 +65,16 @@ function buildStackLines(categories: HomeStackCategory[]): Line[] {
   for (let index = 0; index < orderedCategories.length; index += 1) {
     const category = orderedCategories[index];
     const isLastCategory = index === orderedCategories.length - 1;
-    const items = [...category.items].sort((a, b) => a.order - b.order);
+    const names = [...category.items]
+      .sort((a, b) => a.order - b.order)
+      .map((item) => item.name)
+      .filter((name): name is string => Boolean(name && name.trim()))
+      .map((name) => name.trim());
 
     const tokens: Token[] = [pl("  "), k(category.slug), p(":"), pl(" "), p("[")];
-    items.forEach((item, itemIndex) => {
-      tokens.push(s(`"${item.name}"`));
-      if (itemIndex < items.length - 1) {
+    names.forEach((name, itemIndex) => {
+      tokens.push(s(`"${name}"`));
+      if (itemIndex < names.length - 1) {
         tokens.push(p(","), pl(" "));
       }
     });
