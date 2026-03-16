@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Project, DevelopmentStage } from "../api";
+import type { Project, DevelopmentStage, AboutData } from "../api";
 import { createProject } from "../hooks/useProjects";
+import { getAbout, updateAbout } from "../api";
 import { useAdmin } from "../context/AdminContext";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageUploadField from "../components/admin/ImageUploadField";
@@ -11,11 +12,22 @@ import LivePreview from "../components/admin/LivePreview";
 type TabType = "basic" | "description" | "media" | "development" | "tech";
 
 export default function AddProjectPage() {
+  const HOME_TECH_STORAGE_KEY = "mytech.home.extraTech";
+  const PROJECT_TECH_STORAGE_KEY = "mytech.projects.techCatalog";
+
   const navigate = useNavigate();
   const { isAdmin, secret } = useAdmin();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [routeStatus, setRouteStatus] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<TabType>("basic");
+  const [aboutData, setAboutData] = useState<AboutData | null>(null);
+  const [projectTechCatalog, setProjectTechCatalog] = useState<string[]>([]);
+  const [newTechName, setNewTechName] = useState("");
+  const [sendToHome, setSendToHome] = useState(true);
+  const [sendToAbout, setSendToAbout] = useState(false);
+  const [sendToProjectCatalog, setSendToProjectCatalog] = useState(true);
+  const [aboutGroupTitle, setAboutGroupTitle] = useState("");
 
   const [formData, setFormData] = useState<Partial<Project>>({
     slug: "",
@@ -40,6 +52,31 @@ export default function AddProjectPage() {
       navigate("/");
     }
   }, [isAdmin, navigate]);
+
+  useEffect(() => {
+    const loadTechSettings = async () => {
+      try {
+        const storedCatalog = localStorage.getItem(PROJECT_TECH_STORAGE_KEY);
+        if (storedCatalog) {
+          const parsedCatalog = JSON.parse(storedCatalog) as string[];
+          setProjectTechCatalog(parsedCatalog.filter(Boolean));
+        }
+
+        const about = await getAbout();
+        setAboutData(about);
+        const visibleGroups = (about.techGroups ?? []).filter((g) => !g.title.startsWith("__"));
+        if (visibleGroups.length > 0) {
+          setAboutGroupTitle(visibleGroups[0].title);
+        }
+      } catch {
+        // Ignore fetch failures: form can still be used.
+      }
+    };
+
+    if (isAdmin) {
+      void loadTechSettings();
+    }
+  }, [isAdmin]);
 
   if (!isAdmin || !secret) {
     return null;
@@ -69,6 +106,71 @@ export default function AddProjectPage() {
 
   const handleDevelopmentChange = (stages: DevelopmentStage[]) => {
     setFormData((prev) => ({ ...prev, developmentProcess: stages }));
+  };
+
+  const addTechToList = (inputList: string[], tech: string): string[] => {
+    const normalized = tech.trim();
+    if (!normalized) return inputList;
+    const hasDuplicate = inputList.some((item) => item.toLowerCase() === normalized.toLowerCase());
+    return hasDuplicate ? inputList : [...inputList, normalized];
+  };
+
+  const saveTechListToStorage = (key: string, list: string[]) => {
+    localStorage.setItem(key, JSON.stringify(list));
+  };
+
+  const handleRouteTechnology = async () => {
+    const tech = newTechName.trim();
+    setRouteStatus(null);
+
+    if (!tech) {
+      setRouteStatus("Введите название технологии");
+      return;
+    }
+
+    if (!sendToHome && !sendToAbout && !sendToProjectCatalog) {
+      setRouteStatus("Выберите хотя бы одно направление");
+      return;
+    }
+
+    try {
+      if (sendToHome) {
+        const storedHome = localStorage.getItem(HOME_TECH_STORAGE_KEY);
+        const homeList = storedHome ? (JSON.parse(storedHome) as string[]) : [];
+        const updatedHome = addTechToList(homeList, tech);
+        saveTechListToStorage(HOME_TECH_STORAGE_KEY, updatedHome);
+      }
+
+      if (sendToProjectCatalog) {
+        const updatedCatalog = addTechToList(projectTechCatalog, tech);
+        setProjectTechCatalog(updatedCatalog);
+        saveTechListToStorage(PROJECT_TECH_STORAGE_KEY, updatedCatalog);
+      }
+
+      if (sendToAbout && aboutData && secret) {
+        const currentGroups = [...(aboutData.techGroups ?? [])];
+        const targetIndex = currentGroups.findIndex((group) => group.title === aboutGroupTitle);
+        if (targetIndex >= 0) {
+          const group = currentGroups[targetIndex];
+          const names = addTechToList(group.names ?? [], tech);
+          currentGroups[targetIndex] = { ...group, names };
+        } else {
+          currentGroups.push({
+            title: aboutGroupTitle || "Новая категория",
+            description: "",
+            names: [tech],
+          });
+        }
+
+        const updatedAbout = await updateAbout({ techGroups: currentGroups }, secret);
+        setAboutData(updatedAbout);
+      }
+
+      setNewTechName("");
+      setRouteStatus("Технология успешно добавлена в выбранные разделы");
+    } catch {
+      setRouteStatus("Не удалось отправить технологию");
+    }
   };
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -318,6 +420,87 @@ export default function AddProjectPage() {
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
                     <p className="text-xs text-gray-500 mt-1">Разделяйте технологии запятыми</p>
+
+                    {projectTechCatalog.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {projectTechCatalog.map((tech) => (
+                          <button
+                            key={`catalog-${tech}`}
+                            type="button"
+                            onClick={() => setFormData((prev) => ({ ...prev, stack: addTechToList(prev.stack ?? [], tech) }))}
+                            className="px-2.5 py-1 text-xs rounded-full border border-orange-500/30 text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 transition"
+                          >
+                            + {tech}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-4 p-4 rounded-lg border border-gray-800 bg-gray-950/40 space-y-3">
+                      <p className="text-sm font-medium text-white">Добавить технологию в разделы сайта</p>
+                      <input
+                        value={newTechName}
+                        onChange={(e) => setNewTechName(e.target.value)}
+                        placeholder="Например: GraphQL"
+                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                      />
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={sendToHome}
+                            onChange={(e) => setSendToHome(e.target.checked)}
+                            className="accent-orange-500"
+                          />
+                          <span>Оставить на главной странице</span>
+                        </label>
+
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={sendToProjectCatalog}
+                            onChange={(e) => setSendToProjectCatalog(e.target.checked)}
+                            className="accent-orange-500"
+                          />
+                          <span>Для создания новых проектов</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 md:col-span-2">
+                          <input
+                            type="checkbox"
+                            checked={sendToAbout}
+                            onChange={(e) => setSendToAbout(e.target.checked)}
+                            className="accent-orange-500"
+                          />
+                          <span>Отправить на страницу «Обо мне»</span>
+                        </label>
+
+                        {sendToAbout && (
+                          <select
+                            value={aboutGroupTitle}
+                            onChange={(e) => setAboutGroupTitle(e.target.value)}
+                            className="md:col-span-2 bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
+                          >
+                            {((aboutData?.techGroups ?? []).filter((group) => !group.title.startsWith("__"))).map((group) => (
+                              <option key={`about-group-${group.title}`} value={group.title}>
+                                {group.title}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleRouteTechnology()}
+                        className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium transition"
+                      >
+                        Отправить технологию
+                      </button>
+
+                      {routeStatus && <p className="text-xs text-gray-400">{routeStatus}</p>}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
