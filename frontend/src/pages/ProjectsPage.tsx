@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { Project } from "../api";
 import { useProjects, deleteProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
@@ -118,6 +118,7 @@ function ProjectCard({ project, index, onEdit, onDelete, isAdmin }: Readonly<{ p
 export default function ProjectsPage() {
   const { projects, loading, error, refetch } = useProjects();
   const { isAdmin, secret } = useAdmin();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -151,7 +152,7 @@ export default function ProjectsPage() {
           </p>
           {isAdmin && (
             <button
-              onClick={() => { setEditingProject(null); setIsModalOpen(true); }}
+              onClick={() => navigate("/projects/add")}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-white text-sm font-semibold transition"
             >
               <Plus size={16} /> Добавить проект

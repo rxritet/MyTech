@@ -9,6 +9,7 @@ import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import ContactPage from "./pages/ContactPage";
 import WorkTermsPage from "./pages/WorkTermsPage";
+import AddProjectPage from "./pages/AddProjectPage";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/add" element={<AddProjectPage />} />
             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/terms" element={<WorkTermsPage />} />
