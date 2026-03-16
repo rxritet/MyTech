@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
 import { useAdmin } from "../../context/AdminContext";
+import { getHomeStack, type HomeStackCategory } from "../../api";
 
 // ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
 const kw = (text: string): Token => ({ kind: "keyword", text });
@@ -11,18 +13,99 @@ const s = (text: string): Token => ({ kind: "string", text });
 const p = (text: string): Token => ({ kind: "punct", text });
 const pl = (text: string): Token => ({ kind: "plain", text });
 
-const STACK_LINES: Line[] = [
-  { id: "l0", tokens: [kw("const"), pl(" "), v("stack"), pl(" "), p("="), pl(" "), p("{")] },
-  { id: "l1", tokens: [pl("  "), k("langs"), p(":"), pl("    "), p("["), s('"Go"'), p(","), pl(" "), s('"Java"'), p(","), pl(" "), s('"TypeScript"'), p(","), pl(" "), s('"JavaScript"'), p(","), pl(" "), s('"Python"'), p(","), pl(" "), s('"Dart"'), p("]"), p(",")] },
-  { id: "l2", tokens: [pl("  "), k("backend"), p(":"), pl("  "), p("["), s('"Hono"'), p(","), pl(" "), s('"Django"'), p(","), pl(" "), s('"FastAPI"'), p(","), pl(" "), s('"PostgreSQL"'), p(","), pl(" "), s('"SQLite"'), p("]"), p(",")] },
-  { id: "l3", tokens: [pl("  "), k("frontend"), p(":"), pl(" "), p("["), s('"React"'), p(","), pl(" "), s('"TailwindCSS"'), p(","), pl(" "), s('"Vite"'), p(","), pl(" "), s('"Flutter"'), p(","), pl(" "), s('"HTML5"'), p(","), pl(" "), s('"CSS3"'), p(","), pl(" "), s('"Figma"'), p("]"), p(",")] },
-  { id: "l4", tokens: [pl("  "), k("devops"), p(":"), pl("   "), p("["), s('"Docker"'), p(","), pl(" "), s('"Vercel"'), p(","), pl(" "), s('"AWS"'), p(","), pl(" "), s('"Nginx"'), p(","), pl(" "), s('"Linux"'), p("]"), p(",")] },
-  { id: "l5", tokens: [pl("  "), k("tools"), p(":"), pl("    "), p("["), s('"Git"'), p(","), pl(" "), s('"GitHub"'), p(","), pl(" "), s('"VS Code"'), p(","), pl(" "), s('"Burp Suite"'), p("]")] },
-  { id: "l6", tokens: [p("}")] },
+const FALLBACK_HOME_STACK: HomeStackCategory[] = [
+  { id: 1, slug: "langs", label: "langs", order: 0, items: [
+    { id: 1, name: "Go", order: 0 },
+    { id: 2, name: "Java", order: 1 },
+    { id: 3, name: "TypeScript", order: 2 },
+    { id: 4, name: "JavaScript", order: 3 },
+    { id: 5, name: "Python", order: 4 },
+    { id: 6, name: "Dart", order: 5 },
+  ] },
+  { id: 2, slug: "backend", label: "backend", order: 1, items: [
+    { id: 7, name: "Hono", order: 0 },
+    { id: 8, name: "Django", order: 1 },
+    { id: 9, name: "FastAPI", order: 2 },
+    { id: 10, name: "PostgreSQL", order: 3 },
+    { id: 11, name: "SQLite", order: 4 },
+  ] },
+  { id: 3, slug: "frontend", label: "frontend", order: 2, items: [
+    { id: 12, name: "React", order: 0 },
+    { id: 13, name: "TailwindCSS", order: 1 },
+    { id: 14, name: "Vite", order: 2 },
+    { id: 15, name: "Flutter", order: 3 },
+    { id: 16, name: "HTML5", order: 4 },
+    { id: 17, name: "CSS3", order: 5 },
+    { id: 18, name: "Figma", order: 6 },
+  ] },
+  { id: 4, slug: "devops", label: "devops", order: 3, items: [
+    { id: 19, name: "Docker", order: 0 },
+    { id: 20, name: "Vercel", order: 1 },
+    { id: 21, name: "AWS", order: 2 },
+    { id: 22, name: "Nginx", order: 3 },
+    { id: 23, name: "Linux", order: 4 },
+  ] },
+  { id: 5, slug: "tools", label: "tools", order: 4, items: [
+    { id: 24, name: "Git", order: 0 },
+    { id: 25, name: "GitHub", order: 1 },
+    { id: 26, name: "VS Code", order: 2 },
+    { id: 27, name: "Burp Suite", order: 3 },
+  ] },
 ];
+
+function buildStackLines(categories: HomeStackCategory[]): Line[] {
+  const orderedCategories = [...categories]
+    .sort((a, b) => a.order - b.order)
+    .filter((category) => category.slug.trim().length > 0);
+
+  const lines: Line[] = [
+    { id: "l0", tokens: [kw("const"), pl(" "), v("stack"), pl(" "), p("="), pl(" "), p("{")] },
+  ];
+
+  for (let index = 0; index < orderedCategories.length; index += 1) {
+    const category = orderedCategories[index];
+    const isLastCategory = index === orderedCategories.length - 1;
+    const items = [...category.items].sort((a, b) => a.order - b.order);
+
+    const tokens: Token[] = [pl("  "), k(category.slug), p(":"), pl(" "), p("[")];
+    items.forEach((item, itemIndex) => {
+      tokens.push(s(`"${item.name}"`));
+      if (itemIndex < items.length - 1) {
+        tokens.push(p(","), pl(" "));
+      }
+    });
+    tokens.push(p("]"));
+    if (!isLastCategory) {
+      tokens.push(p(","));
+    }
+
+    lines.push({ id: `l${index + 1}`, tokens });
+  }
+
+  lines.push({ id: `l${orderedCategories.length + 1}`, tokens: [p("}")] });
+  return lines;
+}
 
 export default function Hero() {
   const { isAdmin } = useAdmin();
+  const [homeStack, setHomeStack] = useState<HomeStackCategory[]>(FALLBACK_HOME_STACK);
+
+  useEffect(() => {
+    const loadHomeStack = async () => {
+      try {
+        const data = await getHomeStack();
+        if (Array.isArray(data) && data.length > 0) {
+          setHomeStack(data);
+        }
+      } catch {
+        setHomeStack(FALLBACK_HOME_STACK);
+      }
+    };
+
+    void loadHomeStack();
+  }, []);
+
+  const stackLines = useMemo(() => buildStackLines(homeStack), [homeStack]);
 
   return (
     <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-4 text-center gap-8 overflow-hidden">
@@ -40,7 +123,7 @@ export default function Hero() {
       </div>
 
       <div className="animate-fade-in-up z-10 w-full flex justify-center px-4" style={{ animationDelay: "200ms" }}>
-        <CodeBlock title="stack.ts" lines={STACK_LINES} />
+        <CodeBlock title="stack.ts" lines={stackLines} />
       </div>
 
       <div className="animate-fade-in-up flex flex-col sm:flex-row items-center gap-4 mt-2 z-10" style={{ animationDelay: "300ms" }}>
