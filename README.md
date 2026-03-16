@@ -4,11 +4,7 @@
 
 ### Сайт-визитка, который работает как настоящий продукт
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-000000?style=flat-square&logo=vercel&logoColor=white)](#)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
-[![Hono](https://img.shields.io/badge/Hono-4-E36002?style=flat-square&logo=hono&logoColor=white)](https://hono.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[Live Demo](#) · [Frontend: React 19](https://react.dev/) · [Backend: Hono](https://hono.dev/) · [DB: PostgreSQL](https://www.postgresql.org/)
 
 </div>
 
@@ -16,10 +12,19 @@
 
 **MyTech** — персональный сайт-визитка Радмира Абраева. Не статичная HTML-страница, а живая платформа: контент редактируется через admin-интерфейс, форма обратной связи реально сохраняет сообщения, проекты живут в базе данных.
 
+## Что обновлено (март 2026)
+
+- Полностью переработана страница проекта: отдельные секции для **ключевых возможностей**, **этапов разработки** и **медиа-галереи**
+- В админке на странице проекта появились быстрые точки входа: **«Добавить этап»** и **«Добавить медиа»**
+- Рендер иконок технологий переведен на **Devicon CDN** с надежным fallback-алгоритмом
+- Убрана зависимость иконок от shields.io в runtime-логике
+- Кастомная иконка технологии теперь поддерживает ввод как прямого URL, так и HTML-вставки вида `<img src="..." />`
+
 ## Что видит посетитель
 
 - **Главная** — личный бренд, стек, ключевые ссылки одним экраном
 - **Проекты** — карточки с тегами технологий и отдельными страницами для каждого проекта
+- **Project Detail** — расширенная презентация проекта с галереей и таймлайном разработки
 - **Обо мне** — биография, tech stack, области фокуса, образовательные репозитории
 - **Условия работы** — формат сотрудничества и то, что берётся в работу
 - **Контакт** — форма связи, которая уходит в backend и сохраняется в БД
@@ -38,16 +43,33 @@
 
 Без единой правки кода можно:
 
-- обновить раздел «Обо мне» — текст, стек, ссылки на репозитории
+- обновить раздел «Обо мне» (без редактирования стека в этой форме)
+- управлять стеком отдельно через dedicated-страницу управления стеком
 - создать, отредактировать или удалить проект в каталоге
+- добавлять/редактировать этапы разработки и медиа-галерею проектов
+- вести каталог технологий с Devicon slug и кастомным URL иконки
 - все мутации защищены через `x-admin-secret` header
+
+## Иконки технологий
+
+MyTech использует единый компонент `TechIcon` с алгоритмом fallback:
+
+1. `.../{slug}-original.svg`
+2. `.../{slug}-plain.svg`
+3. `.../{slug}-original-wordmark.svg`
+4. placeholder (первая буква технологии)
+
+Источник: `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/{slug}/...`
+
+Если slug отсутствует, можно передать кастомный URL иконки (в том числе через HTML `img`-вставку в админ-форме).
 
 ## Стек
 
 **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router 7  
 **Backend:** Node.js 20, Hono, Zod, Drizzle ORM  
 **Data:** PostgreSQL 16  
-**Infra:** Docker Compose, Nginx, Vercel-ready setup
+**Infra:** Docker Compose, Nginx, Vercel-ready setup  
+**Icons:** Devicon CDN + fallback pipeline
 
 ## Быстрый старт
 
