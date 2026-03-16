@@ -17,7 +17,7 @@ const STACK_LINES: Line[] = [
   { id: "l2", tokens: [pl("  "), k("backend"), p(":"), pl("  "), p("["), s('"Hono"'), p(","), pl(" "), s('"Django"'), p(","), pl(" "), s('"FastAPI"'), p(","), pl(" "), s('"PostgreSQL"'), p(","), pl(" "), s('"SQLite"'), p("]"), p(",")] },
   { id: "l3", tokens: [pl("  "), k("frontend"), p(":"), pl(" "), p("["), s('"React"'), p(","), pl(" "), s('"TailwindCSS"'), p(","), pl(" "), s('"Vite"'), p(","), pl(" "), s('"Flutter"'), p(","), pl(" "), s('"HTML5"'), p(","), pl(" "), s('"CSS3"'), p(","), pl(" "), s('"Figma"'), p("]"), p(",")] },
   { id: "l4", tokens: [pl("  "), k("devops"), p(":"), pl("   "), p("["), s('"Docker"'), p(","), pl(" "), s('"Vercel"'), p(","), pl(" "), s('"AWS"'), p(","), pl(" "), s('"Nginx"'), p(","), pl(" "), s('"Linux"'), p("]"), p(",")] },
-  { id: "l5", tokens: [pl("  "), k("tools"), p(":"), pl("    "), p("["), s('"Git"'), p(","), pl(" "), s('"GitHub"'), p(","), pl(" "), s('"VS Code"'), p(","), pl(" "), s('"Burp Suite"'), p(","), pl(" "), s('"Antigravity"'), p("]")] },
+  { id: "l5", tokens: [pl("  "), k("tools"), p(":"), pl("    "), p("["), s('"Git"'), p(","), pl(" "), s('"GitHub"'), p(","), pl(" "), s('"VS Code"'), p(","), pl(" "), s('"Burp Suite"'), p("]")] },
   { id: "l6", tokens: [p("}")] },
 ];
 
