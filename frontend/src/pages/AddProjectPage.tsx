@@ -52,11 +52,44 @@ export default function AddProjectPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const parseCommaSeparated = (value: string): string[] => {
+    const items: string[] = [];
+    let current = "";
+    let escaped = false;
+
+    for (const ch of value) {
+      if (escaped) {
+        current += ch;
+        escaped = false;
+        continue;
+      }
+
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+
+      if (ch === ",") {
+        const item = current.trim();
+        if (item) items.push(item);
+        current = "";
+        continue;
+      }
+
+      current += ch;
+    }
+
+    if (escaped) current += "\\";
+    const last = current.trim();
+    if (last) items.push(last);
+    return items;
+  };
+
+  const stringifyCommaSeparated = (items: string[] = []): string =>
+    items.map((item) => item.replace(/,/g, "\\,")).join(", ");
+
   const handleArrayChange = (name: keyof Project, value: string) => {
-    const items = value
-      .split(",")
-      .map((i) => i.trim())
-      .filter(Boolean);
+    const items = parseCommaSeparated(value);
     setFormData((prev) => ({ ...prev, [name]: items }));
   };
 
@@ -242,18 +275,12 @@ export default function AddProjectPage() {
                     </label>
                     <input
                       required
-                      value={formData.features?.join(", ") || ""}
-                      onChange={(e) => {
-                        const items = e.target.value
-                          .split(",")
-                          .map((i) => i.trim())
-                          .filter(Boolean);
-                        setFormData((prev) => ({ ...prev, features: items }));
-                      }}
+                      value={stringifyCommaSeparated(formData.features || [])}
+                      onChange={(e) => handleArrayChange("features", e.target.value)}
                       placeholder="Фича 1, Фича 2, Фича 3"
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Разделяйте особенности запятыми</p>
+                      <p className="text-xs text-gray-500 mt-1">Разделяйте особенности запятыми. Запятая внутри одной особенности: \,</p>
                   </div>
                 </div>
               )}
