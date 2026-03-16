@@ -47,6 +47,7 @@ export const technologies = pgTable("technologies", {
   name: text("name").notNull().unique(),
   category: technologyCategoryEnum("category").notNull(),
   badgeUrl: text("badge_url").notNull(),
+  deviconSlug: text("devicon_slug"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

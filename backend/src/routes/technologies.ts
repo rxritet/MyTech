@@ -14,16 +14,27 @@ import adminAuth from "../middleware/adminAuth";
 
 const categoryValues = technologyCategoryEnum.enumValues;
 
+const deviconSlugSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim().toLowerCase();
+    return normalized.length > 0 ? normalized : null;
+  },
+  z.string().regex(/^[a-z0-9]+$/).nullable(),
+);
+
 const createTechnologySchema = z.object({
   name: z.string().min(1),
   category: z.enum(categoryValues),
   badgeUrl: z.string().url(),
+  deviconSlug: deviconSlugSchema.optional(),
 });
 
 const updateTechnologySchema = z.object({
   name: z.string().min(1).optional(),
   category: z.enum(categoryValues).optional(),
   badgeUrl: z.string().url().optional(),
+  deviconSlug: deviconSlugSchema.optional(),
 });
 
 const technologiesRouter = new Hono();

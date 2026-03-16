@@ -69,6 +69,7 @@ stackRouter.get("/about", async (c) => {
       name: technologies.name,
       category: aboutStack.category,
       badgeUrl: technologies.badgeUrl,
+      deviconSlug: technologies.deviconSlug,
       order: aboutStack.order,
     })
     .from(aboutStack)
@@ -104,6 +105,7 @@ stackRouter.put(
         name: technologies.name,
         category: aboutStack.category,
         badgeUrl: technologies.badgeUrl,
+        deviconSlug: technologies.deviconSlug,
         order: aboutStack.order,
       })
       .from(aboutStack)
