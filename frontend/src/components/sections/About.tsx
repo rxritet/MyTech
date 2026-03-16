@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useInView } from "../../hooks/useInView";
 import { useAdmin } from "../../context/AdminContext";
-import { AboutData, getAbout } from "../../api";
+import { AboutData, getAbout, getAboutStack, type PublicStackItem, type TechnologyCategory } from "../../api";
 import AboutFormModal from "../admin/AboutFormModal";
 import {
   PROFILE as STATIC_PROFILE,
@@ -163,14 +163,16 @@ const INITIAL_DATA: AboutData = {
 export default function About() {
   const { isAdmin, secret } = useAdmin();
   const [data, setData] = useState<AboutData>(INITIAL_DATA);
+  const [aboutStackItems, setAboutStackItems] = useState<PublicStackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetched = await getAbout();
+        const [fetched, stackRows] = await Promise.all([getAbout(), getAboutStack()]);
         setData(fetched);
+        setAboutStackItems(stackRows);
       } catch (err) {
         console.error("Failed to fetch about data:", err);
       } finally {
@@ -187,6 +189,58 @@ export default function About() {
       </div>
     );
   }
+
+  const categoryMeta: Record<TechnologyCategory, { title: string; description: string }> = {
+    language: {
+      title: "Языки",
+      description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
+    },
+    backend: {
+      title: "Backend & БД",
+      description: "Серверная логика, API, базы данных и инфраструктура данных.",
+    },
+    frontend: {
+      title: "Frontend & Mobile",
+      description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
+    },
+    devops: {
+      title: "DevOps & Инфра",
+      description: "Инструменты поставки, инфраструктура и облачные решения.",
+    },
+    tool: {
+      title: "Инструменты",
+      description: "Инструменты разработки, тестирования и повседневной работы.",
+    },
+    mobile: {
+      title: "Mobile",
+      description: "Технологии мобильной разработки и клиентских приложений.",
+    },
+  };
+
+  const apiGroups = (Object.keys(categoryMeta) as TechnologyCategory[])
+    .map((category) => {
+      const items = aboutStackItems
+        .filter((item) => item.category === category)
+        .sort((a, b) => a.order - b.order);
+
+      return {
+        title: categoryMeta[category].title,
+        description: categoryMeta[category].description,
+        names: items.map((item) => item.name),
+        items,
+      };
+    })
+    .filter((group) => group.items.length > 0);
+
+  const groupsToRender =
+    apiGroups.length > 0
+      ? apiGroups
+      : (data.techGroups ?? []).map((group) => ({
+          title: group.title,
+          description: (group as { description?: string; desc?: string }).description ?? group.desc ?? "",
+          names: group.names ?? [],
+          items: [] as PublicStackItem[],
+        }));
 
   return (
     <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-28 relative">
@@ -301,9 +355,9 @@ export default function About() {
         <SectionLabel>stack</SectionLabel>
         <SectionHeading>Технологии</SectionHeading>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          {(data.techGroups ?? []).map((group) => {
-            const namesArr = (group.names ?? []);
-            const textDesc = (group as { title: string; desc?: string; description?: string; names?: string[] }).desc ?? group.description ?? "";
+          {groupsToRender.map((group) => {
+            const namesArr = group.names;
+            const textDesc = group.description;
             return (
             <div
               key={group.title}
@@ -322,6 +376,7 @@ export default function About() {
               {namesArr.length > 0 && (
                 <div className="flex flex-wrap gap-2.5">
                   {namesArr.map((name) => {
+                    const apiItem = group.items.find((item) => item.name === name);
                     const item = STATIC_STACK.find(s => s.name === name);
                     const colorClasses = item?.color ?? "bg-gray-500/10 text-gray-400 border-gray-500/25";
                     
@@ -330,6 +385,9 @@ export default function About() {
                         key={name}
                         className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${colorClasses.split(" ").slice(0, 2).join(" ")} ${colorClasses.split(" ")[2]}`}
                       >
+                        {apiItem?.badgeUrl && (
+                          <img src={apiItem.badgeUrl} alt={name} className="mr-2 h-4 w-4 rounded" />
+                        )}
                         <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
                         {name}
                       </div>

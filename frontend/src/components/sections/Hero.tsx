@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import CodeBlock, { type Line, type Token } from "../ui/CodeBlock";
+import { useAdmin } from "../../context/AdminContext";
 
 // ── Pre-tokenised code snippet for CodeBlock ────────────────────────────────
 const kw = (text: string): Token => ({ kind: "keyword", text });
@@ -22,19 +22,7 @@ const STACK_LINES: Line[] = [
 ];
 
 export default function Hero() {
-  const HOME_TECH_STORAGE_KEY = "mytech.home.extraTech";
-  const [extraHomeTech, setExtraHomeTech] = useState<string[]>([]);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(HOME_TECH_STORAGE_KEY);
-      if (!stored) return;
-      const parsed = JSON.parse(stored) as string[];
-      setExtraHomeTech(parsed.filter(Boolean));
-    } catch {
-      setExtraHomeTech([]);
-    }
-  }, []);
+  const { isAdmin } = useAdmin();
 
   return (
     <section className="relative flex flex-col items-center justify-center pt-32 pb-24 px-4 text-center gap-8 overflow-hidden dot-grid">
@@ -55,19 +43,6 @@ export default function Hero() {
         <CodeBlock title="stack.ts" lines={STACK_LINES} />
       </div>
 
-      {extraHomeTech.length > 0 && (
-        <div className="animate-fade-in-up z-10 flex flex-wrap items-center justify-center gap-2 px-4" style={{ animationDelay: "250ms" }}>
-          {extraHomeTech.map((tech) => (
-            <span
-              key={`home-tech-${tech}`}
-              className="px-3 py-1.5 rounded-full text-xs border border-orange-500/30 text-orange-300 bg-orange-500/10"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-      )}
-
       <div className="animate-fade-in-up flex flex-col sm:flex-row items-center gap-4 mt-2 z-10" style={{ animationDelay: "300ms" }}>
         <Link
           to="/projects"
@@ -82,6 +57,14 @@ export default function Hero() {
         >
           Обо мне
         </Link>
+        {isAdmin && (
+          <Link
+            to="/admin/stack"
+            className="button-secondary w-full sm:w-auto px-8 py-3.5"
+          >
+            Изменить стек
+          </Link>
+        )}
       </div>
     </section>
   );
