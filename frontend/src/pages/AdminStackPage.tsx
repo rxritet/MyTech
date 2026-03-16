@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  createHomeStackCategory,
+  createHomeStackItem,
   createTechnology,
+  deleteHomeStackCategory,
+  deleteHomeStackItem,
   deleteTechnology,
   getAboutStack,
   getHomeStack,
   getTechnologies,
+  type HomeStackCategory,
   type Technology,
   type TechnologyCategory,
   updateAboutStack,
-  updateHomeStack,
+  updateHomeStackOrder,
   updateTechnology,
 } from "../api";
 import { useAdmin } from "../context/AdminContext";
@@ -60,7 +65,11 @@ export default function AdminStackPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [technologies, setTechnologies] = useState<Technology[]>([]);
-  const [homeTechnologyIds, setHomeTechnologyIds] = useState<number[]>([]);
+  const [homeCategories, setHomeCategories] = useState<HomeStackCategory[]>([]);
+  const [selectedHomeCategoryId, setSelectedHomeCategoryId] = useState<number | null>(null);
+  const [newHomeCategorySlug, setNewHomeCategorySlug] = useState("");
+  const [newHomeCategoryLabel, setNewHomeCategoryLabel] = useState("");
+  const [newHomeItemName, setNewHomeItemName] = useState("");
   const [aboutItems, setAboutItems] = useState<AboutEditorItem[]>([]);
 
   const [newTechnologyName, setNewTechnologyName] = useState("");
@@ -88,9 +97,14 @@ export default function AdminStackPage() {
       ]);
 
       setTechnologies(catalog);
-      const sortedHome = [...homeStack];
-      sortedHome.sort((a, b) => a.order - b.order);
-      setHomeTechnologyIds(sortedHome.map((item) => item.technologyId));
+      const sortedHome = [...homeStack].sort((a, b) => a.order - b.order);
+      setHomeCategories(sortedHome);
+      setSelectedHomeCategoryId((prev) => {
+        if (prev && sortedHome.some((category) => category.id === prev)) {
+          return prev;
+        }
+        return sortedHome[0]?.id ?? null;
+      });
 
       const sortedAbout = [...aboutStack];
       sortedAbout.sort((a, b) => {
@@ -124,7 +138,8 @@ export default function AdminStackPage() {
     [technologies],
   );
 
-  const homeAvailable = technologies.filter((technology) => !homeTechnologyIds.includes(technology.id));
+  const selectedHomeCategory =
+    homeCategories.find((category) => category.id === selectedHomeCategoryId) ?? null;
 
   const aboutByCategory = CATEGORIES.map((category) => ({
     category,
@@ -138,17 +153,34 @@ export default function AdminStackPage() {
     return null;
   }
 
-  const moveHomeItem = (index: number, direction: -1 | 1) => {
+  const moveHomeCategory = (index: number, direction: -1 | 1) => {
     const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= homeTechnologyIds.length) return;
+    if (targetIndex < 0 || targetIndex >= homeCategories.length) return;
 
-    setHomeTechnologyIds((prev) => {
+    setHomeCategories((prev) => {
       const next = [...prev];
       const current = next[index];
       next[index] = next[targetIndex];
       next[targetIndex] = current;
       return next;
     });
+  };
+
+  const moveHomeItem = (itemIndex: number, direction: -1 | 1) => {
+    if (!selectedHomeCategory) return;
+    const targetIndex = itemIndex + direction;
+    if (targetIndex < 0 || targetIndex >= selectedHomeCategory.items.length) return;
+
+    setHomeCategories((prev) =>
+      prev.map((category) => {
+        if (category.id !== selectedHomeCategory.id) return category;
+        const items = [...category.items];
+        const current = items[itemIndex];
+        items[itemIndex] = items[targetIndex];
+        items[targetIndex] = current;
+        return { ...category, items };
+      }),
+    );
   };
 
   const moveAboutItem = (category: TechnologyCategory, index: number, direction: -1 | 1) => {
@@ -172,15 +204,98 @@ export default function AdminStackPage() {
     setSaving(true);
     setError(null);
     try {
-      await updateHomeStack(
+      await updateHomeStackOrder(
         {
-          ids: homeTechnologyIds,
-          order: homeTechnologyIds.map((_, index) => index),
+          categories: homeCategories.map((category, index) => ({
+            id: category.id,
+            order: index,
+          })),
+          items: homeCategories.flatMap((category) =>
+            category.items.map((item, index) => ({
+              id: item.id,
+              order: index,
+            })),
+          ),
         },
         secret,
       );
+      await reload();
     } catch {
       setError("Не удалось сохранить стек главной страницы");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCreateHomeCategory = async () => {
+    const slug = newHomeCategorySlug.trim();
+    const label = newHomeCategoryLabel.trim() || slug;
+    if (!slug) {
+      setError("Введите slug категории");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      const created = await createHomeStackCategory({ slug, label }, secret);
+      setNewHomeCategorySlug("");
+      setNewHomeCategoryLabel("");
+      await reload();
+      setSelectedHomeCategoryId(created.id);
+    } catch {
+      setError("Не удалось создать категорию");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteHomeCategory = async (id: number) => {
+    setSaving(true);
+    setError(null);
+    try {
+      await deleteHomeStackCategory(id, secret);
+      await reload();
+    } catch {
+      setError("Не удалось удалить категорию");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCreateHomeItem = async () => {
+    if (!selectedHomeCategoryId) {
+      setError("Выберите категорию");
+      return;
+    }
+
+    const name = newHomeItemName.trim();
+    if (!name) {
+      setError("Введите название технологии");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      await createHomeStackItem({ category_id: selectedHomeCategoryId, name }, secret);
+      setNewHomeItemName("");
+      await reload();
+    } catch {
+      setError("Не удалось добавить технологию");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteHomeItem = async (id: number) => {
+    setSaving(true);
+    setError(null);
+    try {
+      await deleteHomeStackItem(id, secret);
+      await reload();
+    } catch {
+      setError("Не удалось удалить технологию");
     } finally {
       setSaving(false);
     }
@@ -269,10 +384,6 @@ export default function AdminStackPage() {
     }
   };
 
-  const removeHomeTechnology = (technologyId: number) => {
-    setHomeTechnologyIds((prev) => prev.filter((id) => id !== technologyId));
-  };
-
   const removeAboutTechnology = (technologyId: number) => {
     setAboutItems((prev) => prev.filter((value) => value.technologyId !== technologyId));
   };
@@ -334,67 +445,150 @@ export default function AdminStackPage() {
           <div className="space-y-6">
             {tab === "home" && (
               <div className="space-y-4">
-                <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-                  <label htmlFor="home-tech-select" className="block text-sm text-gray-300 mb-2">Добавить технологию на главную</label>
-                  <select
-                    id="home-tech-select"
-                    defaultValue=""
-                    onChange={(e) => {
-                      const technologyId = Number(e.target.value);
-                      if (!technologyId) return;
-                      setHomeTechnologyIds((prev) => [...prev, technologyId]);
-                      e.target.value = "";
-                    }}
-                    className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
-                  >
-                    <option value="">Выберите технологию</option>
-                    {homeAvailable.map((technology) => (
-                      <option key={technology.id} value={technology.id}>
-                        {technology.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  {homeTechnologyIds.map((technologyId, index) => {
-                    const technology = technologyMap.get(technologyId);
-                    if (!technology) return null;
-
-                    return (
-                      <div key={`home-${technologyId}`} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950/40 px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <img src={technology.badgeUrl} alt={technology.name} className="h-7 w-7 rounded" />
-                          <span className="text-white">{technology.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button type="button" onClick={() => moveHomeItem(index, -1)} className="p-1.5 text-gray-400 hover:text-white">
-                            <ArrowUp size={16} />
-                          </button>
-                          <button type="button" onClick={() => moveHomeItem(index, 1)} className="p-1.5 text-gray-400 hover:text-white">
-                            <ArrowDown size={16} />
-                          </button>
+                <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
+                  <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 space-y-3">
+                    <p className="text-sm font-medium text-gray-200">Категории</p>
+                    <div className="space-y-2">
+                      {homeCategories.map((category, index) => (
+                        <div
+                          key={category.id}
+                          className={`flex items-center justify-between rounded-lg border px-3 py-2 ${
+                            selectedHomeCategoryId === category.id
+                              ? "border-orange-500/40 bg-orange-500/10"
+                              : "border-gray-800 bg-gray-950"
+                          }`}
+                        >
                           <button
                             type="button"
-                            onClick={() => removeHomeTechnology(technologyId)}
-                            className="p-1.5 text-red-400 hover:text-red-300"
+                            onClick={() => setSelectedHomeCategoryId(category.id)}
+                            className="text-left text-sm text-white"
                           >
-                            <Trash2 size={16} />
+                            {category.slug}
+                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveHomeCategory(index, -1)}
+                              className="p-1 text-gray-400 hover:text-white"
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveHomeCategory(index, 1)}
+                              className="p-1 text-gray-400 hover:text-white"
+                            >
+                              <ArrowDown size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void handleDeleteHomeCategory(category.id)}
+                              className="p-1 text-red-400 hover:text-red-300"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-gray-800">
+                      <input
+                        value={newHomeCategorySlug}
+                        onChange={(e) => setNewHomeCategorySlug(e.target.value)}
+                        placeholder="Slug (например: langs)"
+                        className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-sm text-white"
+                      />
+                      <input
+                        value={newHomeCategoryLabel}
+                        onChange={(e) => setNewHomeCategoryLabel(e.target.value)}
+                        placeholder="Label (опц.)"
+                        className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-sm text-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void handleCreateHomeCategory()}
+                        disabled={saving}
+                        className="w-full rounded-lg border border-gray-700 bg-gray-900/80 px-3 py-2 text-sm text-gray-200 hover:bg-gray-800 disabled:opacity-50"
+                      >
+                        + Категория
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 space-y-3">
+                    <p className="text-sm font-medium text-gray-200">
+                      Технологии{selectedHomeCategory ? `: ${selectedHomeCategory.slug}` : ""}
+                    </p>
+
+                    {!selectedHomeCategory && (
+                      <p className="text-sm text-gray-500">Выберите категорию слева.</p>
+                    )}
+
+                    {selectedHomeCategory && (
+                      <>
+                        <div className="space-y-2">
+                          {[...selectedHomeCategory.items]
+                            .sort((a, b) => a.order - b.order)
+                            .map((item, index) => (
+                              <div key={item.id} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
+                                <span className="text-sm text-white">{item.name}</span>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => moveHomeItem(index, -1)}
+                                    className="p-1 text-gray-400 hover:text-white"
+                                  >
+                                    <ArrowUp size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => moveHomeItem(index, 1)}
+                                    className="p-1 text-gray-400 hover:text-white"
+                                  >
+                                    <ArrowDown size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleDeleteHomeItem(item.id)}
+                                    className="p-1 text-red-400 hover:text-red-300"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col md:flex-row gap-2 pt-2 border-t border-gray-800">
+                          <input
+                            value={newHomeItemName}
+                            onChange={(e) => setNewHomeItemName(e.target.value)}
+                            placeholder="Добавить технологию"
+                            className="flex-1 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-sm text-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => void handleCreateHomeItem()}
+                            disabled={saving}
+                            className="rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
+                          >
+                            Добавить
                           </button>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      </>
+                    )}
 
-                <button
-                  type="button"
-                  onClick={() => void saveHome()}
-                  disabled={saving}
-                  className="rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
-                >
-                  Сохранить стек главной
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => void saveHome()}
+                      disabled={saving}
+                      className="rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
+                    >
+                      Сохранить порядок
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
