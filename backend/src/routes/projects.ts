@@ -29,6 +29,25 @@ const projectSchema = z.object({
 
 const projectsRouter = new Hono();
 
+type DbError = {
+  code?: string;
+  constraint_name?: string;
+  detail?: string;
+};
+
+function isProjectSlugConflict(error: unknown): boolean {
+  const dbError = error as DbError;
+  if (dbError?.code !== "23505") {
+    return false;
+  }
+
+  if (dbError.constraint_name === "projects_slug_unique") {
+    return true;
+  }
+
+  return dbError.detail?.includes("(slug)=") ?? false;
+}
+
 async function getTechnologyLinks(projectIds: number[]) {
   if (projectIds.length === 0) {
     return [] as Array<{ projectId: number; technologyId: number; technologyName: string }>;
@@ -111,68 +130,95 @@ projectsRouter.get("/:slug", async (c) => {
 });
 
 projectsRouter.post("/", adminAuth, zValidator("json", projectSchema), async (c) => {
-  const data = c.req.valid("json");
-  const { technologyIds, ...payload } = data;
+  try {
+    const data = c.req.valid("json");
+    const { technologyIds, ...payload } = data;
 
-  const newProject = await db
-    .insert(projects)
-    .values({
-      ...payload,
-      stack: [],
-    })
-    .returning();
+    const newProject = await db
+      .insert(projects)
+      .values({
+        ...payload,
+        stack: [],
+      })
+      .returning();
 
-  const created = newProject[0];
-  await syncProjectTechnologies(created.id, technologyIds ?? []);
+    const created = newProject[0];
+    await syncProjectTechnologies(created.id, technologyIds ?? []);
 
-  const hydrated = await hydrateProjectsWithTechnologies([created]);
-  return c.json(hydrated[0], 201);
+    const hydrated = await hydrateProjectsWithTechnologies([created]);
+    return c.json(hydrated[0], 201);
+  } catch (error: unknown) {
+    if (isProjectSlugConflict(error)) {
+      return c.json({ error: "Проект с таким slug уже существует" }, 409);
+    }
+
+    console.error(error);
+    return c.json({ error: "Не удалось создать проект" }, 500);
+  }
 });
 
 projectsRouter.put("/:id", adminAuth, zValidator("json", projectSchema), async (c) => {
-  const id = Number.parseInt(c.req.param("id"), 10);
-  const data = c.req.valid("json");
-  const { technologyIds, ...payload } = data;
+  try {
+    const id = Number.parseInt(c.req.param("id"), 10);
+    const data = c.req.valid("json");
+    const { technologyIds, ...payload } = data;
 
-  const updatedProject = await db
-    .update(projects)
-    .set({
-      ...payload,
-      stack: [],
-    })
-    .where(eq(projects.id, id))
-    .returning();
+    const updatedProject = await db
+      .update(projects)
+      .set({
+        ...payload,
+        stack: [],
+      })
+      .where(eq(projects.id, id))
+      .returning();
 
-  if (updatedProject.length === 0) {
-    return c.json({ error: "Not found" }, 404);
+    if (updatedProject.length === 0) {
+      return c.json({ error: "Not found" }, 404);
+    }
+
+    await syncProjectTechnologies(id, technologyIds ?? []);
+    const hydrated = await hydrateProjectsWithTechnologies(updatedProject);
+    return c.json(hydrated[0]);
+  } catch (error: unknown) {
+    if (isProjectSlugConflict(error)) {
+      return c.json({ error: "Проект с таким slug уже существует" }, 409);
+    }
+
+    console.error(error);
+    return c.json({ error: "Не удалось обновить проект" }, 500);
   }
-
-  await syncProjectTechnologies(id, technologyIds ?? []);
-  const hydrated = await hydrateProjectsWithTechnologies(updatedProject);
-  return c.json(hydrated[0]);
 });
 
 projectsRouter.patch("/:id", adminAuth, zValidator("json", projectSchema), async (c) => {
-  const id = Number.parseInt(c.req.param("id"), 10);
-  const data = c.req.valid("json");
-  const { technologyIds, ...payload } = data;
+  try {
+    const id = Number.parseInt(c.req.param("id"), 10);
+    const data = c.req.valid("json");
+    const { technologyIds, ...payload } = data;
 
-  const updatedProject = await db
-    .update(projects)
-    .set({
-      ...payload,
-      stack: [],
-    })
-    .where(eq(projects.id, id))
-    .returning();
+    const updatedProject = await db
+      .update(projects)
+      .set({
+        ...payload,
+        stack: [],
+      })
+      .where(eq(projects.id, id))
+      .returning();
 
-  if (updatedProject.length === 0) {
-    return c.json({ error: "Not found" }, 404);
+    if (updatedProject.length === 0) {
+      return c.json({ error: "Not found" }, 404);
+    }
+
+    await syncProjectTechnologies(id, technologyIds ?? []);
+    const hydrated = await hydrateProjectsWithTechnologies(updatedProject);
+    return c.json(hydrated[0]);
+  } catch (error: unknown) {
+    if (isProjectSlugConflict(error)) {
+      return c.json({ error: "Проект с таким slug уже существует" }, 409);
+    }
+
+    console.error(error);
+    return c.json({ error: "Не удалось обновить проект" }, 500);
   }
-
-  await syncProjectTechnologies(id, technologyIds ?? []);
-  const hydrated = await hydrateProjectsWithTechnologies(updatedProject);
-  return c.json(hydrated[0]);
 });
 
 projectsRouter.delete("/:id", adminAuth, async (c) => {

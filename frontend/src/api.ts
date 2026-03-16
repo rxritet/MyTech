@@ -8,6 +8,20 @@ async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(buildApiUrl(path), init);
 
   if (!res.ok) {
+    const contentType = res.headers.get("content-type") ?? "";
+
+    if (contentType.includes("application/json")) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null;
+      if (body?.error) {
+        throw new Error(body.error);
+      }
+    } else {
+      const text = await res.text().catch(() => "");
+      if (text.trim()) {
+        throw new Error(text.trim());
+      }
+    }
+
     throw new Error(`Request failed: ${res.status}`);
   }
 
