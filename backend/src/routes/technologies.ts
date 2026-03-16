@@ -26,7 +26,22 @@ const deviconSlugSchema = z.preprocess(
 const badgeUrlSchema = z.preprocess(
   (value) => {
     if (typeof value !== "string") return value;
-    return value.trim();
+
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+
+    const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(trimmed);
+    const candidate = srcMatch?.[1]?.trim() ?? trimmed;
+
+    try {
+      const parsed = new URL(candidate);
+      if (parsed.hostname.includes("shields.io")) {
+        return "";
+      }
+      return parsed.toString();
+    } catch {
+      return "";
+    }
   },
   z.string().url().or(z.literal("")),
 );

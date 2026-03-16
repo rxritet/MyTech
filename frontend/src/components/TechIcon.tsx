@@ -26,6 +26,26 @@ function normalizeSlug(rawSlug: string | null): string | null {
   return normalized;
 }
 
+function extractImageSrc(value: string | null | undefined): string | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(trimmed);
+  const candidate = srcMatch?.[1]?.trim() ?? trimmed;
+
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.hostname.includes("shields.io")) {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 function TechFallback({ name, size }: Readonly<{ name: string; size: number }>) {
   const char = name.trim().slice(0, 1).toUpperCase() || "?";
 
@@ -51,6 +71,7 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
   const normalizedSlug = normalizeSlug(slug);
   const [deviconAttempt, setDeviconAttempt] = useState(0);
   const [fallbackImageFailed, setFallbackImageFailed] = useState(false);
+  const normalizedFallbackSrc = extractImageSrc(fallbackSrc);
 
   const deviconSources = useMemo(() => {
     if (!normalizedSlug) {
@@ -65,7 +86,7 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
   useEffect(() => {
     setDeviconAttempt(0);
     setFallbackImageFailed(false);
-  }, [normalizedSlug, fallbackSrc, name]);
+  }, [normalizedSlug, normalizedFallbackSrc, name]);
 
   const currentDeviconSrc = deviconSources[deviconAttempt] ?? null;
 
@@ -83,10 +104,10 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
     );
   }
 
-  if (fallbackSrc && !fallbackImageFailed) {
+  if (normalizedFallbackSrc && !fallbackImageFailed) {
     return (
       <img
-        src={fallbackSrc}
+        src={normalizedFallbackSrc}
         alt={name}
         width={size}
         height={size}

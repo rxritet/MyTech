@@ -130,6 +130,39 @@ function categoryLabel(category: TechnologyCategory): string {
   }
 }
 
+function normalizeCustomIconInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(trimmed);
+  const candidate = srcMatch?.[1]?.trim() ?? trimmed;
+
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.hostname.includes("shields.io")) {
+      return "";
+    }
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+}
+
+function sanitizeBadgeUrlForInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.hostname.includes("shields.io")) {
+      return "";
+    }
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+}
+
 export default function AdminStackPage() {
   const navigate = useNavigate();
   const { isAdmin, secret } = useAdmin();
@@ -463,12 +496,14 @@ export default function AdminStackPage() {
   };
 
   const handleCreateTechnology = async () => {
+    const normalizedBadgeUrl = normalizeCustomIconInput(newTechnologyBadgeUrl);
+
     if (!newTechnologyName.trim()) {
       setError("Заполните название технологии");
       return;
     }
 
-    if (!newTechnologyDeviconSlug.trim() && !newTechnologyBadgeUrl.trim()) {
+    if (!newTechnologyDeviconSlug.trim() && !normalizedBadgeUrl) {
       setError("Укажите Devicon slug или кастомный URL иконки");
       return;
     }
@@ -480,7 +515,7 @@ export default function AdminStackPage() {
         {
           name: newTechnologyName.trim(),
           category: newTechnologyCategory,
-          badgeUrl: newTechnologyBadgeUrl.trim(),
+          badgeUrl: normalizedBadgeUrl,
           deviconSlug: newTechnologyDeviconSlug.trim().toLowerCase() || null,
         },
         secret,
@@ -500,10 +535,15 @@ export default function AdminStackPage() {
     const patch = editingMap[technologyId];
     if (!patch) return;
 
+    const payload: Partial<Technology> = { ...patch };
+    if (typeof payload.badgeUrl === "string") {
+      payload.badgeUrl = normalizeCustomIconInput(payload.badgeUrl);
+    }
+
     setSaving(true);
     setError(null);
     try {
-      await updateTechnology(technologyId, patch, secret);
+      await updateTechnology(technologyId, payload, secret);
       setEditingMap((prev) => {
         const next = { ...prev };
         delete next[technologyId];
@@ -910,7 +950,7 @@ export default function AdminStackPage() {
                   <input
                     value={newTechnologyBadgeUrl}
                     onChange={(e) => setNewTechnologyBadgeUrl(e.target.value)}
-                    placeholder="Кастомный URL иконки (опционально)"
+                    placeholder="Кастомный URL или HTML img-тег (опционально)"
                     className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                   />
                   <div className="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
@@ -918,7 +958,7 @@ export default function AdminStackPage() {
                       slug={newTechnologyDeviconSlug.trim() || null}
                       name={newTechnologyName || "preview"}
                       size={28}
-                      fallbackSrc={newTechnologyBadgeUrl.trim() || null}
+                      fallbackSrc={normalizeCustomIconInput(newTechnologyBadgeUrl) || null}
                     />
                     <input
                       value={newTechnologyDeviconSlug}
@@ -944,7 +984,12 @@ export default function AdminStackPage() {
                   {technologies.map((technology) => {
                     const draft = editingMap[technology.id] ?? {};
                     const draftBadge = draft.badgeUrl;
-                    const effectiveBadgeUrl = typeof draftBadge === "string" ? draftBadge : technology.badgeUrl;
+                    const effectiveBadgeUrl = typeof draftBadge === "string"
+                      ? normalizeCustomIconInput(draftBadge)
+                      : sanitizeBadgeUrlForInput(technology.badgeUrl);
+                    const badgeInputValue = typeof draftBadge === "string"
+                      ? draftBadge
+                      : sanitizeBadgeUrlForInput(technology.badgeUrl);
                     return (
                       <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
                         <TechIcon
@@ -970,9 +1015,9 @@ export default function AdminStackPage() {
                           ))}
                         </select>
                         <input
-                          value={draft.badgeUrl ?? technology.badgeUrl}
+                          value={badgeInputValue}
                           onChange={(e) => updateDraftField(technology.id, "badgeUrl", e.target.value)}
-                          placeholder="Кастомный URL иконки (опционально)"
+                          placeholder="Кастомный URL или HTML img-тег"
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <input
