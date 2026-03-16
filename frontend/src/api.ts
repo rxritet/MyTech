@@ -121,6 +121,7 @@ export interface Technology {
   name: string;
   category: TechnologyCategory;
   badgeUrl: string;
+  deviconSlug: string | null;
   createdAt: string;
 }
 
@@ -130,6 +131,7 @@ export interface PublicStackItem {
   name: string;
   category: TechnologyCategory;
   badgeUrl: string;
+  deviconSlug: string | null;
   order: number;
 }
 
@@ -210,7 +212,10 @@ export async function getTechnologies(): Promise<Technology[]> {
   return apiRequest<Technology[]>("/api/technologies");
 }
 
-export async function createTechnology(payload: Pick<Technology, "name" | "category" | "badgeUrl">, secret: string): Promise<Technology> {
+export async function createTechnology(
+  payload: Pick<Technology, "name" | "category" | "badgeUrl" | "deviconSlug">,
+  secret: string,
+): Promise<Technology> {
   return apiRequest<Technology>("/api/technologies", {
     method: "POST",
     headers: {
@@ -223,7 +228,7 @@ export async function createTechnology(payload: Pick<Technology, "name" | "categ
 
 export async function updateTechnology(
   id: number,
-  payload: Partial<Pick<Technology, "name" | "category" | "badgeUrl">>,
+  payload: Partial<Pick<Technology, "name" | "category" | "badgeUrl" | "deviconSlug">>,
   secret: string,
 ): Promise<Technology> {
   return apiRequest<Technology>(`/api/technologies/${id}`, {

@@ -1,4 +1,5 @@
 import { TECH_STACK } from "../../data/about";
+import TechIcon from "../TechIcon";
 
 const TECH_COLORS: Record<string, string> = Object.fromEntries(
   TECH_STACK.map((item) => [item.name, item.color]),
@@ -14,6 +15,33 @@ const TECH_ALIASES: Record<string, string> = {
 };
 
 const DEFAULT_BADGE = "bg-primary/10 border-primary/30 text-primary/80";
+
+const DEVICON_SLUGS: Record<string, string> = {
+  Go: "go",
+  TypeScript: "typescript",
+  JavaScript: "javascript",
+  Java: "java",
+  Python: "python",
+  Dart: "dart",
+  React: "react",
+  TailwindCSS: "tailwindcss",
+  Vite: "vitejs",
+  Flutter: "flutter",
+  HTML5: "html5",
+  CSS3: "css3",
+  Figma: "figma",
+  Docker: "docker",
+  PostgreSQL: "postgresql",
+  SQLite: "sqlite",
+  Django: "django",
+  FastAPI: "fastapi",
+  Nginx: "nginx",
+  Linux: "linux",
+  AWS: "amazonwebservices",
+  Git: "git",
+  GitHub: "github",
+  "VS Code": "vscode",
+};
 
 interface SkillBadgeProps {
   label: string;
@@ -39,11 +67,15 @@ function normalizeTechLabel(label: string) {
 }
 
 export default function SkillBadge({ label }: Readonly<SkillBadgeProps>) {
-  const colorClass = TECH_COLORS[normalizeTechLabel(label)] ?? DEFAULT_BADGE;
+  const normalized = normalizeTechLabel(label);
+  const colorClass = TECH_COLORS[normalized] ?? DEFAULT_BADGE;
+  const slug = DEVICON_SLUGS[normalized] ?? null;
+
   return (
     <span
-      className={`px-2.5 py-0.5 border rounded-full text-xs font-mono font-medium ${colorClass}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 border rounded-full text-xs font-mono font-medium ${colorClass}`}
     >
+      <TechIcon slug={slug} name={normalized} size={12} />
       {label}
     </span>
   );

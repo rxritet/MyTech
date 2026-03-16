@@ -1,4 +1,5 @@
 import type { Technology } from "../../api";
+import TechIcon from "../TechIcon";
 
 interface TechnologySelectorProps {
   readonly technologies: Technology[];
@@ -34,15 +35,7 @@ export default function TechnologySelector({
                 : "border-gray-800 bg-gray-950/50 text-gray-300 hover:border-gray-700"
             }`}
           >
-            <img
-              src={technology.badgeUrl}
-              alt={technology.name}
-              className="h-7 w-7 rounded object-cover"
-              onError={(e) => {
-                e.currentTarget.src =
-                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%23374151' width='32' height='32'/%3E%3C/svg%3E";
-              }}
-            />
+            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{technology.name}</p>
               <p className="truncate text-xs text-gray-500">{technology.category}</p>

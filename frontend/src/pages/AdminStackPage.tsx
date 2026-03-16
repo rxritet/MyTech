@@ -21,6 +21,7 @@ import {
   updateTechnology,
 } from "../api";
 import { useAdmin } from "../context/AdminContext";
+import TechIcon from "../components/TechIcon";
 import { GripVertical, ArrowDown, ArrowUp, Loader2, Trash2 } from "lucide-react";
 
 const CATEGORIES: TechnologyCategory[] = [
@@ -45,80 +46,6 @@ interface SortableRowProps {
   isActive?: boolean;
   onSelect?: () => void;
   onDelete: (event: MouseEvent<HTMLButtonElement>) => void;
-}
-
-const DEVICON_BY_NAME: Record<string, string> = {
-  go: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg",
-  typescript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-  javascript: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-  java: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
-  python: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-  dart: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg",
-  react: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-  flutter: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg",
-  docker: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
-  postgresql: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
-  sqlite: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg",
-  nginx: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg",
-  git: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-  github: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
-  figma: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-  html5: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
-  css3: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
-};
-
-const FALLBACK_BADGE_BY_CATEGORY: Record<TechnologyCategory, string> = {
-  language: "bg-cyan-600",
-  backend: "bg-orange-600",
-  frontend: "bg-blue-600",
-  devops: "bg-emerald-600",
-  tool: "bg-indigo-600",
-  mobile: "bg-pink-600",
-};
-
-function normalizeTechKey(name: string): string {
-  return name.toLowerCase().replace(/[\s+.#-]/g, "");
-}
-
-function resolveAdminIconUrl(technology: Technology): string | null {
-  const normalized = normalizeTechKey(technology.name);
-  const devicon = DEVICON_BY_NAME[normalized];
-
-  if (technology.badgeUrl.includes("img.shields.io")) {
-    return devicon ?? null;
-  }
-
-  if (technology.badgeUrl.startsWith("http://") || technology.badgeUrl.startsWith("https://")) {
-    return technology.badgeUrl;
-  }
-
-  return devicon ?? null;
-}
-
-function AdminTechnologyIcon({ technology }: Readonly<{ technology: Technology }>) {
-  const [failed, setFailed] = useState(false);
-  const iconUrl = resolveAdminIconUrl(technology);
-
-  if (!iconUrl || failed) {
-    return (
-      <div
-        className={`h-6 w-6 rounded-md ${FALLBACK_BADGE_BY_CATEGORY[technology.category]} flex-shrink-0 flex items-center justify-center text-[11px] font-bold text-white`}
-      >
-        {technology.name.slice(0, 1).toUpperCase()}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={iconUrl}
-      alt={technology.name}
-      width={24}
-      height={24}
-      className="h-6 w-6 rounded-md object-contain flex-shrink-0"
-      onError={() => setFailed(true)}
-    />
-  );
 }
 
 function normalizeHomeCategories(categories: HomeStackCategory[]): HomeStackCategory[] {
@@ -215,6 +142,7 @@ export default function AdminStackPage() {
   const [newTechnologyName, setNewTechnologyName] = useState("");
   const [newTechnologyCategory, setNewTechnologyCategory] = useState<TechnologyCategory>("tool");
   const [newTechnologyBadgeUrl, setNewTechnologyBadgeUrl] = useState("");
+  const [newTechnologyDeviconSlug, setNewTechnologyDeviconSlug] = useState("");
 
   const [editingMap, setEditingMap] = useState<Record<number, Partial<Technology>>>({});
   const [aboutDraftTechnologyId, setAboutDraftTechnologyId] = useState<number | null>(null);
@@ -538,11 +466,13 @@ export default function AdminStackPage() {
           name: newTechnologyName.trim(),
           category: newTechnologyCategory,
           badgeUrl: newTechnologyBadgeUrl.trim(),
+          deviconSlug: newTechnologyDeviconSlug.trim().toLowerCase() || null,
         },
         secret,
       );
       setNewTechnologyName("");
       setNewTechnologyBadgeUrl("");
+      setNewTechnologyDeviconSlug("");
       await reload();
     } catch {
       setError("Не удалось создать технологию");
@@ -856,7 +786,7 @@ export default function AdminStackPage() {
                             }}
                             className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/5"
                           >
-                            <AdminTechnologyIcon technology={technology} />
+                            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
                             <span className="truncate">{technology.name}</span>
                           </button>
                         ))}
@@ -897,7 +827,7 @@ export default function AdminStackPage() {
                       return (
                         <div key={`about-item-${item.technologyId}`} className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-4 py-2">
                           <div className="flex items-center gap-3">
-                            <AdminTechnologyIcon technology={technology} />
+                            <TechIcon slug={technology.deviconSlug} name={technology.name} size={24} />
                             <span className="text-sm font-medium text-white">{technology.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -934,7 +864,7 @@ export default function AdminStackPage() {
 
             {tab === "catalog" && (
               <div className="space-y-6">
-                <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
                   <input
                     value={newTechnologyName}
                     onChange={(e) => setNewTechnologyName(e.target.value)}
@@ -958,11 +888,23 @@ export default function AdminStackPage() {
                     placeholder="Badge URL"
                     className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                   />
+                  <div className="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
+                    <TechIcon slug={newTechnologyDeviconSlug.trim() || null} name={newTechnologyName || "preview"} size={28} />
+                    <input
+                      value={newTechnologyDeviconSlug}
+                      onChange={(e) => setNewTechnologyDeviconSlug(e.target.value)}
+                      placeholder="Devicon slug"
+                      className="w-full bg-transparent text-white outline-none"
+                    />
+                  </div>
+                  <p className="md:col-span-4 text-xs text-gray-500">
+                    Найти slug: devicon.dev (например: go, typescript, docker). Если не поддерживается, оставьте пустым.
+                  </p>
                   <button
                     type="button"
                     onClick={() => void handleCreateTechnology()}
                     disabled={saving}
-                    className="md:col-span-3 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
+                    className="md:col-span-4 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
                   >
                     Добавить технологию
                   </button>
@@ -972,8 +914,8 @@ export default function AdminStackPage() {
                   {technologies.map((technology) => {
                     const draft = editingMap[technology.id] ?? {};
                     return (
-                      <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                        <img src={technology.badgeUrl} alt={technology.name} className="h-8 w-8 rounded" />
+                      <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
+                        <TechIcon slug={(draft.deviconSlug as string | null | undefined) ?? technology.deviconSlug} name={draft.name ?? technology.name} size={24} />
                         <input
                           value={draft.name ?? technology.name}
                           onChange={(e) => updateDraftField(technology.id, "name", e.target.value)}
@@ -993,7 +935,13 @@ export default function AdminStackPage() {
                         <input
                           value={draft.badgeUrl ?? technology.badgeUrl}
                           onChange={(e) => updateDraftField(technology.id, "badgeUrl", e.target.value)}
-                          className="md:col-span-4 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                          className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                        />
+                        <input
+                          value={(draft.deviconSlug as string | null | undefined) ?? technology.deviconSlug ?? ""}
+                          onChange={(e) => updateDraftField(technology.id, "deviconSlug", e.target.value || null)}
+                          placeholder="Devicon slug"
+                          className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <div className="md:col-span-2 flex gap-2 justify-end">
                           <button
