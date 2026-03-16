@@ -103,6 +103,11 @@ export async function updateAbout(payload: Partial<AboutData>, secret: string): 
   });
 }
 
+export interface DevelopmentStage {
+  title: string;
+  description: string;
+}
+
 export interface Project {
   id: number;
   slug: string;
@@ -115,9 +120,11 @@ export interface Project {
   demo?: string;
   accentColor: string;
   image?: string;
+  gallery?: string[];
   devTime: string;
   language: string;
   createdAt: string;
+  developmentProcess?: DevelopmentStage[];
 }
 
 export async function getProjects(): Promise<Project[]> {

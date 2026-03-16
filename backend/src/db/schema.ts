@@ -23,9 +23,11 @@ export const projects = pgTable("projects", {
   demo: text("demo"),
   accentColor: text("accent_color").notNull(),
   image: text("image"),
+  gallery: jsonb("gallery").notNull().default([]),
   devTime: text("dev_time").notNull(),
   language: text("language").notNull(),
   createdAt: text("created_at").notNull(),
+  developmentProcess: jsonb("development_process").notNull().default([]),
 });
 
 export type Project = typeof projects.$inferSelect;

@@ -17,9 +17,14 @@ const projectSchema = z.object({
   demo: z.string().optional(),
   accentColor: z.string(),
   image: z.string().optional(),
+  gallery: z.array(z.string()).optional().default([]),
   devTime: z.string(),
   language: z.string(),
   createdAt: z.string(),
+  developmentProcess: z.array(z.object({
+    title: z.string(),
+    description: z.string(),
+  })).optional().default([]),
 });
 
 const projectsRouter = new Hono();
