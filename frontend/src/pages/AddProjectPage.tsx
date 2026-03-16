@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Project, DevelopmentStage } from "../api";
-import { createProject, updateProject } from "../hooks/useProjects";
+import { createProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
-import { Loader2, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageUploadField from "../components/admin/ImageUploadField";
 import DevelopmentTimeline from "../components/admin/DevelopmentTimeline";
 import LivePreview from "../components/admin/LivePreview";
@@ -94,50 +94,54 @@ export default function AddProjectPage() {
   const currentTabIndex = tabs.findIndex((t) => t.id === currentTab);
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      {/* Header */}
-      <div className="border-b border-gray-800 sticky top-16 z-30 bg-gray-950/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/projects")}
-              className="p-2 hover:bg-gray-800 rounded-lg transition text-gray-400 hover:text-white"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h1 className="text-2xl font-bold text-white">Добавить новый проект</h1>
-          </div>
-        </div>
+    <main className="min-h-screen pt-16">
+      {/* Gradient blobs */}
+      <div aria-hidden="true" className="pointer-events-none select-none fixed inset-0 z-0">
+        <div className="absolute left-[18%] top-[-12rem] h-[22rem] w-[22rem] rounded-full bg-orange-600/10 blur-[150px]" />
+        <div className="absolute -bottom-28 right-[2%] h-[18rem] w-[18rem] rounded-full bg-amber-600/14 blur-[120px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tab Navigation */}
-        <div className="flex gap-2 p-4 border border-gray-800 rounded-lg bg-gray-900 mb-6 overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setCurrentTab(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
-                currentTab === tab.id
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="relative z-10">
+        {/* Hero Section */}
+        <section className="max-w-[86rem] mx-auto px-3 py-12 md:px-5 md:py-16 border-b border-gray-800">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+            Добавить новый проект
+          </h1>
+          <p className="text-gray-400 max-w-2xl">
+            Заполните информацию о проекте и посмотрите, как его будут видеть посетители портфолио.
+          </p>
+        </section>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-900/50 border border-red-500/50 text-red-200 rounded-lg">
-            {error}
+        {/* Main Content */}
+        <section className="max-w-[86rem] mx-auto px-3 py-12 md:px-5">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-8 p-4 bg-red-900/50 border border-red-500/50 text-red-200 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Tab Navigation */}
+          <div className="flex gap-2 mb-8 pb-4 border-b border-gray-800 overflow-x-auto">
+            {tabs.map((tab, idx) => (
+              <button
+                key={tab.id}
+                onClick={() => setCurrentTab(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${
+                  currentTab === tab.id
+                    ? "bg-orange-600/20 text-orange-400 border border-orange-500/30"
+                    : "text-gray-400 hover:text-gray-300"
+                } ${idx > 0 ? "ml-0" : ""}`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        )}
 
-        {/* Form - Full Width */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 mb-8">
-          <form id="project-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Form Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Form - 2 columns */}
+            <form id="project-form" onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
               {/* TAB 1: Basic Information */}
               {currentTab === "basic" && (
                 <div className="space-y-4">
@@ -152,7 +156,7 @@ export default function AddProjectPage() {
                         value={formData.name || ""}
                         onChange={handleChange}
                         placeholder="Мой потрясающий проект"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -166,7 +170,7 @@ export default function AddProjectPage() {
                         value={formData.slug || ""}
                         onChange={handleChange}
                         placeholder="my-awesome-project"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -180,7 +184,7 @@ export default function AddProjectPage() {
                         value={formData.createdAt || ""}
                         onChange={handleChange}
                         placeholder="март 2026"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -194,7 +198,7 @@ export default function AddProjectPage() {
                         value={formData.devTime || ""}
                         onChange={handleChange}
                         placeholder="~3 недели"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
                   </div>
@@ -215,7 +219,7 @@ export default function AddProjectPage() {
                       onChange={handleChange}
                       placeholder="Кратко опишите суть проекта (2-3 строки)"
                       rows={3}
-                      className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
                   </div>
 
@@ -230,7 +234,7 @@ export default function AddProjectPage() {
                       onChange={handleChange}
                       placeholder="Полное описание проекта, его цели и задачи"
                       rows={5}
-                      className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
                   </div>
 
@@ -245,7 +249,7 @@ export default function AddProjectPage() {
                         handleArrayChange("features", e.target.value)
                       }
                       placeholder="Фича 1, Фича 2, Фича 3"
-                      className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
                   </div>
                 </div>
@@ -263,7 +267,7 @@ export default function AddProjectPage() {
                       value={formData.image || ""}
                       onChange={handleChange}
                       placeholder="https://example.com/image.jpg"
-                      className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
                   </div>
 
@@ -305,7 +309,7 @@ export default function AddProjectPage() {
                           handleArrayChange("stack", e.target.value)
                         }
                         placeholder="React, TypeScript, Tailwind"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -319,7 +323,7 @@ export default function AddProjectPage() {
                         value={formData.language || ""}
                         onChange={handleChange}
                         placeholder="TypeScript"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -332,7 +336,7 @@ export default function AddProjectPage() {
                         value={formData.github || ""}
                         onChange={handleChange}
                         placeholder="https://github.com/username/repo"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -345,7 +349,7 @@ export default function AddProjectPage() {
                         value={formData.demo || ""}
                         onChange={handleChange}
                         placeholder="https://demo.example.com"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                     </div>
 
@@ -359,7 +363,7 @@ export default function AddProjectPage() {
                         value={formData.accentColor || ""}
                         onChange={handleChange}
                         placeholder="from-cyan-500 to-blue-500"
-                        className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Примеры: from-indigo-500 to-purple-500, from-cyan-500
@@ -371,61 +375,66 @@ export default function AddProjectPage() {
               )}
             </form>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between gap-3 mt-8 pt-6 border-t border-gray-800">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    const prevIndex = Math.max(0, currentTabIndex - 1);
-                    setCurrentTab(tabs[prevIndex].id);
-                  }}
-                  disabled={currentTabIndex === 0}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition"
-                >
-                  <ChevronLeft size={16} />
-                  Назад
-                </button>
-
-                <button
-                  onClick={() => {
-                    const nextIndex = Math.min(tabs.length - 1, currentTabIndex + 1);
-                    setCurrentTab(tabs[nextIndex].id);
-                  }}
-                  disabled={currentTabIndex === tabs.length - 1}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition"
-                >
-                  Далее
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => navigate("/projects")}
-                  disabled={loading}
-                  className="px-5 py-2 rounded-lg font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="submit"
-                  form="project-form"
-                  disabled={loading}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition shadow-lg shadow-indigo-500/20"
-                >
-                  {loading && <Loader2 size={16} className="animate-spin" />}
-                  Добавить проект
-                </button>
+            {/* Preview Sidebar - Right Column */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-20 space-y-4">
+                <h3 className="text-lg font-semibold text-white">Предпросмотр</h3>
+                <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-lg p-4 overflow-auto max-h-[60vh]">
+                  <LivePreview formData={formData} />
+                </div>
               </div>
             </div>
-        </div>
+          </div>
 
-        {/* Live Preview Section - Below Form */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <h2 className="text-2xl font-bold text-white mb-6">Предпросмотр проекта</h2>
-          <LivePreview formData={formData} />
-        </div>
+          {/* Form Navigation Buttons - Full Width Below Form */}
+          <div className="mt-8 pt-6 border-t border-gray-800 flex justify-between items-center">
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const prevIndex = Math.max(0, currentTabIndex - 1);
+                  setCurrentTab(tabs[prevIndex].id);
+                }}
+                disabled={currentTabIndex === 0}
+                className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
+              >
+                <ChevronLeft size={16} />
+                Назад
+              </button>
+
+              <button
+                onClick={() => {
+                  const nextIndex = Math.min(tabs.length - 1, currentTabIndex + 1);
+                  setCurrentTab(tabs[nextIndex].id);
+                }}
+                disabled={currentTabIndex === tabs.length - 1}
+                className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
+              >
+                Далее
+                <ChevronRight size={16} />
+              </button>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate("/projects")}
+                disabled={loading}
+                className="px-5 py-2 rounded-lg font-medium text-gray-400 hover:text-white transition"
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                form="project-form"
+                disabled={loading}
+                className="px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition shadow-lg shadow-orange-500/20"
+              >
+                {loading && <Loader2 size={16} className="animate-spin" />}
+                Добавить проект
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
