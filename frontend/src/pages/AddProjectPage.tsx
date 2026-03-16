@@ -139,10 +139,8 @@ export default function AddProjectPage() {
           </div>
 
           {/* Form Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Form - 2 columns */}
-            <form id="project-form" onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
-              {/* TAB 1: Basic Information */}
+          <form id="project-form" onSubmit={handleSubmit} className="space-y-6">
+            {/* TAB 1: Basic Information */}
               {currentTab === "basic" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -240,17 +238,23 @@ export default function AddProjectPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Особенности (через запятую) *
+                      Особенности (каждая на новой строке) *
                     </label>
-                    <input
+                    <textarea
                       required
-                      value={formData.features?.join(", ") || ""}
-                      onChange={(e) =>
-                        handleArrayChange("features", e.target.value)
-                      }
-                      placeholder="Фича 1, Фича 2, Фича 3"
+                      value={formData.features?.join("\n") || ""}
+                      onChange={(e) => {
+                        const items = e.target.value
+                          .split("\n")
+                          .map((i) => i.trim())
+                          .filter(Boolean);
+                        setFormData((prev) => ({ ...prev, features: items }));
+                      }}
+                      placeholder="Фича 1&#10;Фича 2&#10;Фича 3"
+                      rows={3}
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
+                    <p className="text-xs text-gray-500 mt-1">По одной особенности на каждой строке</p>
                   </div>
                 </div>
               )}
@@ -297,23 +301,28 @@ export default function AddProjectPage() {
               {/* TAB 5: Technologies & Links */}
               {currentTab === "tech" && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
-                        Стек технологий (через запятую) *
-                      </label>
-                      <input
-                        required
-                        value={formData.stack?.join(", ") || ""}
-                        onChange={(e) =>
-                          handleArrayChange("stack", e.target.value)
-                        }
-                        placeholder="React, TypeScript, Tailwind"
-                        className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Стек технологий (каждая на новой строке) *
+                    </label>
+                    <textarea
+                      required
+                      value={formData.stack?.join("\n") || ""}
+                      onChange={(e) => {
+                        const items = e.target.value
+                          .split("\n")
+                          .map((i) => i.trim())
+                          .filter(Boolean);
+                        setFormData((prev) => ({ ...prev, stack: items }));
+                      }}
+                      placeholder="React&#10;TypeScript&#10;Tailwind"
+                      rows={3}
+                      className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">По одной технологии на каждой строке</p>
+                  </div>
 
-                    <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <label className="block text-sm font-medium text-gray-300 mb-1">
                         Основной язык *
                       </label>
@@ -375,66 +384,61 @@ export default function AddProjectPage() {
               )}
             </form>
 
-            {/* Preview Sidebar - Right Column */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-20 space-y-4">
-                <h3 className="text-lg font-semibold text-white">Предпросмотр</h3>
-                <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-lg p-4 overflow-auto max-h-[60vh]">
-                  <LivePreview formData={formData} />
-                </div>
+            {/* Form Navigation Buttons - Full Width Below Form */}
+            <div className="mt-8 pt-6 border-t border-gray-800 flex justify-between items-center">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const prevIndex = Math.max(0, currentTabIndex - 1);
+                    setCurrentTab(tabs[prevIndex].id);
+                  }}
+                  disabled={currentTabIndex === 0}
+                  className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
+                >
+                  <ChevronLeft size={16} />
+                  Назад
+                </button>
+
+                <button
+                  onClick={() => {
+                    const nextIndex = Math.min(tabs.length - 1, currentTabIndex + 1);
+                    setCurrentTab(tabs[nextIndex].id);
+                  }}
+                  disabled={currentTabIndex === tabs.length - 1}
+                  className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
+                >
+                  Далее
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigate("/projects")}
+                  disabled={loading}
+                  className="px-5 py-2 rounded-lg font-medium text-gray-400 hover:text-white transition"
+                >
+                  Отмена
+                </button>
+                <button
+                  type="submit"
+                  form="project-form"
+                  disabled={loading}
+                  className="px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition shadow-lg shadow-orange-500/20"
+                >
+                  {loading && <Loader2 size={16} className="animate-spin" />}
+                  Добавить проект
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Form Navigation Buttons - Full Width Below Form */}
-          <div className="mt-8 pt-6 border-t border-gray-800 flex justify-between items-center">
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  const prevIndex = Math.max(0, currentTabIndex - 1);
-                  setCurrentTab(tabs[prevIndex].id);
-                }}
-                disabled={currentTabIndex === 0}
-                className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
-              >
-                <ChevronLeft size={16} />
-                Назад
-              </button>
-
-              <button
-                onClick={() => {
-                  const nextIndex = Math.min(tabs.length - 1, currentTabIndex + 1);
-                  setCurrentTab(tabs[nextIndex].id);
-                }}
-                disabled={currentTabIndex === tabs.length - 1}
-                className="px-4 py-2 bg-gray-800/50 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-gray-300 font-medium flex items-center gap-2 transition border border-gray-700"
-              >
-                Далее
-                <ChevronRight size={16} />
-              </button>
+            {/* Live Preview Section - Below Form */}
+            <div className="mt-12 pt-8 border-t border-gray-800">
+              <h2 className="text-2xl font-bold text-white mb-6">Предпросмотр проекта</h2>
+              <LivePreview formData={formData} />
             </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate("/projects")}
-                disabled={loading}
-                className="px-5 py-2 rounded-lg font-medium text-gray-400 hover:text-white transition"
-              >
-                Отмена
-              </button>
-              <button
-                type="submit"
-                form="project-form"
-                disabled={loading}
-                className="px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-medium flex items-center gap-2 transition shadow-lg shadow-orange-500/20"
-              >
-                {loading && <Loader2 size={16} className="animate-spin" />}
-                Добавить проект
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+          </section>
+        </div>
+      </main>
+    );
+  }
