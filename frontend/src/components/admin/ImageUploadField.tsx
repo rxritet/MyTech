@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Upload, X, Link2 } from "lucide-react";
 
 interface ImageUploadFieldProps {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
-  maxImages?: number;
-  label?: string;
+  readonly images: ReadonlyArray<string>;
+  readonly onImagesChange: (images: string[]) => void;
+  readonly maxImages?: number;
+  readonly label?: string;
 }
 
 export default function ImageUploadField({
@@ -13,7 +13,7 @@ export default function ImageUploadField({
   onImagesChange,
   maxImages = 10,
   label = "Галерея фотографий",
-}: ImageUploadFieldProps) {
+}: Readonly<ImageUploadFieldProps>) {
   const [newUrl, setNewUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -67,7 +67,7 @@ export default function ImageUploadField({
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {images.map((img, idx) => (
-          <div key={idx} className="relative group rounded-lg overflow-hidden bg-gray-950 border border-gray-800 aspect-video">
+          <div key={`image-${idx}`} className="relative group rounded-lg overflow-hidden bg-gray-950 border border-gray-800 aspect-video">
             <img
               src={img}
               alt={`Preview ${idx}`}

@@ -238,23 +238,22 @@ export default function AddProjectPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Особенности (каждая на новой строке) *
+                      Особенности (через запятую) *
                     </label>
-                    <textarea
+                    <input
                       required
-                      value={formData.features?.join("\n") || ""}
+                      value={formData.features?.join(", ") || ""}
                       onChange={(e) => {
                         const items = e.target.value
-                          .split("\n")
+                          .split(",")
                           .map((i) => i.trim())
                           .filter(Boolean);
                         setFormData((prev) => ({ ...prev, features: items }));
                       }}
-                      placeholder="Фича 1\nФича 2\nФича 3"
-                      rows={3}
+                      placeholder="Фича 1, Фича 2, Фича 3"
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
-                    <p className="text-xs text-gray-500 mt-1">По одной особенности на каждой строке</p>
+                    <p className="text-xs text-gray-500 mt-1">Разделяйте особенности запятыми</p>
                   </div>
                 </div>
               )}
@@ -303,23 +302,22 @@ export default function AddProjectPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Стек технологий (каждая на новой строке) *
+                      Стек технологий (через запятую) *
                     </label>
-                    <textarea
+                    <input
                       required
-                      value={formData.stack?.join("\n") || ""}
+                      value={formData.stack?.join(", ") || ""}
                       onChange={(e) => {
                         const items = e.target.value
-                          .split("\n")
+                          .split(",")
                           .map((i) => i.trim())
                           .filter(Boolean);
                         setFormData((prev) => ({ ...prev, stack: items }));
                       }}
-                      placeholder="React\nTypeScript\nTailwind"
-                      rows={3}
+                      placeholder="React, TypeScript, Tailwind"
                       className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20"
                     />
-                    <p className="text-xs text-gray-500 mt-1">По одной технологии на каждой строке</p>
+                    <p className="text-xs text-gray-500 mt-1">Разделяйте технологии запятыми</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

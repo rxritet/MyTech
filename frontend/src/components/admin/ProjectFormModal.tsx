@@ -6,11 +6,11 @@ import ImageUploadField from "./ImageUploadField";
 import DevelopmentTimeline from "./DevelopmentTimeline";
 
 interface ProjectFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  project?: Project | null;
-  secret: string;
-  onSuccess: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly project?: Project | null;
+  readonly secret: string;
+  readonly onSuccess: () => void;
 }
 
 type TabType = "basic" | "description" | "media" | "development" | "tech";

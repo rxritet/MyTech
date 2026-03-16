@@ -3,10 +3,10 @@ import type { Project } from "../../api";
 import { Star } from "lucide-react";
 
 interface LivePreviewProps {
-  formData: Partial<Project>;
+  readonly formData: Partial<Project>;
 }
 
-export default function LivePreview({ formData }: LivePreviewProps) {
+export default function LivePreview({ formData }: Readonly<LivePreviewProps>) {
   return (
     <div className="w-full">
       <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -47,7 +47,7 @@ export default function LivePreview({ formData }: LivePreviewProps) {
             <div className="flex flex-wrap gap-2">
               {formData.stack.map((tech, idx) => (
                 <span
-                  key={idx}
+                  key={`tech-${idx}-${tech}`}
                   className="px-3 py-1 bg-indigo-900/30 border border-indigo-500/50 text-indigo-300 text-xs rounded-full"
                 >
                   {tech}
@@ -64,7 +64,7 @@ export default function LivePreview({ formData }: LivePreviewProps) {
               </h4>
               <ul className="space-y-1">
                 {formData.features.slice(0, 3).map((feature, idx) => (
-                  <li key={idx} className="text-sm text-gray-400 flex items-start gap-2">
+                  <li key={`feature-${idx}-${feature}`} className="text-sm text-gray-400 flex items-start gap-2">
                     <Star size={14} className="mt-1 text-indigo-400 flex-shrink-0" />
                     {feature}
                   </li>
@@ -137,7 +137,7 @@ export default function LivePreview({ formData }: LivePreviewProps) {
             <div className="grid grid-cols-2 gap-2">
               {formData.gallery.slice(0, 4).map((img, idx) => (
                 <div
-                  key={idx}
+                  key={`gallery-${idx}`}
                   className="aspect-video rounded-lg overflow-hidden border border-gray-800"
                 >
                   <img
@@ -171,7 +171,7 @@ export default function LivePreview({ formData }: LivePreviewProps) {
               </h4>
               <div className="space-y-2 bg-gray-900 border border-gray-800 rounded-lg p-4">
                 {formData.developmentProcess.map((stage, idx) => (
-                  <div key={idx} className="flex gap-3">
+                  <div key={`stage-${idx}-${stage.title}`} className="flex gap-3">
                     <div className="flex flex-col items-center gap-1">
                       <div className="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">
                         {idx + 1}

@@ -3,14 +3,14 @@ import { Plus, X, GripVertical } from "lucide-react";
 import type { DevelopmentStage } from "../../api";
 
 interface DevelopmentTimelineProps {
-  stages: DevelopmentStage[];
-  onStagesChange: (stages: DevelopmentStage[]) => void;
+  readonly stages: ReadonlyArray<DevelopmentStage>;
+  readonly onStagesChange: (stages: DevelopmentStage[]) => void;
 }
 
 export default function DevelopmentTimeline({
   stages,
   onStagesChange,
-}: DevelopmentTimelineProps) {
+}: Readonly<DevelopmentTimelineProps>) {
   const [newStage, setNewStage] = useState<DevelopmentStage>({
     title: "",
     description: "",
@@ -53,7 +53,7 @@ export default function DevelopmentTimeline({
       <div className="space-y-3">
         {stages.map((stage, index) => (
           <div
-            key={index}
+            key={`stage-${stage.title}-${index}`}
             className="p-4 bg-gray-950 border border-gray-800 rounded-lg space-y-2"
           >
             <div className="flex items-start justify-between gap-3">
@@ -99,10 +99,11 @@ export default function DevelopmentTimeline({
 
       <div className="space-y-3 p-4 bg-gray-950 border border-gray-800 rounded-lg">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label htmlFor="stage-title" className="block text-sm font-medium text-gray-300 mb-2">
             Название этапа
           </label>
           <input
+            id="stage-title"
             type="text"
             value={newStage.title}
             onChange={(e) =>
@@ -114,10 +115,11 @@ export default function DevelopmentTimeline({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label htmlFor="stage-description" className="block text-sm font-medium text-gray-300 mb-2">
             Описание этапа
           </label>
           <textarea
+            id="stage-description"
             value={newStage.description}
             onChange={(e) =>
               setNewStage({ ...newStage, description: e.target.value })
