@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 interface TechIconProps {
   slug: string | null;
   name: string;
@@ -39,7 +41,17 @@ const OVERRIDES: Record<string, { color?: string }> = {
   linux: { color: "#FCC624" },
 };
 
-function normalizeSlug(rawSlug: string | null, name: string): string | null {
+const SVG_ICON_BY_SLUG: Record<string, string> = {
+  vitejs: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg",
+  html5: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+  css3: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
+  linux: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
+  tailwindcss: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+  nodejs: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+  flask: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg",
+};
+
+function normalizeSlug(rawSlug: string | null): string | null {
   if (!rawSlug) return null;
 
   const normalized = rawSlug.trim().toLowerCase();
@@ -114,10 +126,27 @@ function TechFallback({ name, size }: Readonly<{ name: string; size: number }>) 
 }
 
 export default function TechIcon({ slug, name, size = 24, colored = true }: Readonly<TechIconProps>) {
-  const normalizedSlug = normalizeSlug(slug, name);
+  const [svgLoadFailed, setSvgLoadFailed] = useState(false);
+  const normalizedSlug = normalizeSlug(slug);
 
   if (!normalizedSlug) {
     return <TechFallback name={name} size={size} />;
+  }
+
+  const svgUrl = useMemo(() => SVG_ICON_BY_SLUG[normalizedSlug] ?? null, [normalizedSlug]);
+
+  if (svgUrl && !svgLoadFailed) {
+    return (
+      <img
+        src={svgUrl}
+        alt={name}
+        width={size}
+        height={size}
+        className="inline-flex items-center justify-center flex-shrink-0 object-contain"
+        style={{ width: size, height: size }}
+        onError={() => setSvgLoadFailed(true)}
+      />
+    );
   }
 
   const classes = getDeviconClass(normalizedSlug, colored);
