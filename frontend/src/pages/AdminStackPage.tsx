@@ -148,6 +148,32 @@ function normalizeCustomIconInput(value: string): string {
   }
 }
 
+function normalizeDeviconSlugInput(value: string): string {
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) return "";
+
+  const deviconMatch = /devicon-([a-z0-9-]+)/i.exec(trimmed);
+  const cdnMatch = /\/icons\/([a-z0-9-]+)\/[a-z0-9-]+-(?:plain|original|line)(?:-wordmark)?\.svg/i.exec(trimmed);
+  const rawSlugMatch = /^[a-z0-9-]+$/i.test(trimmed) ? trimmed : "";
+
+  const candidate = (deviconMatch?.[1] ?? cdnMatch?.[1] ?? rawSlugMatch)
+    .replace(/-(?:plain|original|line)(?:-wordmark)?$/i, "")
+    .replace(/-wordmark$/i, "")
+    .replace(/-colored$/i, "");
+
+  return candidate.trim();
+}
+
+function extractDeviconSlugFromIconInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const match = /devicon-([a-z0-9-]+)/i.exec(trimmed);
+  if (!match) return "";
+
+  return normalizeDeviconSlugInput(match[1]);
+}
+
 function sanitizeBadgeUrlForInput(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -298,6 +324,11 @@ export default function AdminStackPage() {
 
   const selectedAboutTechnology =
     technologies.find((technology) => technology.id === aboutDraftTechnologyId) ?? null;
+
+  const previewDeviconSlug =
+    normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
+    extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
+  const previewFallbackSrc = normalizeCustomIconInput(newTechnologyBadgeUrl) || null;
 
   if (!isAdmin || !secret) {
     return null;
@@ -504,14 +535,17 @@ export default function AdminStackPage() {
 
   const handleCreateTechnology = async () => {
     const normalizedBadgeUrl = normalizeCustomIconInput(newTechnologyBadgeUrl);
+    const normalizedDeviconSlug =
+      normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
+      extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
 
     if (!newTechnologyName.trim()) {
       setError("Заполните название технологии");
       return;
     }
 
-    if (!newTechnologyDeviconSlug.trim() && !normalizedBadgeUrl) {
-      setError("Укажите Devicon slug или кастомный URL иконки");
+    if (!normalizedDeviconSlug && !normalizedBadgeUrl) {
+      setError("Укажите Devicon slug, devicon HTML-тег или кастомный URL иконки");
       return;
     }
 
@@ -523,7 +557,7 @@ export default function AdminStackPage() {
           name: newTechnologyName.trim(),
           category: newTechnologyCategory,
           badgeUrl: normalizedBadgeUrl,
-          deviconSlug: newTechnologyDeviconSlug.trim().toLowerCase() || null,
+          deviconSlug: normalizedDeviconSlug || null,
         },
         secret,
       );
@@ -543,8 +577,18 @@ export default function AdminStackPage() {
     if (!patch) return;
 
     const payload: Partial<Technology> = { ...patch };
+    const extractedSlugFromIconInput = typeof patch.badgeUrl === "string"
+      ? extractDeviconSlugFromIconInput(patch.badgeUrl)
+      : "";
+
     if (typeof payload.badgeUrl === "string") {
       payload.badgeUrl = normalizeCustomIconInput(payload.badgeUrl);
+    }
+    if (typeof payload.deviconSlug === "string") {
+      payload.deviconSlug = normalizeDeviconSlugInput(payload.deviconSlug) || null;
+    }
+    if (payload.deviconSlug === undefined && extractedSlugFromIconInput) {
+      payload.deviconSlug = extractedSlugFromIconInput;
     }
 
     setSaving(true);
@@ -1040,25 +1084,25 @@ export default function AdminStackPage() {
                   <input
                     value={newTechnologyBadgeUrl}
                     onChange={(e) => setNewTechnologyBadgeUrl(e.target.value)}
-                    placeholder="Кастомный URL или HTML img-тег (опционально)"
+                    placeholder={'URL, <img ...> или <i class="devicon-..."></i>'}
                     className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                   />
                   <div className="flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2">
                     <TechIcon
-                      slug={newTechnologyDeviconSlug.trim() || null}
+                      slug={previewDeviconSlug || null}
                       name={newTechnologyName || "preview"}
                       size={28}
-                      fallbackSrc={normalizeCustomIconInput(newTechnologyBadgeUrl) || null}
+                      fallbackSrc={previewFallbackSrc}
                     />
                     <input
                       value={newTechnologyDeviconSlug}
                       onChange={(e) => setNewTechnologyDeviconSlug(e.target.value)}
-                      placeholder="Devicon slug"
+                      placeholder="Devicon slug (опционально)"
                       className="w-full bg-transparent text-white outline-none"
                     />
                   </div>
                   <p className="md:col-span-4 text-xs text-gray-500">
-                    Найти slug: devicon.dev (например: go, typescript, docker)
+                    Вставьте из devicon.dev: &lt;i class=&quot;devicon-supabase-plain&quot;&gt;&lt;/i&gt; или URL SVG из &lt;img src=&quot;...&quot;&gt;.
                   </p>
                   <button
                     type="button"
@@ -1074,16 +1118,24 @@ export default function AdminStackPage() {
                   {technologies.map((technology) => {
                     const draft = editingMap[technology.id] ?? {};
                     const draftBadge = draft.badgeUrl;
+                    const extractedDraftSlugFromBadge = typeof draftBadge === "string"
+                      ? extractDeviconSlugFromIconInput(draftBadge)
+                      : "";
                     const effectiveBadgeUrl = typeof draftBadge === "string"
                       ? normalizeCustomIconInput(draftBadge)
                       : sanitizeBadgeUrlForInput(technology.badgeUrl);
                     const badgeInputValue = typeof draftBadge === "string"
                       ? draftBadge
                       : sanitizeBadgeUrlForInput(technology.badgeUrl);
+                    const draftDeviconSlug = typeof draft.deviconSlug === "string"
+                      ? normalizeDeviconSlugInput(draft.deviconSlug) || null
+                      : draft.deviconSlug;
+                    const effectiveDeviconSlug =
+                      (draftDeviconSlug ?? extractedDraftSlugFromBadge) || technology.deviconSlug;
                     return (
                       <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
                         <TechIcon
-                          slug={draft.deviconSlug ?? technology.deviconSlug}
+                          slug={effectiveDeviconSlug}
                           name={draft.name ?? technology.name}
                           size={24}
                           fallbackSrc={effectiveBadgeUrl}
@@ -1107,7 +1159,7 @@ export default function AdminStackPage() {
                         <input
                           value={badgeInputValue}
                           onChange={(e) => updateDraftField(technology.id, "badgeUrl", e.target.value)}
-                          placeholder="Кастомный URL или HTML img-тег"
+                          placeholder={'URL, <img ...> или <i class="devicon-..."></i>'}
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <input

@@ -17,10 +17,20 @@ const categoryValues = technologyCategoryEnum.enumValues;
 const deviconSlugSchema = z.preprocess(
   (value) => {
     if (typeof value !== "string") return value;
-    const normalized = value.trim().toLowerCase();
-    return normalized.length > 0 ? normalized : null;
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) return null;
+
+    const deviconMatch = /devicon-([a-z0-9-]+)/i.exec(trimmed);
+    const cdnMatch = /\/icons\/([a-z0-9-]+)\/[a-z0-9-]+-(?:plain|original|line)(?:-wordmark)?\.svg/i.exec(trimmed);
+    const rawSlugMatch = /^[a-z0-9-]+$/i.test(trimmed) ? trimmed : "";
+    const candidate = (deviconMatch?.[1] ?? cdnMatch?.[1] ?? rawSlugMatch)
+      .replace(/-(?:plain|original|line)(?:-wordmark)?$/i, "")
+      .replace(/-wordmark$/i, "")
+      .replace(/-colored$/i, "");
+
+    return candidate.length > 0 ? candidate : null;
   },
-  z.string().regex(/^[a-z0-9]+$/).nullable(),
+  z.string().regex(/^[a-z0-9-]+$/).nullable(),
 );
 
 const badgeUrlSchema = z.preprocess(

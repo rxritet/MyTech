@@ -7,7 +7,14 @@ interface TechIconProps {
   fallbackSrc?: string | null;
 }
 
-const DEVICON_SUFFIXES = ["original", "plain", "original-wordmark"] as const;
+const DEVICON_SUFFIXES = [
+  "original",
+  "plain",
+  "line",
+  "original-wordmark",
+  "plain-wordmark",
+  "line-wordmark",
+] as const;
 const DEVICON_CDN_BASE = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
 
 function normalizeSlug(rawSlug: string | null): string | null {
