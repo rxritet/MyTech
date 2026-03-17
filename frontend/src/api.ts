@@ -143,7 +143,7 @@ export interface PublicStackItem {
   id: number;
   technologyId: number;
   name: string;
-  category: TechnologyCategory;
+  category: string;
   badgeUrl: string;
   deviconSlug: string | null;
   order: number;
@@ -336,7 +336,7 @@ export async function getAboutStack(): Promise<PublicStackItem[]> {
 }
 
 export async function updateAboutStack(
-  payload: { items: Array<{ technologyId: number; category: TechnologyCategory; order: number }> },
+  payload: { items: Array<{ technologyId: number; category: string; order: number }> },
   secret: string,
 ): Promise<PublicStackItem[]> {
   return apiRequest<PublicStackItem[]>("/api/stack/about", {

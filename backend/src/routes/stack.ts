@@ -8,17 +8,14 @@ import {
   homeStackCategories,
   homeStackItems,
   technologies,
-  technologyCategoryEnum,
 } from "../db/schema";
 import adminAuth from "../middleware/adminAuth";
-
-const categoryValues = technologyCategoryEnum.enumValues;
 
 const updateAboutSchema = z.object({
   items: z.array(
     z.object({
       technologyId: z.number().int().positive(),
-      category: z.enum(categoryValues),
+      category: z.string().trim().min(1).max(100),
       order: z.number().int(),
     }),
   ),

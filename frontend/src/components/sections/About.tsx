@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useInView } from "../../hooks/useInView";
 import { useAdmin } from "../../context/AdminContext";
-import { AboutData, getAbout, getAboutStack, type PublicStackItem, type TechnologyCategory } from "../../api";
+import { AboutData, getAbout, getAboutStack, type PublicStackItem } from "../../api";
 import AboutFormModal from "../admin/AboutFormModal";
 import {
   PROFILE as STATIC_PROFILE,
@@ -190,7 +190,7 @@ export default function About() {
     );
   }
 
-  const categoryMeta: Record<TechnologyCategory, { title: string; description: string }> = {
+  const categoryMeta: Record<string, { title: string; description: string }> = {
     language: {
       title: "Языки",
       description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
@@ -217,15 +217,18 @@ export default function About() {
     },
   };
 
-  const apiGroups = (Object.keys(categoryMeta) as TechnologyCategory[])
+  const apiCategories = Array.from(new Set(aboutStackItems.map((item) => item.category)));
+
+  const apiGroups = apiCategories
     .map((category) => {
       const items = aboutStackItems
         .filter((item) => item.category === category)
         .sort((a, b) => a.order - b.order);
 
+      const meta = categoryMeta[category];
       return {
-        title: categoryMeta[category].title,
-        description: categoryMeta[category].description,
+        title: meta?.title ?? category,
+        description: meta?.description ?? "Категория технологий, настроенная в админ-панели.",
         names: items.map((item) => item.name),
         items,
       };

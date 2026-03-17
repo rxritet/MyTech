@@ -84,7 +84,7 @@ export const homeStackItems = pgTable("home_stack_items", {
 export const aboutStack = pgTable("about_stack", {
   id: serial("id").primaryKey(),
   technologyId: integer("technology_id").notNull().references(() => technologies.id, { onDelete: "cascade" }),
-  category: technologyCategoryEnum("category").notNull(),
+  category: text("category").notNull(),
   order: integer("order").notNull().default(0),
 });
 

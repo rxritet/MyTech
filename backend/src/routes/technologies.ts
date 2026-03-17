@@ -105,13 +105,6 @@ technologiesRouter.put(
       return c.json({ error: "Not found" }, 404);
     }
 
-    if (data.category) {
-      await db
-        .update(aboutStack)
-        .set({ category: data.category })
-        .where(eq(aboutStack.technologyId, id));
-    }
-
     return c.json(updated[0]);
   },
 );

@@ -37,7 +37,7 @@ type TabType = "home" | "about" | "catalog";
 
 interface AboutEditorItem {
   technologyId: number;
-  category: TechnologyCategory;
+  category: string;
 }
 
 interface SortableRowProps {
@@ -111,7 +111,7 @@ function SortableRow({ id, label, isActive = false, onSelect, onDelete }: Readon
   );
 }
 
-function categoryLabel(category: TechnologyCategory): string {
+function categoryLabel(category: string): string {
   switch (category) {
     case "language":
       return "Языки";
@@ -181,6 +181,8 @@ export default function AdminStackPage() {
   const [newHomeCategoryLabel, setNewHomeCategoryLabel] = useState("");
   const [newHomeItemName, setNewHomeItemName] = useState("");
   const [aboutItems, setAboutItems] = useState<AboutEditorItem[]>([]);
+  const [aboutCategories, setAboutCategories] = useState<string[]>([]);
+  const [aboutNewCategory, setAboutNewCategory] = useState("");
 
   const [newTechnologyName, setNewTechnologyName] = useState("");
   const [newTechnologyCategory, setNewTechnologyCategory] = useState<TechnologyCategory>("tool");
@@ -189,7 +191,7 @@ export default function AdminStackPage() {
 
   const [editingMap, setEditingMap] = useState<Record<number, Partial<Technology>>>({});
   const [aboutDraftTechnologyId, setAboutDraftTechnologyId] = useState<number | null>(null);
-  const [aboutDraftCategory, setAboutDraftCategory] = useState<TechnologyCategory>("language");
+  const [aboutDraftCategory, setAboutDraftCategory] = useState<string>("");
   const [aboutSearchQuery, setAboutSearchQuery] = useState("");
   const [aboutComboboxOpen, setAboutComboboxOpen] = useState(false);
   const [addingAboutTechnology, setAddingAboutTechnology] = useState(false);
@@ -236,6 +238,11 @@ export default function AdminStackPage() {
             category: item.category,
           })),
       );
+
+      const usedCategories = Array.from(new Set(sortedAbout.map((item) => item.category)));
+      setAboutCategories(usedCategories);
+      setAboutDraftCategory(usedCategories[0] ?? "");
+      setAboutNewCategory("");
     } catch {
       setError("Не удалось загрузить технологический стек");
     } finally {
@@ -276,7 +283,7 @@ export default function AdminStackPage() {
   const activeItemLabel =
     selectedHomeCategory?.items.find((item) => item.id === activeItemDragId)?.name ?? "";
 
-  const aboutByCategory = CATEGORIES.map((category) => ({
+  const aboutByCategory = aboutCategories.map((category) => ({
     category,
     items: aboutItems.filter((item) => item.category === category),
   }));
@@ -374,7 +381,7 @@ export default function AdminStackPage() {
     void persistHomeOrder(nextCategories, rollback);
   };
 
-  const moveAboutItem = (category: TechnologyCategory, index: number, direction: -1 | 1) => {
+  const moveAboutItem = (category: string, index: number, direction: -1 | 1) => {
     const categoryItems = aboutItems.filter((item) => item.category === category);
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= categoryItems.length) return;
@@ -477,7 +484,7 @@ export default function AdminStackPage() {
     setSaving(true);
     setError(null);
     try {
-      const payloadItems = CATEGORIES.flatMap((category) =>
+      const payloadItems = aboutCategories.flatMap((category) =>
         aboutItems
           .filter((item) => item.category === category)
           .map((item, index) => ({
@@ -574,7 +581,45 @@ export default function AdminStackPage() {
     setAboutItems((prev) => prev.filter((value) => value.technologyId !== technologyId));
   };
 
+  const handleAddAboutCategory = () => {
+    const normalized = aboutNewCategory.trim();
+
+    if (!normalized) {
+      setError("Выберите категорию для добавления");
+      return;
+    }
+
+    const duplicate = aboutCategories.some(
+      (category) => category.toLowerCase() === normalized.toLowerCase(),
+    );
+    if (duplicate) {
+      setError("Категория уже добавлена");
+      return;
+    }
+
+    setAboutCategories((prev) => [...prev, normalized]);
+    setAboutDraftCategory(normalized);
+    setAboutNewCategory("");
+    setError(null);
+  };
+
+  const handleDeleteAboutCategory = (category: string) => {
+    setAboutCategories((prev) => prev.filter((value) => value !== category));
+    setAboutItems((prev) => prev.filter((item) => item.category !== category));
+
+    setAboutDraftCategory((prev) => {
+      if (prev !== category) return prev;
+      const remaining = aboutCategories.find((value) => value !== category);
+      return remaining ?? "";
+    });
+  };
+
   const handleAddAboutTechnology = async () => {
+    if (aboutCategories.length === 0) {
+      setError("Сначала добавьте хотя бы одну категорию");
+      return;
+    }
+
     if (!aboutDraftTechnologyId) {
       setError("Сначала выберите технологию");
       return;
@@ -796,6 +841,50 @@ export default function AdminStackPage() {
 
             {tab === "about" && (
               <div className="space-y-6">
+                <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-gray-200">Категории "Обо мне"</p>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <input
+                        value={aboutNewCategory}
+                          onChange={(e) => setAboutNewCategory(e.target.value)}
+                          placeholder="Новая категория (например: Data & ML)"
+                        className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                        />
+                      <button
+                        type="button"
+                        onClick={handleAddAboutCategory}
+                          disabled={saving || !aboutNewCategory.trim()}
+                        className="rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 disabled:opacity-50"
+                      >
+                        + Добавить категорию
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {aboutCategories.length === 0 && (
+                      <span className="text-sm text-gray-500">Пока нет категорий</span>
+                    )}
+                    {aboutCategories.map((category) => (
+                      <span
+                        key={`about-chip-${category}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-gray-900 px-3 py-1.5 text-xs text-gray-200"
+                      >
+                        {categoryLabel(category)}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteAboutCategory(category)}
+                          className="text-red-400 hover:text-red-300"
+                          aria-label={`Удалить категорию ${categoryLabel(category)}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div ref={aboutComboboxRef} className="relative">
                     <input
@@ -856,10 +945,11 @@ export default function AdminStackPage() {
 
                   <select
                     value={aboutDraftCategory}
-                    onChange={(e) => setAboutDraftCategory(e.target.value as TechnologyCategory)}
+                    onChange={(e) => setAboutDraftCategory(e.target.value)}
+                    disabled={aboutCategories.length === 0}
                     className="rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                   >
-                    {CATEGORIES.map((category) => (
+                    {aboutCategories.map((category) => (
                       <option key={`about-category-${category}`} value={category}>
                         {categoryLabel(category)}
                       </option>
@@ -869,7 +959,7 @@ export default function AdminStackPage() {
                   <button
                     type="button"
                     onClick={() => void handleAddAboutTechnology()}
-                    disabled={addingAboutTechnology || !selectedAboutTechnology}
+                    disabled={addingAboutTechnology || !selectedAboutTechnology || aboutCategories.length === 0}
                     className="rounded-lg border border-gray-700 bg-gray-900/80 px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 disabled:opacity-50"
                   >
                     {addingAboutTechnology ? "Добавляю..." : "Добавить в категорию"}
