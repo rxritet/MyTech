@@ -1,6 +1,7 @@
 import { SERVICES } from "../../data/services";
 import { useInView } from "../../hooks/useInView";
 import ServiceCard from "../ui/ServiceCard";
+import ExperienceTimeline from "./ExperienceTimeline";
 
 export default function Services() {
   const [ref, inView] = useInView<HTMLElement>(0.1);
@@ -38,6 +39,10 @@ export default function Services() {
           </li>
         ))}
       </ul>
+
+      <div className="mt-20">
+        <ExperienceTimeline />
+      </div>
     </section>
   );
 }
