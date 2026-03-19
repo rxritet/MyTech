@@ -1,77 +1,62 @@
-<div align="center">
-
 # MyTech
 
-### Сайт-визитка, который работает как настоящий продукт
+MyTech — персональная full-stack платформа (портфолио + админ-панель) с хранением контента в базе данных.
 
-[Live Demo](#) · [Frontend: React 19](https://react.dev/) · [Backend: Hono](https://hono.dev/) · [DB: PostgreSQL](https://www.postgresql.org/)
+## Технологии
 
-</div>
+- Frontend: React 19, TypeScript, Vite, Tailwind CSS 4, React Router 7
+- Backend: Node.js 20, Hono, Zod, Drizzle ORM
+- База данных: PostgreSQL 16
+- Инфраструктура: Docker Compose, Nginx
 
----
+## Возможности
 
-**MyTech** — персональный сайт-визитка Радмира Абраева. Не статичная HTML-страница, а живая платформа: контент редактируется через admin-интерфейс, форма обратной связи реально сохраняет сообщения, проекты живут в базе данных.
+### Публичная часть
 
-## Что обновлено (март 2026)
+- Главная страница
+- Каталог проектов
+- Детальная страница проекта (галерея, этапы разработки, стек)
+- Страница «Обо мне»
+- Страница «Работа» (таймлайн мест работы)
+- Контактная форма с сохранением в БД
 
-- Полностью переработана страница проекта: отдельные секции для **ключевых возможностей**, **этапов разработки** и **медиа-галереи**
-- В админке на странице проекта появились быстрые точки входа: **«Добавить этап»** и **«Добавить медиа»**
-- Рендер иконок технологий переведен на **Devicon CDN** с надежным fallback-алгоритмом
-- Убрана зависимость иконок от shields.io в runtime-логике
-- Кастомная иконка технологии теперь поддерживает ввод как прямого URL, так и HTML-вставки вида `<img src="..." />`
+### Админ-панель
 
-## Что видит посетитель
+- CRUD проектов
+- CRUD технологий
+- Управление стеком для Home/About
+- Редактирование контента About
+- CRUD мест работы
 
-- **Главная** — личный бренд, стек, ключевые ссылки одним экраном
-- **Проекты** — карточки с тегами технологий и отдельными страницами для каждого проекта
-- **Project Detail** — расширенная презентация проекта с галереей и таймлайном разработки
-- **Обо мне** — биография, tech stack, области фокуса, образовательные репозитории
-- **Условия работы** — формат сотрудничества и то, что берётся в работу
-- **Контакт** — форма связи, которая уходит в backend и сохраняется в БД
+### Поддержка иконок технологий
 
-## Что делает его не просто сайтом
+- Devicon slug
+- Devicon class (`devicon-*`)
+- URL изображения
+- Inline SVG
+- Сжатие SVG
+- Перекраска SVG в белый
 
-Большинство portfolio-сайтов красивы, но пусты внутри. MyTech построен иначе.
+## API (основные маршруты)
 
-- Контент проектов и раздела «Обо мне» хранится в PostgreSQL — без хардкода
-- Есть admin-режим: редактирование биографии и управление проектами прямо из интерфейса
-- Форма контакта не просто отправляет email — сообщения сохраняются в базе
-- Весь стек поднимается локально одной командой (`docker compose up`)
-- Готов к раздельному деплою: frontend на Vercel, backend — отдельным serverless API
+- `/api/about`
+- `/api/contacts`
+- `/api/projects`
+- `/api/technologies`
+- `/api/stack/home`
+- `/api/stack/about`
+- `/api/work-experience`
 
-## Admin-режим
+Для защищённых операций используется заголовок `x-admin-secret`.
 
-Без единой правки кода можно:
+## Условия запуска
 
-- обновить раздел «Обо мне» (без редактирования стека в этой форме)
-- управлять стеком отдельно через dedicated-страницу управления стеком
-- создать, отредактировать или удалить проект в каталоге
-- добавлять/редактировать этапы разработки и медиа-галерею проектов
-- вести каталог технологий с Devicon slug и кастомным URL иконки
-- все мутации защищены через `x-admin-secret` header
+### Требования
 
-## Иконки технологий
+- Docker
+- Docker Compose
 
-MyTech использует единый компонент `TechIcon` с алгоритмом fallback:
-
-1. `.../{slug}-original.svg`
-2. `.../{slug}-plain.svg`
-3. `.../{slug}-original-wordmark.svg`
-4. placeholder (первая буква технологии)
-
-Источник: `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/{slug}/...`
-
-Если slug отсутствует, можно передать кастомный URL иконки (в том числе через HTML `img`-вставку в админ-форме).
-
-## Стек
-
-**Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router 7  
-**Backend:** Node.js 20, Hono, Zod, Drizzle ORM  
-**Data:** PostgreSQL 16  
-**Infra:** Docker Compose, Nginx, Vercel-ready setup  
-**Icons:** Devicon CDN + fallback pipeline
-
-## Быстрый старт
+### Быстрый старт
 
 ```bash
 git clone https://github.com/rxritet/MyTech.git
@@ -80,10 +65,45 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-После запуска сайт доступен на `http://localhost:5173`.
+После запуска:
 
----
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
 
-<div align="center">
-  <sub>Built by <a href="https://github.com/rxritet">Радмир Абраев</a> · AlmaU · Backend / Full-stack Developer</sub>
-</div>
+## Переменные окружения
+
+Используйте шаблон из `.env.example` (в корне репозитория).
+
+Минимально нужны:
+
+- параметры PostgreSQL
+- `DATABASE_URL`
+- `ADMIN_SECRET`
+
+## Команды разработки
+
+### Frontend
+
+```bash
+cd frontend
+npm run dev
+npm run typecheck
+npm run build
+```
+
+### Backend
+
+```bash
+cd backend
+npm run dev
+npm run typecheck
+npm run migrate
+```
+
+## Автор
+
+Radmir Abraev
+
+- GitHub: https://github.com/rxritet
+- Telegram: https://t.me/rxritet
+- LinkedIn: https://www.linkedin.com/in/radmir-abraev-186b393b0/
