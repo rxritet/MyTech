@@ -16,22 +16,24 @@ export default function App() {
   return (
     <BrowserRouter>
       <AdminProvider>
-        <div className="app-shell min-h-screen font-sans dark">
+        <div className="app-shell flex min-h-screen flex-col font-sans">
           <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[-2] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.03),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.02),_transparent_18%)]" />
           <ScrollToTop />
           <Navbar />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/projects/add" element={<AddProjectPage />} />
-            <Route path="/admin/stack" element={<AdminStackPage />} />
-            <Route path="/projects/:slug" element={<ProjectDetailPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/terms" element={<WorkTermsPage />} />
-            {/* Fallback */}
-            <Route path="*" element={<HomePage />} />
-          </Routes>
+          <div className="flex-1">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/add" element={<AddProjectPage />} />
+              <Route path="/admin/stack" element={<AdminStackPage />} />
+              <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/terms" element={<WorkTermsPage />} />
+              {/* Fallback */}
+              <Route path="*" element={<HomePage />} />
+            </Routes>
+          </div>
           <Footer />
         </div>
       </AdminProvider>
