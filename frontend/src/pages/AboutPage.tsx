@@ -1,9 +1,7 @@
-import About from "../components/sections/About";
+import AboutShowcase from "../components/ui/AboutShowcase";
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen pt-16">
-      <About />
-    </main>
+    <AboutShowcase />
   );
 }
