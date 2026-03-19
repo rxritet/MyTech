@@ -147,7 +147,7 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
       <i
         className={fallbackDeviconClassToken}
         title={name}
-        style={{ fontSize: size, lineHeight: 1 }}
+        style={{ fontSize: size, lineHeight: 1, color: "#ffffff" }}
         aria-label={name}
       />
     );

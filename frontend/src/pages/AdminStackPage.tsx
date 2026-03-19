@@ -254,6 +254,14 @@ function extractDeviconSlugFromIconInput(value: string): string {
   return normalizeDeviconSlugInput(value);
 }
 
+function extractDeviconClassTokenFromInput(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const match = /devicon-[a-z0-9-]+/i.exec(trimmed);
+  return match?.[0]?.toLowerCase() ?? "";
+}
+
 function sanitizeBadgeUrlForInput(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -412,7 +420,9 @@ export default function AdminStackPage() {
 
   const previewDeviconSlug =
     normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
-    extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
+    (extractDeviconClassTokenFromInput(newTechnologyBadgeUrl)
+      ? ""
+      : extractDeviconSlugFromIconInput(newTechnologyBadgeUrl));
   const previewFallbackSrc = normalizeCustomIconInput(newTechnologyBadgeUrl) || null;
   const canShrinkNewTechnologySvg = Boolean(extractInlineSvgMarkup(newTechnologyBadgeUrl));
   const canRecolorNewTechnologySvg = canShrinkNewTechnologySvg;
@@ -622,9 +632,10 @@ export default function AdminStackPage() {
 
   const handleCreateTechnology = async () => {
     const normalizedBadgeUrl = normalizeCustomIconInput(newTechnologyBadgeUrl);
+    const hasDeviconClassToken = Boolean(extractDeviconClassTokenFromInput(newTechnologyBadgeUrl));
     const normalizedDeviconSlug =
       normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
-      extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
+      (hasDeviconClassToken ? "" : extractDeviconSlugFromIconInput(newTechnologyBadgeUrl));
 
     if (!newTechnologyName.trim()) {
       setError("Заполните название технологии");
@@ -668,9 +679,13 @@ export default function AdminStackPage() {
     if (!patch) return;
 
     const payload: Partial<Technology> = { ...patch };
-    const extractedSlugFromIconInput = typeof patch.badgeUrl === "string"
-      ? extractDeviconSlugFromIconInput(patch.badgeUrl)
-      : "";
+    const hasDeviconClassToken = typeof patch.badgeUrl === "string"
+      ? Boolean(extractDeviconClassTokenFromInput(patch.badgeUrl))
+      : false;
+    let extractedSlugFromIconInput = "";
+    if (typeof patch.badgeUrl === "string" && !hasDeviconClassToken) {
+      extractedSlugFromIconInput = extractDeviconSlugFromIconInput(patch.badgeUrl);
+    }
 
     if (typeof payload.badgeUrl === "string") {
       payload.badgeUrl = normalizeCustomIconInput(payload.badgeUrl);
@@ -1229,9 +1244,13 @@ export default function AdminStackPage() {
                   {technologies.map((technology) => {
                     const draft = editingMap[technology.id] ?? {};
                     const draftBadge = draft.badgeUrl;
-                    const extractedDraftSlugFromBadge = typeof draftBadge === "string"
-                      ? extractDeviconSlugFromIconInput(draftBadge)
-                      : "";
+                    const hasDraftDeviconClassToken = typeof draftBadge === "string"
+                      ? Boolean(extractDeviconClassTokenFromInput(draftBadge))
+                      : Boolean(extractDeviconClassTokenFromInput(technology.badgeUrl));
+                    let extractedDraftSlugFromBadge = "";
+                    if (typeof draftBadge === "string" && !hasDraftDeviconClassToken) {
+                      extractedDraftSlugFromBadge = extractDeviconSlugFromIconInput(draftBadge);
+                    }
                     const effectiveBadgeUrl = typeof draftBadge === "string"
                       ? normalizeCustomIconInput(draftBadge)
                       : sanitizeBadgeUrlForInput(technology.badgeUrl);
@@ -1244,7 +1263,9 @@ export default function AdminStackPage() {
                       ? normalizeDeviconSlugInput(draft.deviconSlug) || null
                       : draft.deviconSlug;
                     const effectiveDeviconSlug =
-                      (draftDeviconSlug ?? extractedDraftSlugFromBadge) || technology.deviconSlug;
+                      hasDraftDeviconClassToken
+                        ? null
+                        : (draftDeviconSlug ?? extractedDraftSlugFromBadge) || technology.deviconSlug;
                     return (
                       <div key={technology.id} className="rounded-xl border border-gray-800 bg-gray-950/40 p-4 grid grid-cols-1 md:grid-cols-14 gap-3 items-center">
                         <TechIcon
