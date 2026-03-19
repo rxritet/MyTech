@@ -134,6 +134,11 @@ function normalizeCustomIconInput(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
 
+  const deviconClassMatch = /devicon-[a-z0-9-]+/i.exec(trimmed);
+  if (deviconClassMatch?.[0]) {
+    return deviconClassMatch[0].toLowerCase();
+  }
+
   const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(trimmed);
   const candidate = srcMatch?.[1]?.trim() ?? trimmed;
 
@@ -165,13 +170,7 @@ function normalizeDeviconSlugInput(value: string): string {
 }
 
 function extractDeviconSlugFromIconInput(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-
-  const match = /devicon-([a-z0-9-]+)/i.exec(trimmed);
-  if (!match) return "";
-
-  return normalizeDeviconSlugInput(match[1]);
+  return normalizeDeviconSlugInput(value);
 }
 
 function sanitizeBadgeUrlForInput(value: string): string {

@@ -53,6 +53,18 @@ function extractImageSrc(value: string | null | undefined): string | null {
   }
 }
 
+function extractDeviconClassToken(value: string | null | undefined): string | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const classTokenMatch = /devicon-[a-z0-9-]+/i.exec(trimmed);
+  if (!classTokenMatch?.[0]) return null;
+
+  return classTokenMatch[0].toLowerCase();
+}
+
 function TechFallback({ name, size }: Readonly<{ name: string; size: number }>) {
   const char = name.trim().slice(0, 1).toUpperCase() || "?";
 
@@ -79,6 +91,7 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
   const [deviconAttempt, setDeviconAttempt] = useState(0);
   const [fallbackImageFailed, setFallbackImageFailed] = useState(false);
   const normalizedFallbackSrc = extractImageSrc(fallbackSrc);
+  const fallbackDeviconClassToken = extractDeviconClassToken(fallbackSrc);
 
   const deviconSources = useMemo(() => {
     if (!normalizedSlug) {
@@ -121,6 +134,17 @@ export default function TechIcon({ slug, name, size = 24, fallbackSrc = null }: 
         className="inline-flex items-center justify-center flex-shrink-0 object-contain"
         style={{ width: size, height: size }}
         onError={() => setFallbackImageFailed(true)}
+      />
+    );
+  }
+
+  if (fallbackDeviconClassToken) {
+    return (
+      <i
+        className={fallbackDeviconClassToken}
+        title={name}
+        style={{ fontSize: size, lineHeight: 1 }}
+        aria-label={name}
       />
     );
   }
