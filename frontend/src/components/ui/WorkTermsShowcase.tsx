@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useInView } from "../../hooks/useInView";
+import ExperienceTimeline from "../sections/ExperienceTimeline";
 
 const FORMATS = [
   {
@@ -103,6 +104,12 @@ export default function WorkTermsShowcase() {
         </InViewSection>
 
         <InViewSection delay={160}>
+          <section className="surface-panel rounded-3xl p-6 md:p-8">
+            <ExperienceTimeline />
+          </section>
+        </InViewSection>
+
+        <InViewSection delay={200}>
           <section className="grid gap-6 lg:grid-cols-2">
             <article className="surface-panel rounded-3xl p-6">
               <h2 className="mb-4 text-2xl font-semibold text-text">Что беру в работу</h2>
@@ -130,7 +137,7 @@ export default function WorkTermsShowcase() {
           </section>
         </InViewSection>
 
-        <InViewSection delay={240}>
+        <InViewSection delay={280}>
           <section
             className="surface-panel mx-auto max-w-3xl rounded-3xl p-8 text-center"
             style={{ animation: "pulse-glow 3s ease-in-out infinite" }}
