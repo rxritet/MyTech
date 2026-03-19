@@ -80,6 +80,7 @@ export default function ProjectDetailPage() {
     name,
     description,
     longDescription,
+    features,
     stack,
     github,
     demo,
@@ -93,6 +94,7 @@ export default function ProjectDetailPage() {
 
   const mediaItems = [image, ...(gallery ?? [])].filter((item): item is string => Boolean(item?.trim()));
   const stages = developmentProcess ?? [];
+  const projectFeatures = features ?? [];
 
   const statusLabel = demo ? "COMPLETED" : "IN PROGRESS";
   const statusHeroClass = demo
@@ -197,6 +199,33 @@ export default function ProjectDetailPage() {
                 О проекте
               </h2>
               <p className="text-[1.05rem] leading-[1.85] text-text/95">{longDescription}</p>
+            </section>
+
+            <section className="surface-panel rounded-3xl p-6 md:p-8">
+              <h2 className="mb-5 flex items-center gap-3 text-[1.2rem] font-bold text-text">
+                <span className="h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
+                {" "}
+                Кратко и особенности
+              </h2>
+
+              <p className="rounded-xl border border-border bg-bg-elevated/45 px-4 py-3 text-sm leading-7 text-text/92">
+                {description}
+              </p>
+
+              {projectFeatures.length > 0 ? (
+                <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-bg-elevated/45">
+                  {projectFeatures.map((feature, index) => (
+                    <li key={`${feature}-${index}`} className="flex items-start gap-3 px-4 py-3 text-sm text-muted">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted">
+                  Особенности проекта пока не заполнены.
+                </div>
+              )}
             </section>
 
             <section className="surface-panel rounded-3xl p-6 md:p-8">
@@ -321,10 +350,15 @@ export default function ProjectDetailPage() {
 
               <div className="border-b border-border p-5">
                 <p className="section-kicker !mb-3 text-[0.62rem]">СТЕК</p>
-                <ul className="grid grid-cols-3 gap-2">
-                  {stack.map((item) => (
-                    <li key={item} className="rounded-xl transition-shadow hover:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                      <SkillBadge label={item} />
+                <ul className="flex flex-wrap items-center gap-y-2">
+                  {stack.map((item, index) => (
+                    <li key={item} className="flex items-center">
+                      <span className="rounded-xl transition-shadow hover:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                        <SkillBadge label={item} />
+                      </span>
+                      {index < stack.length - 1 ? (
+                        <span className="mx-2 inline-block h-4 w-px bg-border" aria-hidden="true" />
+                      ) : null}
                     </li>
                   ))}
                 </ul>
