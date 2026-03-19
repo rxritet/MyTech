@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, CalendarDays, Clock, Code2, Edit2, ExternalLink, ImagePlus, Milestone, Trash2, X } from "lucide-react";
 import { useProject, deleteProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
-import SkillBadge from "../components/ui/SkillBadge";
-import { ArrowLeft, Clock, Code2, ExternalLink, CheckCircle2, Edit2, Trash2, ImagePlus, Milestone } from "lucide-react";
 import ProjectFormModal from "../components/admin/ProjectFormModal";
+import SkillBadge from "../components/ui/SkillBadge";
 
 type ProjectEditTab = "basic" | "description" | "media" | "development" | "tech";
 
@@ -21,31 +21,68 @@ export default function ProjectDetailPage() {
   const navigate = useNavigate();
   const { project, loading, error, refetch } = useProject(slug || "");
   const { isAdmin, secret } = useAdmin();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<ProjectEditTab>("basic");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const safeCreatedAt = project?.createdAt ?? "";
 
-  if (loading) return <main className="min-h-screen pt-32 text-center text-gray-500">Загрузка проекта...</main>;
-  if (error || !project) return <Navigate to="/projects" replace />;
-
-  const handleDelete = async () => {
-    if (!secret || !project.id || !confirm("Точно удалить?")) return;
-    try {
-      await deleteProject(project.id, secret);
-      navigate("/projects");
-    } catch {
-      alert("Ошибка удаления");
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!mediaQuery) {
+      return;
     }
-  };
+
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  const formattedCreatedAt = useMemo(() => {
+    const parsed = new Date(safeCreatedAt);
+    if (Number.isNaN(parsed.getTime())) {
+      return safeCreatedAt;
+    }
+    return new Intl.DateTimeFormat("ru-RU", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(parsed);
+  }, [safeCreatedAt]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLightboxIndex(null);
+      }
+    };
+
+    globalThis.addEventListener("keydown", onKeyDown);
+    return () => globalThis.removeEventListener("keydown", onKeyDown);
+  }, [lightboxIndex]);
+
+  if (loading) {
+    return <main className="section-shell pt-30 text-center text-muted">Загрузка проекта...</main>;
+  }
+
+  if (error || !project) {
+    return <Navigate to="/projects" replace />;
+  }
 
   const {
+    id,
     name,
     description,
     longDescription,
     stack,
-    features,
     github,
     demo,
-    accentColor,
     image,
     gallery,
     developmentProcess,
@@ -55,232 +92,306 @@ export default function ProjectDetailPage() {
   } = project;
 
   const mediaItems = [image, ...(gallery ?? [])].filter((item): item is string => Boolean(item?.trim()));
+  const stages = developmentProcess ?? [];
+
+  const statusLabel = demo ? "COMPLETED" : "IN PROGRESS";
+  const statusHeroClass = demo
+    ? "text-primary border-primary/50 bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]"
+    : "text-amber-400 border-amber-400/30 bg-[color-mix(in_srgb,#f59e0b_12%,transparent)]";
+
+  const statusMetaClass = demo
+    ? "text-primary border-primary/40 bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]"
+    : "text-amber-400 border-amber-400/30 bg-[color-mix(in_srgb,#f59e0b_12%,transparent)]";
 
   const openEditorOn = (tab: ProjectEditTab) => {
     setModalTab(tab);
     setIsModalOpen(true);
   };
 
-  return (
-    <main className="min-h-screen pt-16 pb-16">
-      <div className="relative overflow-hidden border-b border-gray-800">
-        <div aria-hidden="true" className="pointer-events-none select-none">
-          <div className="absolute left-[20%] top-[-10rem] h-[20rem] w-[20rem] rounded-full bg-orange-500/10 blur-[140px]" />
-          <div className="absolute right-[8%] top-[6rem] h-[16rem] w-[16rem] rounded-full bg-red-500/8 blur-[120px]" />
-          <div className="absolute -bottom-20 left-[52%] h-[14rem] w-[14rem] rounded-full bg-amber-500/10 blur-[110px]" />
-        </div>
+  const handleDelete = async () => {
+    if (!secret || !id || !globalThis.confirm("Точно удалить?")) {
+      return;
+    }
 
-        <div className="relative max-w-[86rem] mx-auto px-3 py-14 md:px-5 md:py-20">
+    try {
+      await deleteProject(id, secret);
+      navigate("/projects");
+    } catch {
+      globalThis.alert("Ошибка удаления");
+    }
+  };
+
+  return (
+    <main className="min-h-screen pb-16 pt-20 lg:pt-24">
+      <section className="section-shell pb-5 pt-4 lg:pt-5">
+        <div className="relative overflow-hidden rounded-[1.5rem] border border-border h-[220px] md:h-[270px] lg:h-[320px]">
+          {image ? (
+            <img src={image} alt={`Баннер проекта ${name}`} className="h-full w-full object-cover" />
+          ) : (
+            <div className="dot-grid relative h-full w-full bg-bg-elevated">
+              <div
+                className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                style={{
+                  background: "color-mix(in srgb, var(--primary) 22%, transparent)",
+                  filter: "blur(42px)",
+                }}
+              />
+            </div>
+          )}
+
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(to bottom, transparent 0%, var(--bg) 90%)" }}
+            aria-hidden="true"
+          />
+
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-400 transition-colors mb-8 group"
+            className="absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-border bg-bg/70 px-3 py-1.5 text-sm text-text/88 transition-colors hover:text-primary"
           >
-            <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
+            <ArrowLeft size={14} />
             Все проекты
           </Link>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-8 xl:gap-10 items-stretch">
-            <section className="rounded-2xl border border-gray-800/90 bg-gray-950/70 backdrop-blur-sm p-6 md:p-8">
-              <div className="flex items-start justify-between gap-3 mb-4">
-                <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">{name}</h1>
-                {isAdmin && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-orange-400 transition"
-                      onClick={() => openEditorOn("basic")}
-                      title="Редактировать проект"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      className="p-2 bg-gray-800 hover:bg-red-900/50 rounded-lg text-red-400 transition"
-                      onClick={handleDelete}
-                      title="Удалить проект"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                )}
-              </div>
+          {isAdmin && (
+            <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full border border-border bg-bg/75 p-1.5 backdrop-blur-sm">
+              <button
+                type="button"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10"
+                onClick={() => openEditorOn("basic")}
+                aria-label="Редактировать проект"
+              >
+                <Edit2 size={15} />
+              </button>
+              <button
+                type="button"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-colors hover:bg-red-500/10"
+                onClick={handleDelete}
+                aria-label="Удалить проект"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          )}
 
-              <p className="text-lg text-gray-300 leading-relaxed mb-5">{description}</p>
+          <div className="absolute bottom-0 left-0 z-20 w-full p-4 md:p-6 lg:p-8">
+            <span className={`eyebrow-chip border ${statusHeroClass}`}>{statusLabel}</span>
+            <h1
+              className="mt-3 text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-tight text-text"
+              style={{ textShadow: "0 0 40px color-mix(in srgb, var(--primary) 40%, transparent)" }}
+            >
+              {name}
+            </h1>
+            <p className="mt-2 max-w-2xl truncate text-base text-muted">{description}</p>
+          </div>
+        </div>
+      </section>
 
-              <div className="flex flex-wrap gap-4 mb-6">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-900/80 border border-gray-800 px-3 py-1.5 text-sm text-gray-300">
-                  <Code2 size={14} className="text-orange-400" aria-hidden="true" />
-                  {language}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-900/80 border border-gray-800 px-3 py-1.5 text-sm text-gray-300">
-                  <Clock size={14} className="text-orange-400" aria-hidden="true" />
-                  {devTime}
-                </span>
-                <span className="inline-flex items-center rounded-full bg-gray-900/80 border border-gray-800 px-3 py-1.5 text-sm text-gray-400">
-                  Запуск: {createdAt}
-                </span>
-              </div>
-
-              <p className="text-gray-300/90 leading-relaxed text-sm md:text-base">{longDescription}</p>
-
-              <div className="mt-7 flex flex-wrap gap-3">
-                {github && (
-                  <a
-                    href={github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-500 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-500/30 active:translate-y-0 rounded-lg font-semibold transition-[color,transform,box-shadow] duration-200 text-white text-sm"
-                  >
-                    <GitHubIcon size={16} />
-                    Открыть на GitHub
-                  </a>
-                )}
-                {demo && (
-                  <a
-                    href={demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 border border-orange-500/50 hover:border-orange-400 hover:bg-orange-500/10 hover:-translate-y-0.5 active:translate-y-0 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
-                  >
-                    Live Demo
-                    <ExternalLink size={14} aria-hidden="true" />
-                  </a>
-                )}
-              </div>
+      <section className="section-shell pt-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+          <div className="space-y-6">
+            <section className="surface-panel rounded-3xl border-t-2 border-t-primary p-7 md:p-10">
+              <h2 className="mb-5 flex items-center gap-3 text-[1.55rem] font-bold text-text">
+                <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+                {" "}
+                О проекте
+              </h2>
+              <p className="text-[1.05rem] leading-[1.85] text-text/95">{longDescription}</p>
             </section>
 
-            <section className="rounded-2xl border border-gray-800/90 bg-gray-950/70 backdrop-blur-sm p-4 md:p-5">
-              {image ? (
-                <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-2xl shadow-black/40">
-                  <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accentColor} z-10`} aria-hidden="true" />
-                  <img src={image} alt={`Превью проекта ${name}`} className="w-full aspect-video object-cover" />
+            <section className="surface-panel rounded-3xl p-6 md:p-8">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
+                  <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+                  {" "}
+                  Этапы разработки
+                </h2>
+                {isAdmin && (
+                  <button type="button" onClick={() => openEditorOn("development")} className="button-secondary py-2 px-4 text-sm">
+                    <Milestone size={14} />
+                    Добавить этап
+                  </button>
+                )}
+              </div>
+
+              {stages.length === 0 ? (
+                <div className="flex min-h-[120px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-elevated/60 p-5 text-center">
+                  <Milestone size={32} className="mb-3 text-muted" />
+                  <p className="text-sm text-muted">Этапы разработки пока не добавлены</p>
+                  {isAdmin && (
+                    <button type="button" onClick={() => openEditorOn("development")} className="button-secondary mt-4 py-2 px-4 text-sm">
+                      Добавить первый этап
+                      <ExternalLink size={13} />
+                    </button>
+                  )}
                 </div>
               ) : (
-                <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 aspect-video flex items-center justify-center text-sm text-gray-500">
-                  У проекта пока нет главного изображения
+                <ol className="relative space-y-4 pl-3 before:absolute before:bottom-0 before:left-[11px] before:top-0 before:border-l-2 before:border-dashed before:border-border">
+                  {stages.map((stage, index) => (
+                    <li
+                      key={`${stage.title}-${index}`}
+                      className={prefersReducedMotion ? "opacity-100" : "animate-fade-in-up"}
+                      style={prefersReducedMotion ? undefined : { animationDelay: `${Math.min(index * 80, 400)}ms` }}
+                    >
+                      <div className="relative">
+                        <span
+                          className="absolute left-[-7px] top-[18px] h-3 w-3 rounded-full border-2"
+                          style={{
+                            background: "var(--primary)",
+                            borderColor: "var(--bg)",
+                            boxShadow: "0 0 10px var(--primary)",
+                          }}
+                          aria-hidden="true"
+                        />
+
+                        <article className="surface-panel ml-8 rounded-2xl p-4 md:p-5">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="font-mono text-[0.66rem] uppercase tracking-[0.18em] text-muted">Этап {index + 1}</span>
+                            {createdAt ? (
+                              <span className="text-[0.7rem] text-muted">{formattedCreatedAt}</span>
+                            ) : null}
+                          </div>
+                          <h3 className="text-base font-bold text-text">{stage.title}</h3>
+                          <p className="mt-2 text-[0.9rem] leading-[1.7] text-muted">{stage.description}</p>
+                        </article>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </section>
+
+            <section className="surface-panel rounded-3xl p-6 md:p-8">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
+                  <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+                  {" "}
+                  Галерея
+                </h2>
+                {isAdmin && (
+                  <button type="button" onClick={() => openEditorOn("media")} className="button-secondary py-2 px-4 text-sm">
+                    <ImagePlus size={14} />
+                    Добавить медиа
+                  </button>
+                )}
+              </div>
+
+              {mediaItems.length === 0 ? (
+                <div className="flex min-h-[120px] items-center justify-center rounded-2xl border border-dashed border-border bg-bg-elevated/60 p-5 text-center text-sm text-muted">
+                  В галерее пока нет изображений
+                </div>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {mediaItems.map((src, index) => (
+                    <button
+                      key={`${src}-${index}`}
+                      type="button"
+                      onClick={() => setLightboxIndex(index)}
+                      className="group h-40 w-[240px] shrink-0 overflow-hidden rounded-xl border border-border transition-[transform,box-shadow] duration-200 hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                    >
+                      <img src={src} alt={`Медиа ${index + 1} проекта ${name}`} className="h-full w-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
+            </section>
+          </div>
 
-              <div className="mt-5 rounded-xl border border-gray-800 bg-gray-900/60 p-4">
-                <h2 className="text-sm font-semibold text-gray-200 mb-3">Технологический стек</h2>
-                <ul className="flex flex-wrap gap-2 list-none p-0 m-0">
-                  {stack.map((tech) => (
-                    <li key={tech}>
-                      <SkillBadge label={tech} />
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <div className="surface-panel overflow-hidden rounded-3xl">
+              <div className="border-b border-border p-5">
+                <p className="section-kicker !mb-2 text-[0.62rem]">СТАТУС</p>
+                <span className={`inline-flex rounded-full border px-3 py-1 text-[0.7rem] font-semibold ${statusMetaClass}`}>
+                  {statusLabel}
+                </span>
+              </div>
+
+              <div className="border-b border-border p-5">
+                <div className="flex flex-wrap gap-2">
+                  <span className="eyebrow-chip">
+                    <Code2 size={13} />
+                    {language}
+                  </span>
+                  <span className="eyebrow-chip">
+                    <Clock size={13} />
+                    {devTime}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-b border-border p-5">
+                <p className="section-kicker !mb-3 text-[0.62rem]">СТЕК</p>
+                <ul className="grid grid-cols-3 gap-2">
+                  {stack.map((item) => (
+                    <li key={item} className="rounded-xl transition-shadow hover:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
+                      <SkillBadge label={item} />
                     </li>
                   ))}
                 </ul>
               </div>
-            </section>
-          </div>
+
+              <div className="border-b border-border p-5">
+                <div className="flex flex-col gap-2.5">
+                  {github && (
+                    <a href={github} target="_blank" rel="noopener noreferrer" className="button-primary w-full rounded-xl py-2.5 text-sm">
+                      <GitHubIcon size={15} />
+                      GitHub
+                    </a>
+                  )}
+                  {demo && (
+                    <a href={demo} target="_blank" rel="noopener noreferrer" className="button-secondary w-full rounded-xl py-2.5 text-sm">
+                      <ExternalLink size={14} />
+                      Live Demo
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-5">
+                <p className="inline-flex items-center gap-2 text-[0.8rem] text-muted">
+                  <CalendarDays size={13} />
+                  Создан: {createdAt}
+                </p>
+              </div>
+            </div>
+          </aside>
         </div>
-      </div>
 
-      <div className="max-w-[86rem] mx-auto px-3 py-12 md:px-5 space-y-10">
-        <section className="rounded-2xl border border-gray-800 bg-gray-950/60 p-6 md:p-8">
-          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className={`w-1 h-5 rounded-full bg-gradient-to-b ${accentColor}`} aria-hidden="true" />
-            <span>Ключевые возможности</span>
-          </h2>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 list-none p-0 m-0">
-            {features.map((feature) => (
-              <li key={feature} className="rounded-xl border border-gray-800 bg-gray-900/60 px-4 py-3 flex items-start gap-3">
-                <CheckCircle2 size={18} className="text-orange-400 shrink-0 mt-0.5" aria-hidden="true" />
-                <span className="text-gray-300 text-sm leading-relaxed">{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="rounded-2xl border border-gray-800 bg-gray-950/60 p-6 md:p-8">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span className={`w-1 h-5 rounded-full bg-gradient-to-b ${accentColor}`} aria-hidden="true" />
-              <span>Этапы разработки</span>
-            </h2>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => openEditorOn("development")}
-                className="inline-flex items-center gap-2 rounded-lg border border-orange-500/40 bg-orange-500/10 px-3 py-2 text-sm text-orange-300 hover:bg-orange-500/20 transition"
-              >
-                <Milestone size={14} />
-                Добавить этап
-              </button>
-            )}
-          </div>
-
-          {(developmentProcess ?? []).length > 0 ? (
-            <ol className="space-y-4 list-none p-0 m-0">
-              {(developmentProcess ?? []).map((stage, index) => (
-                <li key={`${stage.title}-${index}`} className="relative rounded-xl border border-gray-800 bg-gray-900/60 p-4 md:p-5">
-                  <div className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-gradient-to-b from-orange-500 to-red-500" aria-hidden="true" />
-                  <div className="pl-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">Этап {index + 1}</p>
-                    <h3 className="text-white font-semibold mb-1.5">{stage.title}</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{stage.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-5 text-sm text-gray-400">
-              Этапы разработки еще не добавлены.
-            </div>
-          )}
-        </section>
-
-        <section className="rounded-2xl border border-gray-800 bg-gray-950/60 p-6 md:p-8">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <span className={`w-1 h-5 rounded-full bg-gradient-to-b ${accentColor}`} aria-hidden="true" />
-              <span>Медиа</span>
-            </h2>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => openEditorOn("media")}
-                className="inline-flex items-center gap-2 rounded-lg border border-orange-500/40 bg-orange-500/10 px-3 py-2 text-sm text-orange-300 hover:bg-orange-500/20 transition"
-              >
-                <ImagePlus size={14} />
-                Добавить медиа
-              </button>
-            )}
-          </div>
-
-          {mediaItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {mediaItems.map((mediaUrl, index) => (
-                <figure key={`${mediaUrl}-${index}`} className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900/60">
-                  <img
-                    src={mediaUrl}
-                    alt={`Медиа проекта ${name} ${index + 1}`}
-                    className="w-full h-56 object-cover"
-                  />
-                </figure>
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 p-5 text-sm text-gray-400">
-              В галерее пока пусто. Добавьте изображения в режиме редактирования.
-            </div>
-          )}
-        </section>
-
-        <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
-          <Link
-            to="/projects"
-            className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-orange-400 transition-colors group"
-          >
-            <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
+        <div className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-6">
+          <Link to="/projects" className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-primary">
+            <ArrowLeft size={14} />
             Все проекты
           </Link>
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 border border-gray-800 hover:border-orange-500/50 hover:bg-orange-500/10 rounded-lg font-semibold transition-all duration-200 text-gray-300 hover:text-white text-sm"
-          >
+          <Link to="/contact" className="button-secondary py-2 px-5 text-sm">
             Обсудить проект
+            <ExternalLink size={13} />
           </Link>
         </div>
-      </div>
+      </section>
+
+      {lightboxIndex !== null && mediaItems[lightboxIndex] && (
+        <dialog open className="fixed inset-0 z-[120] m-0 flex h-screen w-screen items-center justify-center border-none bg-black/88 p-4">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Закрыть просмотр изображения"
+            onClick={() => setLightboxIndex(null)}
+          />
+          <button
+            type="button"
+            className="absolute right-5 top-5 z-10 rounded-full border border-border bg-bg-elevated p-2 text-text"
+            aria-label="Закрыть просмотр изображения"
+            onClick={() => setLightboxIndex(null)}
+          >
+            <X size={16} />
+          </button>
+          <img
+            src={mediaItems[lightboxIndex]}
+            alt={`Увеличенное изображение ${name}`}
+            className="z-10 max-h-[90vh] max-w-[94vw] rounded-2xl border border-border object-contain"
+          />
+        </dialog>
+      )}
 
       {isAdmin && secret && (
         <ProjectFormModal
