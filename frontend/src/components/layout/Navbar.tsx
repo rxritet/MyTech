@@ -44,19 +44,19 @@ export default function Navbar() {
   }, [menuOpen]);
 
   const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative px-1 py-3 font-medium transition-colors hover:text-white after:absolute after:bottom-1 after:left-0 after:right-0 after:h-px after:origin-center after:scale-x-0 after:bg-primary after:transition-transform
+    `group relative px-1 py-3 font-medium transition-all duration-300 ease-out hover:text-white active:scale-95 after:absolute after:bottom-1 after:left-0 after:right-0 after:h-px after:origin-center after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 before:absolute before:inset-x-[-0.45rem] before:inset-y-[0.32rem] before:rounded-md before:bg-primary/0 before:blur-md before:transition-all before:duration-300
      ${
        isActive
-         ? "text-primary after:scale-x-100 [text-shadow:0_0_14px_color-mix(in_srgb,var(--primary)_40%,transparent)]"
-         : "text-muted hover:text-text hover:after:scale-x-100"
+         ? "text-primary after:scale-x-100 before:bg-primary/15 [text-shadow:0_0_14px_color-mix(in_srgb,var(--primary)_40%,transparent)]"
+         : "text-muted hover:text-text hover:after:scale-x-100 hover:before:bg-primary/10"
      }`;
 
   const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `block text-3xl sm:text-4xl font-bold transition-colors py-4 px-2 border-l-4 animate-fade-in-up
+    `group block text-3xl sm:text-4xl font-bold transition-all duration-300 py-4 px-2 border-l-4 animate-fade-in-up active:scale-[0.985]
      ${
        isActive
-         ? "text-primary border-primary"
-         : "text-muted border-transparent hover:text-text hover:border-primary/50"
+         ? "text-primary border-primary [text-shadow:0_0_16px_color-mix(in_srgb,var(--primary)_40%,transparent)]"
+         : "text-muted border-transparent hover:text-text hover:border-primary/50 hover:translate-x-1"
      }`;
 
   return (
@@ -76,12 +76,12 @@ export default function Navbar() {
           <Link
             to="/"
             onClick={() => setMenuOpen(false)}
-            className="group flex shrink-0 items-center gap-2.5"
+            className="group flex shrink-0 items-center gap-2.5 active:scale-[0.985] transition-transform duration-200"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-sm font-mono font-bold text-primary transition-colors group-hover:bg-primary/15">
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-sm font-mono font-bold text-primary transition-all duration-300 group-hover:bg-primary/20 group-hover:shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_30%,transparent)] group-hover:-translate-y-0.5">
               rx
             </span>
-            <span className="whitespace-nowrap text-sm font-semibold text-text transition-colors group-hover:text-primary lg:text-base" style={{ textShadow: "0 0 20px color-mix(in srgb, var(--primary) 45%, transparent)" }}>
+            <span className="whitespace-nowrap text-sm font-semibold text-text transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5 lg:text-base" style={{ textShadow: "0 0 20px color-mix(in srgb, var(--primary) 45%, transparent)" }}>
               Radmir Abraev
             </span>
           </Link>
@@ -96,17 +96,19 @@ export default function Navbar() {
           </div>
 
           <div className="ml-2 hidden items-center gap-2 lg:flex">
-            <Link to="/contact" className="button-primary whitespace-nowrap py-2 px-4 text-sm xl:px-5">Связаться</Link>
+            <Link to="/contact" className="button-primary whitespace-nowrap py-2 px-4 text-sm xl:px-5 active:scale-95">Связаться</Link>
           </div>
 
           {/* Mobile Burger */}
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="relative z-[60] ml-auto -mr-1 rounded-xl p-2 text-muted transition-colors hover:bg-white/5 hover:text-text lg:hidden"
+            className="relative z-[60] ml-auto -mr-1 rounded-xl p-2 text-muted transition-all duration-300 hover:bg-white/5 hover:text-text hover:scale-105 active:scale-90 lg:hidden"
             aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
           >
-            {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            <span className={`block transition-transform duration-300 ${menuOpen ? "rotate-90" : "rotate-0"}`}>
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </span>
           </button>
         </div>
       </nav>
@@ -131,7 +133,7 @@ export default function Navbar() {
                 className={mobileLinkClass}
                 style={{ animationDelay: `${Math.min(index * 80, 400)}ms` }}
               >
-                {label}
+                <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">{label}</span>
               </NavLink>
             ))}
           </div>
