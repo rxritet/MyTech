@@ -134,6 +134,10 @@ function normalizeCustomIconInput(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
 
+  if (/<svg[\s\S]*<\/svg>/i.test(trimmed)) {
+    return `data:image/svg+xml;utf8,${encodeURIComponent(trimmed)}`;
+  }
+
   const deviconClassMatch = /devicon-[a-z0-9-]+/i.exec(trimmed);
   if (deviconClassMatch?.[0]) {
     return deviconClassMatch[0].toLowerCase();
@@ -151,6 +155,44 @@ function normalizeCustomIconInput(value: string): string {
   } catch {
     return "";
   }
+}
+
+function extractInlineSvgMarkup(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const directMatch = /<svg[\s\S]*<\/svg>/i.exec(trimmed);
+  if (directMatch?.[0]) {
+    return directMatch[0];
+  }
+
+  const dataSvgPrefix = "data:image/svg+xml;utf8,";
+  if (!trimmed.toLowerCase().startsWith(dataSvgPrefix)) {
+    return null;
+  }
+
+  const encoded = trimmed.slice(dataSvgPrefix.length);
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return null;
+  }
+}
+
+function minifyInlineSvgMarkup(svg: string): string {
+  return svg
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<desc[\s\S]*?<\/desc>/gi, "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/>\s+</g, "><")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function shrinkSvgInputValue(value: string): string {
+  const svgMarkup = extractInlineSvgMarkup(value);
+  if (!svgMarkup) return value;
+  return minifyInlineSvgMarkup(svgMarkup);
 }
 
 function normalizeDeviconSlugInput(value: string): string {
@@ -176,6 +218,11 @@ function extractDeviconSlugFromIconInput(value: string): string {
 function sanitizeBadgeUrlForInput(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
+
+  const deviconClassMatch = /devicon-[a-z0-9-]+/i.exec(trimmed);
+  if (deviconClassMatch?.[0]) {
+    return deviconClassMatch[0].toLowerCase();
+  }
 
   try {
     const parsed = new URL(trimmed);
@@ -328,6 +375,7 @@ export default function AdminStackPage() {
     normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
     extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
   const previewFallbackSrc = normalizeCustomIconInput(newTechnologyBadgeUrl) || null;
+  const canShrinkNewTechnologySvg = Boolean(extractInlineSvgMarkup(newTechnologyBadgeUrl));
 
   if (!isAdmin || !secret) {
     return null;
@@ -564,8 +612,12 @@ export default function AdminStackPage() {
       setNewTechnologyBadgeUrl("");
       setNewTechnologyDeviconSlug("");
       await reload();
-    } catch {
-      setError("Не удалось создать технологию");
+    } catch (createError: unknown) {
+      if (createError instanceof Error && createError.message.trim()) {
+        setError(createError.message);
+      } else {
+        setError("Не удалось создать технологию");
+      }
     } finally {
       setSaving(false);
     }
@@ -600,8 +652,12 @@ export default function AdminStackPage() {
         return next;
       });
       await reload();
-    } catch {
-      setError("Не удалось обновить технологию");
+    } catch (saveError: unknown) {
+      if (saveError instanceof Error && saveError.message.trim()) {
+        setError(saveError.message);
+      } else {
+        setError("Не удалось обновить технологию");
+      }
     } finally {
       setSaving(false);
     }
@@ -1105,9 +1161,17 @@ export default function AdminStackPage() {
                   </p>
                   <button
                     type="button"
+                    onClick={() => setNewTechnologyBadgeUrl((prev) => shrinkSvgInputValue(prev))}
+                    disabled={!canShrinkNewTechnologySvg}
+                    className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-200 hover:border-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Сжать SVG
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleCreateTechnology()}
                     disabled={saving}
-                    className="md:col-span-4 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
+                    className="md:col-span-3 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
                   >
                     Добавить технологию
                   </button>
@@ -1126,6 +1190,7 @@ export default function AdminStackPage() {
                     const badgeInputValue = typeof draftBadge === "string"
                       ? draftBadge
                       : sanitizeBadgeUrlForInput(technology.badgeUrl);
+                    const canShrinkRowSvg = Boolean(extractInlineSvgMarkup(badgeInputValue));
                     const draftDeviconSlug = typeof draft.deviconSlug === "string"
                       ? normalizeDeviconSlugInput(draft.deviconSlug) || null
                       : draft.deviconSlug;
@@ -1161,11 +1226,19 @@ export default function AdminStackPage() {
                           placeholder={'URL, <img ...> или <i class="devicon-..."></i>'}
                           className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
+                        <button
+                          type="button"
+                          onClick={() => updateDraftField(technology.id, "badgeUrl", shrinkSvgInputValue(badgeInputValue))}
+                          disabled={!canShrinkRowSvg}
+                          className="rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-200 hover:border-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Сжать SVG
+                        </button>
                         <input
                           value={draft.deviconSlug ?? technology.deviconSlug ?? ""}
                           onChange={(e) => updateDraftField(technology.id, "deviconSlug", e.target.value || null)}
                           placeholder="Devicon slug"
-                          className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                          className="md:col-span-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <div className="md:col-span-2 flex gap-2 justify-end">
                           <button

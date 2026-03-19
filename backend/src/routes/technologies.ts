@@ -42,6 +42,16 @@ function extractDeviconClassToken(value: unknown): string | null {
   return tokenMatch?.[0]?.toLowerCase() ?? null;
 }
 
+function encodeInlineSvgToDataUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (!/<svg[\s\S]*<\/svg>/i.test(trimmed)) return null;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(trimmed)}`;
+}
+
 const deviconSlugSchema = z.preprocess(
   (value) => {
     return normalizeDeviconSlugCandidate(value);
@@ -55,6 +65,11 @@ const badgeUrlSchema = z.preprocess(
 
     const trimmed = value.trim();
     if (!trimmed) return "";
+
+    const inlineSvgDataUrl = encodeInlineSvgToDataUrl(trimmed);
+    if (inlineSvgDataUrl) {
+      return inlineSvgDataUrl;
+    }
 
     const deviconClassToken = extractDeviconClassToken(trimmed);
     if (deviconClassToken) {
@@ -76,7 +91,7 @@ const badgeUrlSchema = z.preprocess(
   },
   z
     .string()
-    .regex(/^(https?:\/\/\S+|devicon-[a-z0-9-]+)?$/i)
+    .regex(/^(https?:\/\/\S+|devicon-[a-z0-9-]+|data:image\/svg\+xml;utf8,.+)?$/i)
     .or(z.literal("")),
 );
 

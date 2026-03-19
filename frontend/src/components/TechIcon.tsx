@@ -39,6 +39,10 @@ function extractImageSrc(value: string | null | undefined): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
 
+  if (/<svg[\s\S]*<\/svg>/i.test(trimmed)) {
+    return `data:image/svg+xml;utf8,${encodeURIComponent(trimmed)}`;
+  }
+
   const srcMatch = /src\s*=\s*["']([^"']+)["']/i.exec(trimmed);
   const candidate = srcMatch?.[1]?.trim() ?? trimmed;
 
