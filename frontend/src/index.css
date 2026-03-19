@@ -140,6 +140,28 @@
     background: rgba(245, 158, 11, 0.08);
   }
 
+  /* Readability mode for all routes except home page */
+  .app-readable {
+    font-family: "Segoe UI", "Inter", "SF Pro Text", "Helvetica Neue", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --text: #fff8f3;
+    --muted: #d1bcb0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-readable .text-gray-300 {
+    color: #e8d7cc;
+  }
+
+  .app-readable .text-gray-400 {
+    color: #d7c4b8;
+  }
+
+  .app-readable .text-gray-500 {
+    color: #c5aea0;
+  }
+
   .surface-panel {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 24%), var(--panel);
     border: 1px solid var(--border);

@@ -11,7 +11,6 @@ import {
   Layers,
   Smartphone,
   Shield,
-  CheckCircle2,
   BookOpen,
   Edit,
   Loader2,
@@ -24,7 +23,6 @@ import AboutFormModal from "../admin/AboutFormModal";
 import {
   PROFILE as STATIC_PROFILE,
   HERO_BIO as STATIC_BIO,
-  TECH_STACK as STATIC_STACK,
   FOCUS_AREAS as STATIC_FOCUS,
   COMPETENCIES as STATIC_COMPETENCIES,
   PROJECTS as STATIC_PROJECTS,
@@ -112,7 +110,38 @@ function SectionLabel({ children }: Readonly<{ children: ReactNode }>) {
 }
 
 function SectionHeading({ children }: Readonly<{ children: ReactNode }>) {
-  return <h2 className="text-2xl sm:text-3xl font-bold text-white mb-7">{children}</h2>;
+  return <h2 className="text-2xl sm:text-3xl font-bold text-white mb-5">{children}</h2>;
+}
+
+function getCompetencySummary(skill: string): string {
+  const normalized = skill.toLowerCase();
+
+  if (normalized.includes("rest")) {
+    return "Проектирую понятные API-контракты, версии и предсказуемые ответы.";
+  }
+  if (normalized.includes("архитектур")) {
+    return "Разделяю слои, чтобы код оставался поддерживаемым при росте проекта.";
+  }
+  if (normalized.includes("sql") || normalized.includes("миграц")) {
+    return "Строю схемы данных и аккуратно веду миграции без потери целостности.";
+  }
+  if (normalized.includes("docker") || normalized.includes("ci/cd")) {
+    return "Автоматизирую сборку и доставку, чтобы релизы были стабильными.";
+  }
+  if (normalized.includes("адаптив")) {
+    return "Делаю интерфейсы удобными на мобильных, планшетах и десктопе.";
+  }
+  if (normalized.includes("git")) {
+    return "Работаю с ветками и ревью так, чтобы изменения были прозрачными.";
+  }
+  if (normalized.includes("тестир")) {
+    return "Проверяю критичные сценарии и edge-cases до выкладки в прод.";
+  }
+  if (normalized.includes("систем")) {
+    return "Декомпозирую задачу на шаги и держу фокус на конечном результате.";
+  }
+
+  return "Практический навык, который применяю в рабочих и учебных задачах.";
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -132,33 +161,7 @@ const INITIAL_DATA: AboutData = {
   projects: STATIC_PROJECTS,
   education: STATIC_EDU,
   hobbies: STATIC_HOBBIES,
-  techGroups: [
-    {
-      title: "Языки",
-      description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
-      names: ["Go", "Java", "TypeScript", "JavaScript", "Python", "Dart"]
-    },
-    {
-      title: "Backend & БД",
-      description: "Серверная логика, API, базы данных и инфраструктура данных.",
-      names: ["Hono", "Django", "FastAPI", "PostgreSQL", "SQLite"]
-    },
-    {
-      title: "Frontend & Mobile",
-      description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
-      names: ["React", "TailwindCSS", "Vite", "Flutter", "HTML5", "CSS3", "Figma"]
-    },
-    {
-      title: "DevOps & Инфра",
-      description: "Инструменты поставки, инфраструктура и облачные решения.",
-      names: ["Docker", "Vercel", "AWS", "Nginx", "Linux"]
-    },
-    {
-      title: "Инструменты",
-      description: "Инструменты разработки, тестирования и повседневной работы.",
-      names: ["Git", "GitHub", "VS Code", "Burp Suite", "Antigravity"]
-    }
-  ],
+  techGroups: [],
 };
 
 export default function About() {
@@ -235,18 +238,10 @@ export default function About() {
     })
     .filter((group) => group.items.length > 0);
 
-  const groupsToRender =
-    apiGroups.length > 0
-      ? apiGroups
-      : (data.techGroups ?? []).map((group) => ({
-          title: group.title,
-          description: (group as { description?: string; desc?: string }).description ?? group.desc ?? "",
-          names: group.names ?? [],
-          items: [] as PublicStackItem[],
-        }));
+  const groupsToRender = apiGroups;
 
   return (
-    <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-28 relative">
+    <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-16 md:space-y-20 relative [font-family:'Segoe_UI','Inter','SF_Pro_Text','Helvetica_Neue',Arial,sans-serif]">
       {/* ── 1. PAGE HEADER ─────────────────────── */}
       <Section className="text-center space-y-4">
         <p className="text-sm font-mono text-primary tracking-widest uppercase mb-1">{"// about.me"}</p>
@@ -256,7 +251,7 @@ export default function About() {
             {data.name.split(" ")[0]}
           </span>
         </h1>
-        <p className="text-muted text-xl sm:text-2xl font-light">
+        <p className="text-text/88 text-xl sm:text-2xl font-normal">
           {data.tagline} · {data.university} · {data.location}
         </p>
 
@@ -296,26 +291,27 @@ export default function About() {
               className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-primary hover:bg-orange-600 hover:shadow-lg hover:shadow-primary/20 active:scale-95 text-white font-bold text-base transition-all duration-300"
             >
               <Download size={20} />
-              Скачать резюме
+              Resume ↓
             </a>
 
             {/* Social links */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2">
               {[
-                { href: data.githubUrl,   icon: <GitHubIcon size={20} />,      label: "GitHub" },
-                { href: data.linkedinUrl, icon: <LinkedInIcon size={20} />, label: "LinkedIn" },
-                { href: data.telegramUrl, icon: <Send size={20}/>,    label: "Telegram" },
-                { href: `mailto:${data.email}`, icon: <Mail size={20}/>, label: "Email" },
+                { href: data.githubUrl,   icon: <GitHubIcon size={15} />,   label: "GitHub" },
+                { href: data.linkedinUrl, icon: <LinkedInIcon size={15} />, label: "LinkedIn" },
+                { href: data.telegramUrl, icon: <Send size={15}/>,          label: "Telegram" },
+                { href: `mailto:${data.email}`, icon: <Mail size={15}/>,    label: data.email },
               ].map(({ href, icon, label }) => (
                 <a
                   key={label}
                   href={href}
                   target={href?.startsWith("mailto") ? undefined : "_blank"}
                   rel="noopener noreferrer"
-                  className="p-3.5 rounded-xl bg-gray-900/50 border border-border text-muted hover:text-white hover:border-primary/50 hover:bg-surface transition-all duration-300"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-900/50 border border-border text-text/85 text-xs hover:text-white hover:border-primary/50 hover:bg-surface transition-all duration-300"
                   aria-label={label}
                 >
                   {icon}
+                  {label}
                 </a>
               ))}
             </div>
@@ -325,20 +321,26 @@ export default function About() {
           <div className="flex-1 space-y-8 z-10 pt-4">
             <div className="space-y-6">
               <p className="text-text text-xl sm:text-2xl leading-relaxed font-medium">{data.bio1}</p>
-              <p className="text-muted text-lg sm:text-xl leading-relaxed">{data.bio2}</p>
+              <p className="text-text/84 text-lg sm:text-xl leading-relaxed">{data.bio2}</p>
             </div>
 
             {/* Meta badges */}
             <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-muted">
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-text/85">
                 <GraduationCap size={16} className="text-primary/70" /> {data.university}
               </span>
-              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-muted">
+              <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-gray-900/50 border border-border text-text/85">
                 <MapPin size={16} className="text-primary/70" /> {data.location}
               </span>
               <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl bg-primary/5 border border-primary/15 text-primary">
                 <Briefcase size={16} /> Ищу первую коммерческую роль
               </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-2">
+              {["Go · Backend", "TypeScript · Frontend", "Java · Enterprise"].map((label) => (
+                <span key={label} className="eyebrow-chip text-xs">{label}</span>
+              ))}
             </div>
 
             {/* Status indicator */}
@@ -353,63 +355,88 @@ export default function About() {
         </div>
       </Section>
 
-      {/* ── 3. TECH STACK ──────────────────────── */}
-      <Section>
-        <SectionLabel>stack</SectionLabel>
-        <SectionHeading>Технологии</SectionHeading>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-          {groupsToRender.map((group) => {
-            const namesArr = group.names;
-            const textDesc = group.description;
-            return (
-            <div
-              key={group.title}
-              className="surface-panel rounded-[1.6rem] p-5 sm:p-6"
-            >
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{group.title}</h3>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{textDesc}</p>
-                </div>
-                {namesArr.length > 0 && (
-                  <span className="eyebrow-chip shrink-0">{namesArr.length} items</span>
-                )}
-              </div>
-
-              {namesArr.length > 0 && (
-                <div className="flex flex-wrap gap-2.5">
-                  {namesArr.map((name) => {
-                    const apiItem = group.items.find((item) => item.name === name);
-                    const item = STATIC_STACK.find(s => s.name === name);
-                    const colorClasses = item?.color ?? "bg-gray-500/10 text-gray-400 border-gray-500/25";
-                    
-                    return (
-                      <div
-                        key={name}
-                        className={`group relative inline-flex min-h-11 items-center rounded-2xl border px-3.5 py-2 text-sm font-semibold tracking-tight transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15 ${colorClasses.split(" ").slice(0, 2).join(" ")} ${colorClasses.split(" ")[2]}`}
-                      >
-                        <span className="mr-2 inline-flex items-center justify-center">
-                          <TechIcon
-                            slug={apiItem?.deviconSlug ?? null}
-                            name={name}
-                            size={16}
-                            fallbackSrc={apiItem?.badgeUrl ?? null}
-                          />
-                        </span>
-                        <span className="absolute inset-x-3 bottom-0 h-px bg-current opacity-0 group-hover:opacity-40 transition-opacity" />
-                        {name}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            );
-          })}
+      {/* ── 3. QUOTE ───────────────────────────── */}
+      <Section delay={80}>
+        <div className="surface-panel rounded-2xl p-7 md:p-10 relative overflow-hidden">
+          <span
+            className="absolute top-4 right-7 text-8xl font-serif leading-none select-none pointer-events-none"
+            style={{ color: "color-mix(in srgb, var(--primary) 12%, transparent)" }}
+            aria-hidden="true"
+          >
+            "
+          </span>
+          <p className="italic text-text text-lg sm:text-xl leading-relaxed max-w-3xl relative z-10">
+            {data.quote}
+          </p>
+          <p className="mt-4 text-xs font-mono text-primary/70 tracking-widest uppercase">
+            — {data.name}
+          </p>
         </div>
       </Section>
 
-      {/* ── 4. FOCUS AREAS ─────────────────────── */}
+      {/* ── 4. TECH STACK ──────────────────────── */}
+      <Section>
+        <SectionLabel>stack</SectionLabel>
+        <SectionHeading>Технологии</SectionHeading>
+        {groupsToRender.length === 0 ? (
+          <div className="surface-panel rounded-[1.6rem] p-6 text-sm text-text/82">
+            Стек будет добавлен в ближайшее время.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+            {groupsToRender.map((group) => {
+              const namesArr = group.names;
+              const textDesc = group.description;
+              return (
+                <div
+                  key={group.title}
+                  className="surface-panel rounded-[1.6rem] p-5 sm:p-6"
+                >
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{group.title}</h3>
+                      <p className="mt-2 max-w-xl text-sm leading-6 text-text/82">{textDesc}</p>
+                    </div>
+                    {namesArr.length > 0 && (
+                      <span className="eyebrow-chip shrink-0">{namesArr.length} items</span>
+                    )}
+                  </div>
+
+                  {namesArr.length > 0 && (
+                    <div className="flex flex-wrap gap-3">
+                      {namesArr.map((name) => {
+                        const apiItem = group.items.find((item) => item.name === name);
+                        return (
+                          <div
+                            key={name}
+                            className="group flex flex-col items-center gap-1.5 w-16 cursor-default"
+                          >
+                            <div
+                              className="w-12 h-12 rounded-xl flex items-center justify-center bg-surface border border-border group-hover:border-primary/40 group-hover:shadow-[0_0_16px_color-mix(in_srgb,var(--primary)_15%,transparent)] transition-all duration-300"
+                            >
+                              <TechIcon
+                                slug={apiItem?.deviconSlug ?? null}
+                                name={name}
+                                size={24}
+                                fallbackSrc={apiItem?.badgeUrl ?? null}
+                              />
+                            </div>
+                            <span className="text-[10px] text-text/78 text-center leading-tight group-hover:text-text transition-colors truncate w-full text-center">
+                              {name}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Section>
+
+      {/* ── 5. FOCUS AREAS ─────────────────────── */}
       <Section>
         <SectionLabel>focus</SectionLabel>
         <SectionHeading>Чем занимаюсь</SectionHeading>
@@ -417,35 +444,45 @@ export default function About() {
           {data.focusAreas.map((f) => (
             <div
               key={`${f.title}-${f.desc}`}
-              className="flex gap-4 p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300"
+              className="flex gap-4 p-5 rounded-xl bg-surface border border-border border-l-2 hover:border-primary/40 transition-colors duration-300"
+              style={{ borderLeftColor: "color-mix(in srgb, var(--primary) 40%, transparent)" }}
             >
               <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 {getFocusIcon(f)}
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1 text-sm">{f.title}</h3>
-                <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-text/82 text-sm leading-relaxed">{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* ── 5. COMPETENCIES ────────────────────── */}
+      {/* ── 6. COMPETENCIES ────────────────────── */}
       <Section>
         <SectionLabel>skills</SectionLabel>
         <SectionHeading>Компетенции</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 p-6 rounded-xl bg-surface border border-border">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {data.competencies.map((c) => (
-            <div key={c} className="flex items-start gap-3 text-sm text-text">
-              <CheckCircle2 size={15} className="text-primary shrink-0 mt-0.5" />
-              {c}
-            </div>
+            <article
+              key={c}
+              className="group relative overflow-hidden rounded-2xl border border-border bg-surface/70 p-4 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_16px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
+            >
+              <span
+                className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                style={{ background: "linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary) 55%, transparent), transparent)" }}
+                aria-hidden="true"
+              />
+              <div className="mb-2 h-1" />
+              <h3 className="text-sm font-semibold leading-6 text-text">{c}</h3>
+              <p className="mt-1 text-xs leading-5 text-text/80">{getCompetencySummary(c)}</p>
+            </article>
           ))}
         </div>
       </Section>
 
-      {/* ── 6. PROJECTS ────────────────────────── */}
+      {/* ── 7. PROJECTS ────────────────────────── */}
       <Section>
         <SectionLabel>projects</SectionLabel>
         <SectionHeading>Проекты</SectionHeading>
@@ -458,14 +495,23 @@ export default function About() {
                     {p.name}
                   </h3>
                   {p.github && (
-                    <span className="text-muted group-hover:text-primary transition-colors p-1" aria-hidden="true">
+                    <span className="text-text/70 group-hover:text-primary transition-colors p-1" aria-hidden="true">
                       <GitHubIcon size={16} />
                     </span>
                   )}
                 </div>
-                <p className="text-muted text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
+                <p className="text-text/82 text-sm leading-relaxed flex-1 mb-5">{p.desc}</p>
                 <div className="pt-3 border-t border-border flex items-center justify-between gap-3 mt-auto">
-                  <span className="text-[11px] font-mono text-muted/70 truncate">{p.stack}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.stack.split(" · ").map((tech) => (
+                      <span
+                        key={tech}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/8 border border-primary/20 text-primary/80"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                   {p.github ? (
                     <span className="inline-flex items-center gap-1 text-xs text-primary/80 group-hover:text-primary transition-colors">
                       GitHub
@@ -483,7 +529,8 @@ export default function About() {
                   href={p.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-primary/40 transition-colors duration-300 cursor-pointer"
+                  className="group flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-primary/40 hover:shadow-[0_0_28px_color-mix(in_srgb,var(--primary)_10%,transparent)] transition-colors duration-300 cursor-pointer"
+                  style={{ borderTop: "2px solid color-mix(in srgb, var(--primary) 35%, transparent)" }}
                   aria-label={`Открыть репозиторий проекта ${p.name}`}
                 >
                   {cardContent}
@@ -494,7 +541,8 @@ export default function About() {
             return (
               <div
                 key={p.name}
-                className="group flex flex-col p-5 rounded-xl bg-surface border border-border transition-colors duration-300"
+                className="group flex flex-col p-5 rounded-xl bg-surface border border-border hover:shadow-[0_0_28px_color-mix(in_srgb,var(--primary)_10%,transparent)] transition-colors duration-300"
+                style={{ borderTop: "2px solid color-mix(in srgb, var(--primary) 35%, transparent)" }}
               >
                 {cardContent}
               </div>
@@ -503,36 +551,33 @@ export default function About() {
         </div>
       </Section>
 
-      {/* ── 7. EDUCATION REPOS ─────────────────── */}
+      {/* ── 8. EDUCATION REPOS ─────────────────── */}
       <Section>
         <SectionLabel>learning</SectionLabel>
         <SectionHeading>Учебные репозитории</SectionHeading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {data.education.map((e) => (
             <a
               key={e.name}
               href={e.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 p-4 rounded-xl bg-surface border border-border hover:border-primary/40 transition-all duration-300 group"
+              className="group rounded-2xl border border-border bg-surface p-3.5 transition-all duration-300 hover:border-primary/35 hover:shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_8%,transparent)]"
             >
-              <BookOpen
-                size={15}
-                className="text-primary shrink-0 mt-0.5 group-hover:scale-110 transition-transform"
-              />
-              <div className="min-w-0">
-                <p className="text-white text-sm font-medium leading-snug truncate group-hover:text-primary transition-colors">
-                  {e.name}
-                </p>
-                <p className="text-muted text-xs mt-0.5 leading-relaxed">{e.desc}</p>
+              <div className="flex items-start justify-between gap-3">
+                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-elevated text-primary">
+                  <BookOpen size={13} className="group-hover:scale-110 transition-transform" />
+                </span>
+                <ExternalLink size={11} className="shrink-0 text-text/55 transition-colors group-hover:text-primary" />
               </div>
-              <ExternalLink size={10} className="ml-auto text-muted/30 group-hover:text-primary/50 transition-colors" />
+              <p className="mt-2 text-sm font-semibold leading-snug text-text transition-colors group-hover:text-primary">{e.name}</p>
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-text/80">{e.desc}</p>
             </a>
           ))}
         </div>
       </Section>
 
-      {/* ── 8. HOBBIES + QUOTE ─────────────────── */}
+      {/* ── 9. HOBBIES ─────────────────────────── */}
       <Section>
         <SectionLabel>off_duty</SectionLabel>
         <SectionHeading>Вне кода</SectionHeading>
@@ -547,14 +592,10 @@ export default function About() {
                 {h.emoji}
               </span>
               <h3 className="text-white font-semibold mb-1 text-sm">{h.title}</h3>
-              <p className="text-muted text-sm leading-relaxed">{h.desc}</p>
+              <p className="text-text/82 text-sm leading-relaxed">{h.desc}</p>
             </div>
           ))}
         </div>
-
-        <blockquote className="border-l-2 border-primary/50 pl-6 py-1">
-          <p className="italic text-muted text-base sm:text-lg leading-relaxed">{data.quote}</p>
-        </blockquote>
       </Section>
 
       <AboutFormModal 

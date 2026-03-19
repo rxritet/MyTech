@@ -1,7 +1,7 @@
-import AboutShowcase from "../components/ui/AboutShowcase";
+import About from "../components/sections/About";
 
 export default function AboutPage() {
   return (
-    <AboutShowcase />
+    <About />
   );
 }
