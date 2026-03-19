@@ -45,6 +45,8 @@ const DEVICON_SLUGS: Record<string, string> = {
 
 interface SkillBadgeProps {
   label: string;
+  slug?: string | null;
+  fallbackSrc?: string | null;
 }
 
 function normalizeTechLabel(label: string) {
@@ -66,16 +68,16 @@ function normalizeTechLabel(label: string) {
   return trimmed;
 }
 
-export default function SkillBadge({ label }: Readonly<SkillBadgeProps>) {
+export default function SkillBadge({ label, slug = null, fallbackSrc = null }: Readonly<SkillBadgeProps>) {
   const normalized = normalizeTechLabel(label);
   const colorClass = TECH_COLORS[normalized] ?? DEFAULT_BADGE;
-  const slug = DEVICON_SLUGS[normalized] ?? null;
+  const resolvedSlug = slug ?? DEVICON_SLUGS[normalized] ?? null;
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 border rounded-full text-xs font-mono font-medium ${colorClass}`}
     >
-      <TechIcon slug={slug} name={normalized} size={12} />
+      <TechIcon slug={resolvedSlug} fallbackSrc={fallbackSrc} name={normalized} size={12} />
       {label}
     </span>
   );

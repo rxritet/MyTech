@@ -6,6 +6,7 @@ import { useAdmin } from "../context/AdminContext";
 import ProjectFormModal from "../components/admin/ProjectFormModal";
 import SkillBadge from "../components/ui/SkillBadge";
 import StatusBadge from "../components/ui/StatusBadge";
+import { getTechnologies, type Technology } from "../api";
 
 type ProjectEditTab = "basic" | "description" | "media" | "development" | "tech";
 
@@ -27,7 +28,16 @@ export default function ProjectDetailPage() {
   const [modalTab, setModalTab] = useState<ProjectEditTab>("basic");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [technologyMap, setTechnologyMap] = useState<Map<string, Technology>>(new Map());
   const safeCreatedAt = project?.createdAt ?? "";
+
+  useEffect(() => {
+    void getTechnologies()
+      .then((rows) => {
+        setTechnologyMap(new Map(rows.map((item) => [item.name.toLowerCase(), item])));
+      })
+      .catch(() => setTechnologyMap(new Map()));
+  }, []);
 
   useEffect(() => {
     const mediaQuery = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
@@ -334,7 +344,11 @@ export default function ProjectDetailPage() {
                   {stack.map((item, index) => (
                     <li key={item} className="flex items-center">
                       <span className="rounded-xl transition-shadow hover:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_20%,transparent)]">
-                        <SkillBadge label={item} />
+                        <SkillBadge
+                          label={item}
+                          slug={technologyMap.get(item.toLowerCase())?.deviconSlug ?? null}
+                          fallbackSrc={technologyMap.get(item.toLowerCase())?.badgeUrl ?? null}
+                        />
                       </span>
                       {index < stack.length - 1 ? (
                         <span className="mx-2 inline-block h-4 w-px bg-border" aria-hidden="true" />
