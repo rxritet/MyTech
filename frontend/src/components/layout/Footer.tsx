@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Code2, Send, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getAbout } from "../../api";
 
 interface FooterNavLink {
   label: string;
@@ -28,6 +30,19 @@ const SOCIAL_LINKS: SocialLink[] = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [contactEmail, setContactEmail] = useState("abraevradmir2@gmail.com");
+
+  useEffect(() => {
+    void getAbout()
+      .then((about) => {
+        if (about.email?.trim()) {
+          setContactEmail(about.email.trim());
+        }
+      })
+      .catch(() => {
+        // Keep fallback email when backend request fails.
+      });
+  }, []);
 
   return (
     <footer className="border-t border-border bg-bg px-3 sm:px-5">
@@ -40,8 +55,8 @@ export default function Footer() {
             <div className="space-y-1">
               <p className="text-sm font-semibold tracking-tight text-text">Radmir Abraev</p>
               <p className="text-xs text-muted">Full-stack developer • React, Node, PostgreSQL</p>
-              <a href="mailto:radmir.abraev.dev@gmail.com" className="text-xs text-primary/90 transition-colors hover:text-primary">
-                radmir.abraev.dev@gmail.com
+              <a href={`mailto:${contactEmail}`} className="text-xs text-primary/90 transition-colors hover:text-primary">
+                {contactEmail}
               </a>
             </div>
           </div>

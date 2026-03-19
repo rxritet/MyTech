@@ -20,16 +20,6 @@ import { useInView } from "../../hooks/useInView";
 import { useAdmin } from "../../context/AdminContext";
 import { AboutData, getAbout, getAboutStack, type PublicStackItem } from "../../api";
 import AboutFormModal from "../admin/AboutFormModal";
-import {
-  PROFILE as STATIC_PROFILE,
-  HERO_BIO as STATIC_BIO,
-  FOCUS_AREAS as STATIC_FOCUS,
-  COMPETENCIES as STATIC_COMPETENCIES,
-  PROJECTS as STATIC_PROJECTS,
-  EDUCATION_REPOS as STATIC_EDU,
-  HOBBIES as STATIC_HOBBIES,
-  QUOTE as STATIC_QUOTE,
-} from "../../data/about";
 import TechIcon from "../TechIcon";
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -146,38 +136,24 @@ function getCompetencySummary(skill: string): string {
 
 // ── Component ──────────────────────────────────────────────────
 
-const INITIAL_DATA: AboutData = {
-  id: 1,
-  ...STATIC_PROFILE,
-  tagline: "Backend Developer | Software Engineering Student",
-  githubUrl: STATIC_PROFILE.github,
-  linkedinUrl: STATIC_PROFILE.linkedin,
-  telegramUrl: STATIC_PROFILE.telegram,
-  bio1: STATIC_BIO.p1,
-  bio2: STATIC_BIO.p2,
-  quote: STATIC_QUOTE,
-  focusAreas: STATIC_FOCUS,
-  competencies: STATIC_COMPETENCIES,
-  projects: STATIC_PROJECTS,
-  education: STATIC_EDU,
-  hobbies: STATIC_HOBBIES,
-  techGroups: [],
-};
-
 export default function About() {
   const { isAdmin, secret } = useAdmin();
-  const [data, setData] = useState<AboutData>(INITIAL_DATA);
+  const [data, setData] = useState<AboutData | null>(null);
   const [aboutStackItems, setAboutStackItems] = useState<PublicStackItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setError(null);
       try {
         const [fetched, stackRows] = await Promise.all([getAbout(), getAboutStack()]);
         setData(fetched);
         setAboutStackItems(stackRows);
       } catch {
+        setError("Не удалось загрузить данные страницы.");
+        setData(null);
       } finally {
         setIsLoading(false);
       }
@@ -193,32 +169,15 @@ export default function About() {
     );
   }
 
-  const categoryMeta: Record<string, { title: string; description: string }> = {
-    language: {
-      title: "Языки",
-      description: "Базовые языки, на которых строю повседневную разработку и учебные проекты.",
-    },
-    backend: {
-      title: "Backend & БД",
-      description: "Серверная логика, API, базы данных и инфраструктура данных.",
-    },
-    frontend: {
-      title: "Frontend & Mobile",
-      description: "Интерфейсы, дизайн-система и клиентская часть приложений.",
-    },
-    devops: {
-      title: "DevOps & Инфра",
-      description: "Инструменты поставки, инфраструктура и облачные решения.",
-    },
-    tool: {
-      title: "Инструменты",
-      description: "Инструменты разработки, тестирования и повседневной работы.",
-    },
-    mobile: {
-      title: "Mobile",
-      description: "Технологии мобильной разработки и клиентских приложений.",
-    },
-  };
+  if (!data) {
+    return (
+      <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 relative">
+        <div className="surface-panel rounded-2xl p-6 text-text/88">
+          {error ?? "Данные страницы пока недоступны."}
+        </div>
+      </article>
+    );
+  }
 
   const apiCategories = Array.from(new Set(aboutStackItems.map((item) => item.category)));
 
@@ -228,10 +187,9 @@ export default function About() {
         .filter((item) => item.category === category)
         .sort((a, b) => a.order - b.order);
 
-      const meta = categoryMeta[category];
       return {
-        title: meta?.title ?? category,
-        description: meta?.description ?? "Категория технологий, настроенная в админ-панели.",
+        title: category,
+        description: "",
         names: items.map((item) => item.name),
         items,
       };
@@ -395,7 +353,9 @@ export default function About() {
                   <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-semibold text-white">{group.title}</h3>
-                      <p className="mt-2 max-w-xl text-sm leading-6 text-text/82">{textDesc}</p>
+                      {textDesc ? (
+                        <p className="mt-2 max-w-xl text-sm leading-6 text-text/82">{textDesc}</p>
+                      ) : null}
                     </div>
                     {namesArr.length > 0 && (
                       <span className="eyebrow-chip shrink-0">{namesArr.length} items</span>
