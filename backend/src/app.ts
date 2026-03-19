@@ -7,6 +7,7 @@ import aboutRouter from "./routes/about";
 import technologiesRouter from "./routes/technologies";
 import stackRouter from "./routes/stack";
 import adminHomeStackRouter from "./routes/adminHomeStack";
+import workExperienceRouter from "./routes/workExperience";
 
 config();
 
@@ -22,5 +23,6 @@ app.route("/api/about", aboutRouter);
 app.route("/api/technologies", technologiesRouter);
 app.route("/api/stack", stackRouter);
 app.route("/api/admin/stack/home", adminHomeStackRouter);
+app.route("/api/work-experience", workExperienceRouter);
 
 export default app;

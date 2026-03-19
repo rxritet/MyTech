@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, serial, text, timestamp, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, serial, text, timestamp, jsonb, integer, boolean } from "drizzle-orm/pg-core";
 
 export const technologyCategoryEnum = pgEnum("technology_category", [
   "language",
@@ -46,8 +46,42 @@ export const projects = pgTable("projects", {
   developmentProcess: jsonb("development_process").notNull().default([]),
 });
 
+export const employmentTypeEnum = pgEnum("employment_type", [
+  "full_time",
+  "part_time",
+  "internship",
+  "freelance",
+  "contract",
+]);
+
+export const workFormatEnum = pgEnum("work_format", [
+  "onsite",
+  "remote",
+  "hybrid",
+]);
+
+export const workExperience = pgTable("work_experience", {
+  id: serial("id").primaryKey(),
+  company: text("company").notNull(),
+  position: text("position").notNull(),
+  location: text("location").notNull().default("Алматы"),
+  industry: text("industry"),
+  employmentType: employmentTypeEnum("employment_type").notNull().default("internship"),
+  format: workFormatEnum("format").notNull().default("onsite"),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date"),
+  current: boolean("current").notNull().default(false),
+  bullets: text("bullets").array().notNull().default([]),
+  stack: text("stack").array().notNull().default([]),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+
+export type WorkExperience = typeof workExperience.$inferSelect;
+export type NewWorkExperience = typeof workExperience.$inferInsert;
 
 export const technologies = pgTable("technologies", {
   id: serial("id").primaryKey(),
