@@ -23,15 +23,15 @@
 /* ── Base styles ─────────────────────────────────────────────── */
 @layer base {
   :root {
-    --bg: #080810;
-    --surface: #0e0e1a;
-    --bg-elevated: #121221;
-    --panel: rgba(14, 14, 26, 0.72);
-    --text: #e8e8f0;
-    --muted: #5a5a7a;
-    --primary: #00ff88;
-    --border: rgba(0, 255, 136, 0.12);
-    --hover-bg: rgba(0, 255, 136, 0.08);
+    --bg: #0d0905;
+    --surface: #161008;
+    --bg-elevated: #1b140d;
+    --panel: rgba(22, 16, 8, 0.78);
+    --text: #f5ede8;
+    --muted: #6b5a4e;
+    --primary: #f97316;
+    --border: rgba(249, 115, 22, 0.15);
+    --hover-bg: rgba(249, 115, 22, 0.08);
     --error: #ef4444;
     --success: #22c55e;
   }
@@ -333,4 +333,61 @@
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 24px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 40px color-mix(in srgb, var(--primary) 40%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+  }
 }
