@@ -195,6 +195,45 @@ function shrinkSvgInputValue(value: string): string {
   return minifyInlineSvgMarkup(svgMarkup);
 }
 
+function recolorInlineSvgToWhite(svg: string): string {
+  const isSpecialColor = (value: string): boolean => {
+    const normalized = value.trim().toLowerCase();
+    return (
+      normalized === "none" ||
+      normalized === "transparent" ||
+      normalized === "currentcolor" ||
+      normalized.startsWith("url(")
+    );
+  };
+
+  const normalizeColorValue = (value: string): string => {
+    if (isSpecialColor(value)) {
+      return value;
+    }
+    return "#ffffff";
+  };
+
+  return svg
+    .replace(/(\bfill\s*=\s*["'])([^"']+)(["'])/gi, (_match, prefix: string, value: string, suffix: string) => {
+      return `${prefix}${normalizeColorValue(value)}${suffix}`;
+    })
+    .replace(/(\bstroke\s*=\s*["'])([^"']+)(["'])/gi, (_match, prefix: string, value: string, suffix: string) => {
+      return `${prefix}${normalizeColorValue(value)}${suffix}`;
+    })
+    .replace(/(fill\s*:\s*)([^;"']+)/gi, (_match, prefix: string, value: string) => {
+      return `${prefix}${normalizeColorValue(value)}`;
+    })
+    .replace(/(stroke\s*:\s*)([^;"']+)/gi, (_match, prefix: string, value: string) => {
+      return `${prefix}${normalizeColorValue(value)}`;
+    });
+}
+
+function recolorSvgInputValueToWhite(value: string): string {
+  const svgMarkup = extractInlineSvgMarkup(value);
+  if (!svgMarkup) return value;
+  return recolorInlineSvgToWhite(svgMarkup);
+}
+
 function normalizeDeviconSlugInput(value: string): string {
   const trimmed = value.trim().toLowerCase();
   if (!trimmed) return "";
@@ -376,6 +415,7 @@ export default function AdminStackPage() {
     extractDeviconSlugFromIconInput(newTechnologyBadgeUrl);
   const previewFallbackSrc = normalizeCustomIconInput(newTechnologyBadgeUrl) || null;
   const canShrinkNewTechnologySvg = Boolean(extractInlineSvgMarkup(newTechnologyBadgeUrl));
+  const canRecolorNewTechnologySvg = canShrinkNewTechnologySvg;
 
   if (!isAdmin || !secret) {
     return null;
@@ -1169,9 +1209,17 @@ export default function AdminStackPage() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setNewTechnologyBadgeUrl((prev) => recolorSvgInputValueToWhite(prev))}
+                    disabled={!canRecolorNewTechnologySvg}
+                    className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-200 hover:border-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Сделать белой
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void handleCreateTechnology()}
                     disabled={saving}
-                    className="md:col-span-3 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
+                    className="md:col-span-2 rounded-lg bg-orange-600 px-4 py-2 text-white hover:bg-orange-500 disabled:opacity-50"
                   >
                     Добавить технологию
                   </button>
@@ -1191,6 +1239,7 @@ export default function AdminStackPage() {
                       ? draftBadge
                       : sanitizeBadgeUrlForInput(technology.badgeUrl);
                     const canShrinkRowSvg = Boolean(extractInlineSvgMarkup(badgeInputValue));
+                    const canRecolorRowSvg = canShrinkRowSvg;
                     const draftDeviconSlug = typeof draft.deviconSlug === "string"
                       ? normalizeDeviconSlugInput(draft.deviconSlug) || null
                       : draft.deviconSlug;
@@ -1224,7 +1273,7 @@ export default function AdminStackPage() {
                           value={badgeInputValue}
                           onChange={(e) => updateDraftField(technology.id, "badgeUrl", e.target.value)}
                           placeholder={'URL, <img ...> или <i class="devicon-..."></i>'}
-                          className="md:col-span-3 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                          className="md:col-span-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
                         />
                         <button
                           type="button"
@@ -1233,6 +1282,14 @@ export default function AdminStackPage() {
                           className="rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-200 hover:border-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Сжать SVG
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateDraftField(technology.id, "badgeUrl", recolorSvgInputValueToWhite(badgeInputValue))}
+                          disabled={!canRecolorRowSvg}
+                          className="rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-200 hover:border-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Сделать белой
                         </button>
                         <input
                           value={draft.deviconSlug ?? technology.deviconSlug ?? ""}
