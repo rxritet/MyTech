@@ -326,6 +326,8 @@ export default function AdminStackPage() {
   const [newTechnologyCategory, setNewTechnologyCategory] = useState<TechnologyCategory>("tool");
   const [newTechnologyBadgeUrl, setNewTechnologyBadgeUrl] = useState("");
   const [newTechnologyDeviconSlug, setNewTechnologyDeviconSlug] = useState("");
+  const [newTechnologyAddToAbout, setNewTechnologyAddToAbout] = useState(false);
+  const [newTechnologyAboutCategory, setNewTechnologyAboutCategory] = useState("");
 
   const [editingMap, setEditingMap] = useState<Record<number, Partial<Technology>>>({});
   const [aboutDraftTechnologyId, setAboutDraftTechnologyId] = useState<number | null>(null);
@@ -380,6 +382,7 @@ export default function AdminStackPage() {
       const usedCategories = Array.from(new Set(sortedAbout.map((item) => item.category)));
       setAboutCategories(usedCategories);
       setAboutDraftCategory(usedCategories[0] ?? "");
+      setNewTechnologyAboutCategory((prev) => prev || usedCategories[0] || "");
       setAboutNewCategory("");
     } catch {
       setError("Не удалось загрузить технологический стек");
@@ -655,6 +658,7 @@ export default function AdminStackPage() {
     const normalizedDeviconSlug =
       normalizeDeviconSlugInput(newTechnologyDeviconSlug) ||
       (hasDeviconClassToken ? "" : extractDeviconSlugFromIconInput(newTechnologyBadgeUrl));
+    const normalizedAboutCategory = newTechnologyAboutCategory.trim();
 
     if (!newTechnologyName.trim()) {
       setError("Заполните название технологии");
@@ -666,10 +670,15 @@ export default function AdminStackPage() {
       return;
     }
 
+    if (newTechnologyAddToAbout && !normalizedAboutCategory) {
+      setError("Укажите категорию для добавления в стек Обо мне");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
-      await createTechnology(
+      const created = await createTechnology(
         {
           name: newTechnologyName.trim(),
           category: newTechnologyCategory,
@@ -678,9 +687,33 @@ export default function AdminStackPage() {
         },
         secret,
       );
+
+      if (newTechnologyAddToAbout) {
+        const nextAboutCategories = aboutCategories.includes(normalizedAboutCategory)
+          ? aboutCategories
+          : [...aboutCategories, normalizedAboutCategory];
+
+        const payloadItems = nextAboutCategories.flatMap((category) => {
+          const existingItems = aboutItems.filter((item) => item.category === category);
+          const mergedItems = category === normalizedAboutCategory
+            ? [...existingItems, { technologyId: created.id, category: normalizedAboutCategory }]
+            : existingItems;
+
+          return mergedItems.map((item, index) => ({
+            technologyId: item.technologyId,
+            category: item.category,
+            order: index,
+          }));
+        });
+
+        await updateAboutStack({ items: payloadItems }, secret);
+      }
+
       setNewTechnologyName("");
       setNewTechnologyBadgeUrl("");
       setNewTechnologyDeviconSlug("");
+      setNewTechnologyAddToAbout(false);
+      setNewTechnologyAboutCategory((prev) => prev || aboutCategories[0] || "");
       await reload();
     } catch (createError: unknown) {
       if (createError instanceof Error && createError.message.trim()) {
@@ -1233,6 +1266,40 @@ export default function AdminStackPage() {
                   <p className="md:col-span-4 text-xs text-gray-500">
                     Вставьте из devicon.dev: &lt;i class=&quot;devicon-supabase-plain&quot;&gt;&lt;/i&gt; или URL SVG из &lt;img src=&quot;...&quot;&gt;.
                   </p>
+                  <label className="md:col-span-4 flex items-center gap-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-sm text-gray-200">
+                    <input
+                      type="checkbox"
+                      checked={newTechnologyAddToAbout}
+                      onChange={(event) => {
+                        const nextValue = event.target.checked;
+                        setNewTechnologyAddToAbout(nextValue);
+                        if (nextValue && !newTechnologyAboutCategory.trim()) {
+                          setNewTechnologyAboutCategory(aboutCategories[0] ?? "");
+                        }
+                      }}
+                      className="h-4 w-4"
+                    />
+                    <span>Сразу добавить технологию в стек страницы «Обо мне»</span>
+                  </label>
+                  {newTechnologyAddToAbout && (
+                    <>
+                      <input
+                        value={newTechnologyAboutCategory}
+                        onChange={(e) => setNewTechnologyAboutCategory(e.target.value)}
+                        placeholder="Категория для «Обо мне» (например: Backend)"
+                        list="about-category-options"
+                        className="md:col-span-2 rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-white"
+                      />
+                      <datalist id="about-category-options">
+                        {aboutCategories.map((category) => (
+                          <option key={`about-link-category-${category}`} value={category} />
+                        ))}
+                      </datalist>
+                      <p className="md:col-span-2 text-xs text-gray-500 self-center">
+                        Если категории нет, введите новую: она будет создана автоматически.
+                      </p>
+                    </>
+                  )}
                   <button
                     type="button"
                     onClick={() => setNewTechnologyBadgeUrl((prev) => shrinkSvgInputValue(prev))}
