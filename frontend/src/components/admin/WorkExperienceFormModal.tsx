@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import type { EmploymentType, WorkExperience, WorkExperiencePayload, WorkFormat } from "../../api";
 
@@ -88,6 +88,61 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
     setStackDraft("");
   };
 
+  const handleRemoveStack = (tag: string) => {
+    setForm((prev) => ({
+      ...prev,
+      stack: prev.stack.filter((item) => item !== tag),
+    }));
+  };
+
+  const handleStackInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    handleAddStack();
+  };
+
+  const handleAddBullet = () => {
+    setForm((prev) => ({ ...prev, bullets: [...prev.bullets, ""] }));
+  };
+
+  const handleBulletChange = (targetBullet: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      bullets: prev.bullets.map((item) => (item === targetBullet ? value : item)),
+    }));
+  };
+
+  const handleBulletDelete = (targetBullet: string) => {
+    setForm((prev) => {
+      const nextBullets = prev.bullets.filter((item) => item !== targetBullet);
+      return {
+        ...prev,
+        bullets: nextBullets.length > 0 ? nextBullets : [""],
+      };
+    });
+  };
+
+  const handleCurrentToggle = (checked: boolean) => {
+    setForm((prev) => {
+      const nextEndDate = checked ? null : prev.endDate;
+      return {
+        ...prev,
+        current: checked,
+        endDate: nextEndDate,
+      };
+    });
+  };
+
+  const handleSaveError = (saveError: unknown) => {
+    if (saveError instanceof Error) {
+      setError(saveError.message);
+      return;
+    }
+    setError("Не удалось сохранить запись");
+  };
+
   const validate = (): string | null => {
     if (!form.company.trim()) return "Укажите компанию";
     if (!form.position.trim()) return "Укажите должность";
@@ -98,7 +153,7 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
     return null;
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
@@ -108,13 +163,15 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
       return;
     }
 
+    const normalizedEndDate = form.endDate?.trim() ? form.endDate.trim() : null;
+
     const payload: WorkExperiencePayload = {
       ...form,
       company: form.company.trim(),
       position: form.position.trim(),
       location: form.location.trim() || "Алматы",
       industry: form.industry?.trim() ? form.industry.trim() : undefined,
-      endDate: form.current ? null : (form.endDate?.trim() ? form.endDate.trim() : null),
+      endDate: form.current ? null : normalizedEndDate,
       bullets: normalizedBullets,
       stack: form.stack,
     };
@@ -123,11 +180,7 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
     try {
       await onSave(payload);
     } catch (saveError: unknown) {
-      if (saveError instanceof Error) {
-        setError(saveError.message);
-      } else {
-        setError("Не удалось сохранить запись");
-      }
+      handleSaveError(saveError);
     } finally {
       setIsSaving(false);
     }
@@ -243,10 +296,10 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
             <input
               type="checkbox"
               checked={form.current}
-              onChange={(e) => setForm((prev) => ({ ...prev, current: e.target.checked, endDate: e.target.checked ? null : prev.endDate }))}
+              onChange={(e) => handleCurrentToggle(e.target.checked)}
               className="h-4 w-4 accent-orange-500"
             />
-            Работаю здесь сейчас
+            <span>Работаю здесь сейчас</span>
           </label>
 
           <label className="space-y-1 text-sm">
@@ -265,7 +318,7 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
               <button
                 type="button"
                 disabled={!canAddBullet}
-                onClick={() => setForm((prev) => ({ ...prev, bullets: [...prev.bullets, ""] }))}
+                onClick={handleAddBullet}
                 className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs text-text transition-colors hover:border-primary/40 disabled:opacity-50"
               >
                 <Plus size={12} /> Добавить
@@ -273,24 +326,16 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
             </div>
 
             <div className="space-y-2">
-              {form.bullets.map((bullet, index) => (
-                <div key={`bullet-${index}`} className="flex items-center gap-2">
+              {form.bullets.map((bullet) => (
+                <div key={`bullet-${bullet}`} className="flex items-center gap-2">
                   <input
                     value={bullet}
-                    onChange={(e) => setForm((prev) => ({
-                      ...prev,
-                      bullets: prev.bullets.map((item, current) => (current === index ? e.target.value : item)),
-                    }))}
+                    onChange={(e) => handleBulletChange(bullet, e.target.value)}
                     className="w-full rounded-xl border border-border bg-bg-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary/45"
                   />
                   <button
                     type="button"
-                    onClick={() => setForm((prev) => ({
-                      ...prev,
-                      bullets: prev.bullets.length === 1
-                        ? [""]
-                        : prev.bullets.filter((_, current) => current !== index),
-                    }))}
+                    onClick={() => handleBulletDelete(bullet)}
                     className="rounded-lg border border-border p-2 text-muted transition-colors hover:text-red-400"
                   >
                     <Trash2 size={13} />
@@ -307,7 +352,7 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, stack: prev.stack.filter((item) => item !== tag) }))}
+                  onClick={() => handleRemoveStack(tag)}
                   className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-primary/90 transition-colors hover:border-primary/45"
                 >
                   {tag}
@@ -318,12 +363,7 @@ export default function WorkExperienceFormModal({ initial, onClose, onSave }: Re
               value={stackDraft}
               placeholder="Введите технологию и нажмите Enter"
               onChange={(e) => setStackDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddStack();
-                }
-              }}
+              onKeyDown={handleStackInputKeyDown}
               className="w-full rounded-xl border border-border bg-bg-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary/45"
             />
           </div>

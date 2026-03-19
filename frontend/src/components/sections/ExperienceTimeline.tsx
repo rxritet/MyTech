@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import {
   Briefcase,
   Building2,
@@ -56,6 +56,16 @@ function ExperienceCard({
   const [expanded, setExpanded] = useState(index === 0);
   const { label, duration } = formatDateRange(entry.startDate, entry.endDate, entry.current);
 
+  const handleEditClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onEdit(entry);
+  };
+
+  const handleDeleteClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onDelete(entry.id);
+  };
+
   return (
     <div className="relative flex gap-5 md:gap-8">
       <div className="flex flex-col items-center">
@@ -109,7 +119,7 @@ function ExperienceCard({
                     }}
                   >
                     <span className="inline-block h-1 w-1 animate-pulse rounded-full bg-[#00ff88]" />
-                    Сейчас
+                    <span>Сейчас</span>
                   </span>
                 ) : null}
               </div>
@@ -118,17 +128,17 @@ function ExperienceCard({
             <div className="flex flex-shrink-0 flex-col items-end gap-2">
               <div className="flex items-center gap-2">
                 {isAdmin ? (
-                  <div className="flex gap-1" onClick={(event) => event.stopPropagation()}>
+                  <div className="flex gap-1">
                     <button
                       type="button"
-                      onClick={() => onEdit(entry)}
+                      onClick={handleEditClick}
                       className="rounded-lg border border-border bg-surface p-1.5 text-muted transition-all hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
                     >
                       <Pencil size={12} />
                     </button>
                     <button
                       type="button"
-                      onClick={() => onDelete(entry.id)}
+                      onClick={handleDeleteClick}
                       className="rounded-lg border border-border bg-surface p-1.5 text-muted transition-all hover:border-red-500/30 hover:bg-red-900/20 hover:text-red-400"
                     >
                       <Trash2 size={12} />
@@ -263,7 +273,7 @@ export default function ExperienceTimeline() {
     <div ref={ref} className="space-y-2">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <p className="mb-1 text-xs font-mono uppercase tracking-widest text-primary">// experience</p>
+          <p className="mb-1 text-xs font-mono uppercase tracking-widest text-primary">{"// experience"}</p>
           <h2 className="inline-flex items-center gap-2 text-2xl font-bold text-white sm:text-3xl">
             <Briefcase size={20} className="text-primary" />
             Опыт работы
@@ -298,7 +308,7 @@ export default function ExperienceTimeline() {
         <p className="text-sm text-muted">Опыт пока не добавлен.</p>
       ) : null}
 
-      {!isLoading ? (
+      {isLoading ? null : (
         <div className={`transition-all duration-700 ${inView ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}`}>
           {entries.map((entry, index) => (
             <ExperienceCard
@@ -312,7 +322,7 @@ export default function ExperienceTimeline() {
             />
           ))}
         </div>
-      ) : null}
+      )}
 
       {modalOpen ? (
         <WorkExperienceFormModal
