@@ -179,14 +179,24 @@ function extractInlineSvgMarkup(value: string): string | null {
   }
 }
 
+function regexReplaceAll(
+  input: string,
+  pattern: RegExp,
+  replacement: string | ((...args: any[]) => string),
+): string {
+  return (pattern as { [Symbol.replace](value: string, replaceValue: unknown): string })[
+    Symbol.replace
+  ](input, replacement);
+}
+
 function minifyInlineSvgMarkup(svg: string): string {
-  return svg
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<desc[\s\S]*?<\/desc>/gi, "")
-    .replace(/[\r\n\t]+/g, " ")
-    .replace(/>\s+</g, "><")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+  let result = svg;
+  result = regexReplaceAll(result, /<!--[\s\S]*?-->/g, "");
+  result = regexReplaceAll(result, /<desc[\s\S]*?<\/desc>/gi, "");
+  result = regexReplaceAll(result, /[\r\n\t]+/g, " ");
+  result = regexReplaceAll(result, />\s+</g, "><");
+  result = regexReplaceAll(result, /\s{2,}/g, " ");
+  return result.trim();
 }
 
 function shrinkSvgInputValue(value: string): string {
@@ -213,19 +223,28 @@ function recolorInlineSvgToWhite(svg: string): string {
     return "#ffffff";
   };
 
-  return svg
-    .replace(/(\bfill\s*=\s*["'])([^"']+)(["'])/gi, (_match, prefix: string, value: string, suffix: string) => {
+  let result = svg;
+  result = regexReplaceAll(
+    result,
+    /(\bfill\s*=\s*["'])([^"']+)(["'])/gi,
+    (_match: string, prefix: string, value: string, suffix: string) => {
       return `${prefix}${normalizeColorValue(value)}${suffix}`;
-    })
-    .replace(/(\bstroke\s*=\s*["'])([^"']+)(["'])/gi, (_match, prefix: string, value: string, suffix: string) => {
+    },
+  );
+  result = regexReplaceAll(
+    result,
+    /(\bstroke\s*=\s*["'])([^"']+)(["'])/gi,
+    (_match: string, prefix: string, value: string, suffix: string) => {
       return `${prefix}${normalizeColorValue(value)}${suffix}`;
-    })
-    .replace(/(fill\s*:\s*)([^;"']+)/gi, (_match, prefix: string, value: string) => {
-      return `${prefix}${normalizeColorValue(value)}`;
-    })
-    .replace(/(stroke\s*:\s*)([^;"']+)/gi, (_match, prefix: string, value: string) => {
-      return `${prefix}${normalizeColorValue(value)}`;
-    });
+    },
+  );
+  result = regexReplaceAll(result, /(fill\s*:\s*)([^;"']+)/gi, (_match: string, prefix: string, value: string) => {
+    return `${prefix}${normalizeColorValue(value)}`;
+  });
+  result = regexReplaceAll(result, /(stroke\s*:\s*)([^;"']+)/gi, (_match: string, prefix: string, value: string) => {
+    return `${prefix}${normalizeColorValue(value)}`;
+  });
+  return result;
 }
 
 function recolorSvgInputValueToWhite(value: string): string {
