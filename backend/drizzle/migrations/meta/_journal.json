@@ -29,6 +29,13 @@
       "when": 1773499062455,
       "tag": "0003_freezing_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773600000000,
+      "tag": "0011_add_project_status",
+      "breakpoints": true
     }
   ]
 }

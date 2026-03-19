@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { getTechnologies, type DevelopmentStage, type Project, type Technology } from "../api";
+import { getTechnologies, type DevelopmentStage, type Project, type ProjectUpsertPayload, type Technology } from "../api";
 import { createProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
 import ImageUploadField from "../components/admin/ImageUploadField";
@@ -25,6 +25,7 @@ export default function AddProjectPage() {
   const [formData, setFormData] = useState<Partial<Project>>({
     slug: "",
     name: "",
+    status: "in_progress",
     description: "",
     longDescription: "",
     stack: [],
@@ -76,7 +77,7 @@ export default function AddProjectPage() {
     return null;
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -114,7 +115,7 @@ export default function AddProjectPage() {
     setError(null);
 
     try {
-      const payload: Partial<Project> = {
+      const payload: ProjectUpsertPayload = {
         ...formData,
         features: parseCommaSeparated(featuresInput),
         technologyIds: selectedTechnologyIds,
@@ -189,6 +190,20 @@ export default function AddProjectPage() {
                 <div>
                   <label htmlFor="project-slug" className="block text-sm font-medium text-gray-300 mb-1">Slug (URL) *</label>
                   <input id="project-slug" required name="slug" value={formData.slug || ""} onChange={handleChange} className="w-full bg-gray-950/50 border border-gray-800 rounded-lg px-4 py-2 text-white" />
+                </div>
+                <div>
+                  <label htmlFor="project-status" className="block text-sm text-gray-400 mb-1">Статус проекта</label>
+                  <select
+                    id="project-status"
+                    name="status"
+                    value={formData.status ?? "in_progress"}
+                    onChange={handleChange}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                  >
+                    <option value="in_progress">В прогрессе</option>
+                    <option value="completed">Завершен</option>
+                    <option value="archived">Архив</option>
+                  </select>
                 </div>
                 <div>
                   <label htmlFor="project-created-at" className="block text-sm font-medium text-gray-300 mb-1">Дата создания *</label>

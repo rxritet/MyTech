@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import type { Project } from "../../api";
 import SkillBadge from "./SkillBadge";
+import StatusBadge from "./StatusBadge";
 
 // ── Inline GitHub SVG (lucide brand icons are deprecated) ────────────────────
 function GitHubIcon({ size = 14 }: Readonly<{ size?: number }>) {
@@ -30,21 +31,31 @@ function ImagePlaceholder({ gradient }: Readonly<{ gradient: string }>) {
 export default function ProjectCard({
   project,
 }: Readonly<{ project: Project }>) {
-  const { name, description, stack, github, demo, accentColor, image } =
+  const { name, description, stack, github, demo, accentColor, image, status } =
     project;
 
   return (
     <article className="group flex flex-col card-glass rounded-xl overflow-hidden">
       {/* ── Preview image (16:9) ────────────────────────────────── */}
-      <div className="relative aspect-video w-full overflow-hidden bg-bg">
+      <div className="relative w-full overflow-hidden bg-bg">
         {image ? (
-          <img
-            src={image}
-            alt={`Скриншот проекта ${name}`}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            loading="lazy"
-            decoding="async"
-          />
+          <div className="relative flex min-h-[220px] items-center justify-center">
+            <img
+              src={image}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-xl"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src={image}
+              alt={`Скриншот проекта ${name}`}
+              className="relative z-10 block h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         ) : (
           <ImagePlaceholder gradient={accentColor} />
         )}
@@ -58,10 +69,12 @@ export default function ProjectCard({
 
       {/* ── Card body ───────────────────────────────────────────── */}
       <div className="flex flex-col flex-1 p-5 gap-3">
-        {/* Name */}
-        <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors leading-snug">
-          {name}
-        </h3>
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors leading-snug">
+            {name}
+          </h3>
+          <StatusBadge status={status} />
+        </div>
 
         {/* Description — clamp to 3 lines */}
         <p className="text-sm text-gray-400 leading-relaxed flex-1 line-clamp-3">

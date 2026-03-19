@@ -9,6 +9,7 @@ import adminAuth from "../middleware/adminAuth";
 const projectSchema = z.object({
   slug: z.string(),
   name: z.string(),
+  status: z.enum(["in_progress", "completed", "archived"]).default("in_progress"),
   description: z.string(),
   longDescription: z.string(),
   features: z.array(z.string()),

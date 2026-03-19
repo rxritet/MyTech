@@ -9,6 +9,7 @@ import { useInView } from "../../hooks/useInView";
 import ProjectFormModal from "../admin/ProjectFormModal";
 import TechIcon from "../TechIcon";
 import { getTechSlug } from "./techSlugMap";
+import StatusBadge from "./StatusBadge";
 
 function useTechnologyMap() {
   const [techs, setTechs] = useState<Technology[]>([]);
@@ -27,7 +28,6 @@ function useTechnologyMap() {
 function ProjectGridCard({
   project,
   index,
-  isFeatured,
   isAdmin,
   onEdit,
   onDelete,
@@ -35,7 +35,6 @@ function ProjectGridCard({
 }: Readonly<{
   project: Project;
   index: number;
-  isFeatured: boolean;
   isAdmin: boolean;
   onEdit: (project: Project) => void;
   onDelete: (id: number) => void;
@@ -60,16 +59,8 @@ function ProjectGridCard({
           aria-hidden="true"
         />
 
-        {isFeatured && (
-          <span className="absolute left-6 top-6 z-20 rounded-full border border-primary px-2.5 py-1 text-[0.64rem] font-mono uppercase tracking-[0.18em] text-primary"
-            style={{ background: "color-mix(in srgb, var(--primary) 15%, transparent)" }}
-          >
-            Featured
-          </span>
-        )}
-
         {isAdmin && (
-          <div className="absolute right-6 top-6 z-20 flex items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute right-6 top-12 z-20 flex items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
             <button
               type="button"
               className="rounded-xl border border-border bg-bg-elevated/90 p-2 text-primary"
@@ -93,15 +84,25 @@ function ProjectGridCard({
           </div>
         )}
 
-        <div className="relative mb-4 aspect-video overflow-hidden rounded-2xl border border-border bg-bg-elevated">
+        <div className="relative mb-4 overflow-hidden rounded-2xl border border-border bg-bg-elevated">
           {project.image ? (
-            <img
-              src={project.image}
-              alt={`Превью ${project.name}`}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              loading="lazy"
-              decoding="async"
-            />
+            <div className="relative flex min-h-[220px] items-center justify-center">
+              <img
+                src={project.image}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-xl"
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                src={project.image}
+                alt={`Превью ${project.name}`}
+                className="relative z-10 block h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           ) : (
             <div
               className="h-full w-full"
@@ -114,9 +115,12 @@ function ProjectGridCard({
         </div>
 
         <div className="flex flex-1 flex-col">
-          <h2 className="mb-2 text-[clamp(1.1rem,2vw,1.3rem)] font-bold leading-tight text-text transition-colors group-hover:text-primary">
-            {project.name}
-          </h2>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <h2 className="text-[clamp(1.1rem,2vw,1.3rem)] font-bold leading-tight text-text transition-colors group-hover:text-primary">
+              {project.name}
+            </h2>
+            <StatusBadge status={project.status} />
+          </div>
           <p
             className="mb-4 text-[0.92rem] leading-6 text-muted"
             style={{
@@ -167,10 +171,6 @@ export default function ProjectsCatalogView() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-
-  const featuredIds = useMemo(() => {
-    return new Set(projects.slice(0, 2).map((project) => project.id));
-  }, [projects]);
 
   const handleDelete = async (id: number) => {
     if (!secret || !globalThis.confirm("Точно удалить проект?")) {
@@ -223,7 +223,6 @@ export default function ProjectsCatalogView() {
               key={project.id}
               project={project}
               index={index}
-              isFeatured={featuredIds.has(project.id)}
               isAdmin={isAdmin}
               onEdit={(item) => {
                 setEditingProject(item);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getTechnologies, type Project, type DevelopmentStage, type Technology } from "../../api";
+import { getTechnologies, type Project, type DevelopmentStage, type ProjectUpsertPayload, type Technology } from "../../api";
 import { createProject, updateProject } from "../../hooks/useProjects";
 import { X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageUploadField from "./ImageUploadField";
@@ -35,6 +35,7 @@ export default function ProjectFormModal({
   const [formData, setFormData] = useState<Partial<Project>>({
     slug: "",
     name: "",
+    status: "in_progress",
     description: "",
     longDescription: "",
     stack: [],
@@ -58,6 +59,7 @@ export default function ProjectFormModal({
       setFormData({
         slug: "",
         name: "",
+        status: "in_progress",
         description: "",
         longDescription: "",
         stack: [],
@@ -124,7 +126,7 @@ export default function ProjectFormModal({
   if (!isOpen) return null;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -162,7 +164,7 @@ export default function ProjectFormModal({
     setLoading(true);
     setError(null);
     try {
-      const payload: Partial<Project> = {
+      const payload: ProjectUpsertPayload = {
         ...formData,
         features: parseCommaSeparated(featuresInput),
         technologyIds: selectedTechnologyIds,
@@ -264,6 +266,21 @@ export default function ProjectFormModal({
                       placeholder="my-awesome-project"
                       className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500"
                     />
+                  </div>
+
+                  <div>
+                    <label htmlFor="modal-project-status" className="block text-sm text-gray-400 mb-1">Статус проекта</label>
+                    <select
+                      id="modal-project-status"
+                      name="status"
+                      value={formData.status ?? "in_progress"}
+                      onChange={handleChange}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:border-orange-500 focus:outline-none"
+                    >
+                      <option value="in_progress">В прогрессе</option>
+                      <option value="completed">Завершен</option>
+                      <option value="archived">Архив</option>
+                    </select>
                   </div>
 
                   <div>

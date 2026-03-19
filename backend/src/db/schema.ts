@@ -9,6 +9,12 @@ export const technologyCategoryEnum = pgEnum("technology_category", [
   "mobile",
 ]);
 
+export const projectStatusEnum = pgEnum("project_status", [
+  "in_progress",
+  "completed",
+  "archived",
+]);
+
 export const contacts = pgTable("contacts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -24,6 +30,7 @@ export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
+  status: projectStatusEnum("status").notNull().default("in_progress"),
   description: text("description").notNull(),
   longDescription: text("long_description").notNull(),
   stack: text("stack").array().notNull(),

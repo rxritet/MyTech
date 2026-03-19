@@ -5,6 +5,7 @@ import { useProject, deleteProject } from "../hooks/useProjects";
 import { useAdmin } from "../context/AdminContext";
 import ProjectFormModal from "../components/admin/ProjectFormModal";
 import SkillBadge from "../components/ui/SkillBadge";
+import StatusBadge from "../components/ui/StatusBadge";
 
 type ProjectEditTab = "basic" | "description" | "media" | "development" | "tech";
 
@@ -95,15 +96,9 @@ export default function ProjectDetailPage() {
   const mediaItems = [image, ...(gallery ?? [])].filter((item): item is string => Boolean(item?.trim()));
   const stages = developmentProcess ?? [];
   const projectFeatures = features ?? [];
-
-  const statusLabel = demo ? "COMPLETED" : "IN PROGRESS";
-  const statusHeroClass = demo
-    ? "text-primary border-primary/50 bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]"
-    : "text-amber-400 border-amber-400/30 bg-[color-mix(in_srgb,#f59e0b_12%,transparent)]";
-
-  const statusMetaClass = demo
-    ? "text-primary border-primary/40 bg-[color-mix(in_srgb,var(--primary)_12%,transparent)]"
-    : "text-amber-400 border-amber-400/30 bg-[color-mix(in_srgb,#f59e0b_12%,transparent)]";
+  const hasStages = stages.length > 0;
+  const hasGallery = mediaItems.length > 0;
+  const hasFeatureSection = Boolean(description?.trim()) || projectFeatures.length > 0;
 
   const openEditorOn = (tab: ProjectEditTab) => {
     setModalTab(tab);
@@ -125,8 +120,8 @@ export default function ProjectDetailPage() {
 
   return (
     <main className="min-h-screen pb-16 pt-20 lg:pt-24">
-      <section className="section-shell pb-5 pt-4 lg:pt-5">
-        <div className="relative overflow-hidden rounded-[1.5rem] border border-border h-[220px] md:h-[270px] lg:h-[320px]">
+      <section className="mx-auto w-full max-w-[86rem] px-3 pb-0 pt-4 sm:px-5 lg:pt-5">
+        <div className="relative h-[270px] overflow-hidden rounded-[1.5rem] border border-border md:h-[330px] lg:h-[390px]">
           {image ? (
             <img src={image} alt={`Баннер проекта ${name}`} className="h-full w-full object-cover" />
           ) : (
@@ -177,19 +172,19 @@ export default function ProjectDetailPage() {
           )}
 
           <div className="absolute bottom-0 left-0 z-20 w-full p-4 md:p-6 lg:p-8">
-            <span className={`eyebrow-chip border ${statusHeroClass}`}>{statusLabel}</span>
+            <StatusBadge status={project.status} />
             <h1
               className="mt-3 text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-tight text-text"
               style={{ textShadow: "0 0 40px color-mix(in srgb, var(--primary) 40%, transparent)" }}
             >
               {name}
             </h1>
-            <p className="mt-2 max-w-2xl truncate text-base text-muted">{description}</p>
+            <p className="mt-2 max-w-4xl text-sm leading-6 text-text/90 md:text-base md:leading-7">{description}</p>
           </div>
         </div>
       </section>
 
-      <section className="section-shell pt-2">
+      <section className="mx-auto w-full max-w-[86rem] px-3 pt-6 sm:px-5">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
           <div className="space-y-6">
             <section className="surface-panel rounded-3xl border-t-2 border-t-primary p-7 md:p-10">
@@ -201,60 +196,51 @@ export default function ProjectDetailPage() {
               <p className="text-[1.05rem] leading-[1.85] text-text/95">{longDescription}</p>
             </section>
 
-            <section className="surface-panel rounded-3xl p-6 md:p-8">
-              <h2 className="mb-5 flex items-center gap-3 text-[1.2rem] font-bold text-text">
-                <span className="h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
-                {" "}
-                Кратко и особенности
-              </h2>
-
-              <p className="rounded-xl border border-border bg-bg-elevated/45 px-4 py-3 text-sm leading-7 text-text/92">
-                {description}
-              </p>
-
-              {projectFeatures.length > 0 ? (
-                <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-bg-elevated/45">
-                  {projectFeatures.map((feature, index) => (
-                    <li key={`${feature}-${index}`} className="flex items-start gap-3 px-4 py-3 text-sm text-muted">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted">
-                  Особенности проекта пока не заполнены.
-                </div>
-              )}
-            </section>
-
-            <section className="surface-panel rounded-3xl p-6 md:p-8">
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
-                  <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+            {hasFeatureSection ? (
+              <section className="surface-panel rounded-3xl p-6 md:p-8">
+                <h2 className="mb-5 flex items-center gap-3 text-[1.2rem] font-bold text-text">
+                  <span className="h-5 w-1 rounded-full bg-primary" aria-hidden="true" />
                   {" "}
-                  Этапы разработки
+                  Кратко и особенности
                 </h2>
-                {isAdmin && (
-                  <button type="button" onClick={() => openEditorOn("development")} className="button-secondary py-2 px-4 text-sm">
-                    <Milestone size={14} />
-                    Добавить этап
-                  </button>
-                )}
-              </div>
 
-              {stages.length === 0 ? (
-                <div className="flex min-h-[120px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-elevated/60 p-5 text-center">
-                  <Milestone size={32} className="mb-3 text-muted" />
-                  <p className="text-sm text-muted">Этапы разработки пока не добавлены</p>
+                {description?.trim() ? (
+                  <p className="rounded-xl border border-border bg-bg-elevated/45 px-4 py-3 text-[0.98rem] leading-8 text-text">
+                    {description}
+                  </p>
+                ) : null}
+
+                {projectFeatures.length > 0 ? (
+                  <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {projectFeatures.map((feature, index) => (
+                      <li key={`${feature}-${index}`} className="card-glass rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="mt-1.5 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                          <span className="text-sm leading-7 text-text">{feature}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </section>
+            ) : null}
+
+            {hasStages ? (
+              <section className="surface-panel rounded-3xl p-6 md:p-8">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
+                    <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+                    {" "}
+                    Этапы разработки
+                  </h2>
                   {isAdmin && (
-                    <button type="button" onClick={() => openEditorOn("development")} className="button-secondary mt-4 py-2 px-4 text-sm">
-                      Добавить первый этап
-                      <ExternalLink size={13} />
+                    <button type="button" onClick={() => openEditorOn("development")} className="button-secondary py-2 px-4 text-sm">
+                      <Milestone size={14} />
+                      Добавить этап
                     </button>
                   )}
                 </div>
-              ) : (
+
                 <ol className="relative space-y-4 pl-3 before:absolute before:bottom-0 before:left-[11px] before:top-0 before:border-l-2 before:border-dashed before:border-border">
                   {stages.map((stage, index) => (
                     <li
@@ -287,29 +273,25 @@ export default function ProjectDetailPage() {
                     </li>
                   ))}
                 </ol>
-              )}
-            </section>
+              </section>
+            ) : null}
 
-            <section className="surface-panel rounded-3xl p-6 md:p-8">
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
-                  <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
-                  {" "}
-                  Галерея
-                </h2>
-                {isAdmin && (
-                  <button type="button" onClick={() => openEditorOn("media")} className="button-secondary py-2 px-4 text-sm">
-                    <ImagePlus size={14} />
-                    Добавить медиа
-                  </button>
-                )}
-              </div>
-
-              {mediaItems.length === 0 ? (
-                <div className="flex min-h-[120px] items-center justify-center rounded-2xl border border-dashed border-border bg-bg-elevated/60 p-5 text-center text-sm text-muted">
-                  В галерее пока нет изображений
+            {hasGallery ? (
+              <section className="surface-panel rounded-3xl p-6 md:p-8">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-3 text-[1.45rem] font-bold text-text">
+                    <span className="h-6 w-1 rounded-full bg-primary" aria-hidden="true" />
+                    {" "}
+                    Галерея
+                  </h2>
+                  {isAdmin && (
+                    <button type="button" onClick={() => openEditorOn("media")} className="button-secondary py-2 px-4 text-sm">
+                      <ImagePlus size={14} />
+                      Добавить медиа
+                    </button>
+                  )}
                 </div>
-              ) : (
+
                 <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {mediaItems.map((src, index) => (
                     <button
@@ -322,17 +304,15 @@ export default function ProjectDetailPage() {
                     </button>
                   ))}
                 </div>
-              )}
-            </section>
+              </section>
+            ) : null}
           </div>
 
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div className="surface-panel overflow-hidden rounded-3xl">
               <div className="border-b border-border p-5">
                 <p className="section-kicker !mb-2 text-[0.62rem]">СТАТУС</p>
-                <span className={`inline-flex rounded-full border px-3 py-1 text-[0.7rem] font-semibold ${statusMetaClass}`}>
-                  {statusLabel}
-                </span>
+                <StatusBadge status={project.status} />
               </div>
 
               <div className="border-b border-border p-5">
