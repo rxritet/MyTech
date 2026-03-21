@@ -9,6 +9,8 @@ RUN pnpm install --frozen-lockfile
 FROM node:22-alpine AS builder
 RUN corepack enable pnpm
 WORKDIR /app
+ARG VITE_API_URL=http://localhost:3000
+ENV VITE_API_URL=$VITE_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm build
