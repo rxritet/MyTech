@@ -205,7 +205,7 @@ export default function About() {
   ];
 
   return (
-    <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-16 md:space-y-20 relative [font-family:'Segoe_UI','Inter','SF_Pro_Text','Helvetica_Neue',Arial,sans-serif]">
+    <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-16 md:space-y-20 relative">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-16">
         {quickStats.map((s) => (
           <div key={s.label} className="flex flex-col gap-1">

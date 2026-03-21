@@ -3,24 +3,56 @@
 
 @font-face {
   font-family: "Geist";
-  src: url("/fonts/Geist-Variable.woff2") format("woff2");
-  font-weight: 100 900;
+  src: url("/fonts/Geist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Bold.woff2") format("woff2");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Geist Mono";
-  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
-  font-weight: 100 900;
+  src: url("/fonts/GeistMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Bold.woff2") format("woff2");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-sans: "Geist", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "IBM Plex Mono", ui-monospace, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -73,7 +105,7 @@
   }
 
   body {
-    font-family: "Geist", sans-serif;
+    font-family: "Geist", "IBM Plex Sans", sans-serif;
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -86,7 +118,7 @@
   code,
   pre,
   .font-mono {
-    font-family: "Geist Mono", monospace;
+    font-family: "Geist Mono", "IBM Plex Mono", monospace;
   }
 
   h1,
@@ -165,7 +197,7 @@
 
   /* Readability mode for all routes except home page */
   .app-readable {
-    font-family: "Segoe UI", "Inter", "SF Pro Text", "Helvetica Neue", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     --text: #fff8f3;
     --muted: #d1bcb0;
     text-rendering: optimizeLegibility;
