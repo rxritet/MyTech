@@ -101,7 +101,8 @@ export default function Hero() {
         if (Array.isArray(data) && data.length > 0) {
           setHomeStack(data);
         }
-      } catch {
+      } catch (err) {
+        console.error("[Hero] Failed to load stack, using fallback:", err);
         setHomeStack(FALLBACK_HOME_STACK);
       }
     };
