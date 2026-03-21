@@ -74,7 +74,7 @@ export default function Navbar() {
             ? "bg-white/5 border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
             : "bg-white/[0.03] border-white/8 shadow-none"
           }
-          ${isScrolled ? "" : ""}
+          ${isScrolled ? "ring-1 ring-white/5" : ""}
         `}
         style={{ borderRadius: "1rem" }}
       >

@@ -32,7 +32,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const [contactEmail, setContactEmail] = useState("abraevradmir2@gmail.com");
   const [aboutSummary, setAboutSummary] = useState(
-    "Разрабатываю надежные full-stack решения на React, Node.js и PostgreSQL с фокусом на чистую архитектуру и удобный UX.",
+    "Разрабатываю надежные full-stack решения на React, Hono и PostgreSQL с фокусом на чистую архитектуру и удобный UX.",
   );
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function Footer() {
                 </span>
                 <div>
                   <p className="text-base font-semibold tracking-tight text-text">Radmir Abraev</p>
-                  <p className="text-xs text-muted">Full-stack developer • React, Node, PostgreSQL</p>
+                  <p className="text-xs text-muted">Full-stack developer • React, Hono, PostgreSQL</p>
                 </div>
               </div>
 
