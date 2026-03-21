@@ -15,26 +15,21 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 20);
       setIsScrolled(window.scrollY > 80);
     };
 
-    const handleResize = () => {
+    const onResize = () => {
       if (window.innerWidth >= 768) setMenuOpen(false);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -51,11 +46,11 @@ export default function Navbar() {
   }, [menuOpen]);
 
   const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `group relative px-1 py-3 font-medium transition-all duration-300 ease-out hover:text-white active:scale-95 after:absolute after:bottom-1 after:left-0 after:right-0 after:h-px after:origin-center after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 before:absolute before:inset-x-[-0.45rem] before:inset-y-[0.32rem] before:rounded-md before:bg-primary/0 before:blur-md before:transition-all before:duration-300
+    `relative px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200
      ${
        isActive
-         ? "text-primary after:scale-x-100 before:bg-primary/15 [text-shadow:0_0_14px_color-mix(in_srgb,var(--primary)_40%,transparent)]"
-         : "text-muted hover:text-text hover:after:scale-x-100 hover:before:bg-primary/10"
+         ? "text-primary bg-primary/10"
+         : "text-white/50 hover:text-white hover:bg-white/5"
      }`;
 
   const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -69,58 +64,70 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300
-          backdrop-blur-md transition-all duration-300 ${
-            scrolled ? "border-b border-white/10" : "border-b border-transparent"
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50
+          flex items-center gap-2
+          px-2 py-1.5
+          rounded-2xl
+          border transition-all duration-300
+          backdrop-blur-xl
+          ${scrolled
+            ? "bg-white/5 border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+            : "bg-white/[0.03] border-white/8 shadow-none"
           }
-          ${
-            isScrolled
-              ? "surface-panel shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-              : "surface-panel"
-          }
+          ${isScrolled ? "" : ""}
         `}
-        style={{ borderRadius: 0 }}
+        style={{ borderRadius: "1rem" }}
       >
-        <div className="mx-auto flex w-full max-w-[86rem] items-center gap-4 px-3 py-2.5 sm:px-5">
-          {/* Logo */}
-          <Link
-            to="/"
-            onClick={() => setMenuOpen(false)}
-            className="group flex shrink-0 items-center gap-2.5 active:scale-[0.985] transition-transform duration-200"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-sm font-mono font-bold text-primary transition-all duration-300 group-hover:bg-primary/20 group-hover:shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_30%,transparent)] group-hover:-translate-y-0.5">
-              rx
-            </span>
-            <span className="whitespace-nowrap text-sm font-semibold text-text transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5 lg:text-base" style={{ textShadow: "0 0 20px color-mix(in srgb, var(--primary) 45%, transparent)" }}>
-              Radmir Abraev
-            </span>
-          </Link>
+        {/* Logo */}
+        <Link
+          to="/"
+          onClick={() => setMenuOpen(false)}
+          className="flex items-center gap-2 pl-1 pr-3"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-sm font-mono font-bold text-primary transition-all duration-300 group-hover:bg-primary/20 group-hover:shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_30%,transparent)] group-hover:-translate-y-0.5">
+            rx
+          </span>
+          <span className="whitespace-nowrap text-sm font-semibold text-text transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5 lg:text-base" style={{ textShadow: "0 0 20px color-mix(in srgb, var(--primary) 45%, transparent)" }}>
+            Radmir Abraev
+          </span>
+        </Link>
 
-          {/* Desktop Nav */}
-          <div className="ml-auto hidden items-center gap-4 lg:flex xl:gap-6">
-            {NAV_LINKS.map(({ label, to }) => (
-              <NavLink key={to} to={to} className={`${desktopLinkClass} whitespace-nowrap text-[0.93rem]`}>
-                {label}
-              </NavLink>
-            ))}
-          </div>
+        {/* Divider */}
+        <span className="h-5 w-px bg-white/10" aria-hidden="true" />
 
-          <div className="ml-2 hidden items-center gap-2 lg:flex">
-            <Link to="/contact" className="button-primary whitespace-nowrap py-2 px-4 text-sm xl:px-5 active:scale-95">Связаться</Link>
-          </div>
-
-          {/* Mobile Burger */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            className="relative z-[60] ml-auto -mr-1 rounded-xl p-2 text-muted transition-all duration-300 hover:bg-white/5 hover:text-text hover:scale-105 active:scale-90 lg:hidden"
-            aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
-          >
-            <span className={`block transition-transform duration-300 ${menuOpen ? "rotate-90" : "rotate-0"}`}>
-              {menuOpen ? <X size={28} /> : <Menu size={28} />}
-            </span>
-          </button>
+        {/* Links */}
+        <div className="hidden items-center gap-1 lg:flex">
+          {NAV_LINKS.map(({ label, to }) => (
+            <NavLink key={to} to={to} className={desktopLinkClass}>
+              {label}
+            </NavLink>
+          ))}
         </div>
+
+        {/* Divider */}
+        <span className="hidden h-5 w-px bg-white/10 lg:block" aria-hidden="true" />
+
+        {/* CTA */}
+        <div className="hidden lg:block">
+          <Link
+            to="/contact"
+            className="ml-1 rounded-xl bg-primary px-4 py-1.5 text-sm font-semibold text-black transition-all duration-200 hover:brightness-110 active:scale-95 whitespace-nowrap"
+          >
+            Связаться
+          </Link>
+        </div>
+
+        {/* Mobile Burger */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="ml-1 rounded-xl p-1.5 text-white/50 hover:text-white hover:bg-white/5 transition-all duration-200 active:scale-90 lg:hidden"
+          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+        >
+          <span className={`block transition-transform duration-300 ${menuOpen ? "rotate-90" : "rotate-0"}`}>
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
+          </span>
+        </button>
       </nav>
 
       {/* Full-screen Mobile Menu */}
@@ -129,7 +136,7 @@ export default function Navbar() {
           menuOpen ? "opacity-100 visible pointer-events-auto" : "opacity-0 invisible pointer-events-none"
         }`}
       >
-        <div className="surface-panel w-full max-w-sm rounded-[2rem] px-6 py-8">
+        <div className="bg-white/5 border border-white/10 backdrop-blur-xl w-full max-w-sm rounded-2xl px-6 py-8">
           <div className="mb-6 flex items-center justify-end">
             <Link to="/contact" onClick={() => setMenuOpen(false)} className="button-primary py-2 px-5 text-sm">Связаться</Link>
           </div>
