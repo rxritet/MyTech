@@ -13,7 +13,7 @@ config();
 
 const app = new Hono();
 
-app.use("*", cors());
+app.use("*", cors({ origin: (process.env.ALLOWED_ORIGINS ?? "").split(",").map(s => s.trim()).filter(Boolean) }));
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
