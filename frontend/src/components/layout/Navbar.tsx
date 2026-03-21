@@ -11,7 +11,14 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,6 +70,9 @@ export default function Navbar() {
     <>
       <nav
         className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300
+          backdrop-blur-md transition-all duration-300 ${
+            scrolled ? "border-b border-white/10" : "border-b border-transparent"
+          }
           ${
             isScrolled
               ? "surface-panel shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
