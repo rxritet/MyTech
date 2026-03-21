@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+const API_BASE = import.meta.env.VITE_API_URL;
+if (!API_BASE) throw new Error("[api] VITE_API_URL is not set. Check your .env file.");
 
 function buildApiUrl(path: string): string {
   return `${API_BASE}${path}`;
