@@ -51,8 +51,8 @@
 
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Geist", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Geist";
+  --font-mono: "Geist Mono";
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -105,7 +105,7 @@
   }
 
   body {
-    font-family: "Geist", "IBM Plex Sans", sans-serif;
+    font-family: "Geist";
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -118,7 +118,7 @@
   code,
   pre,
   .font-mono {
-    font-family: "Geist Mono", "IBM Plex Mono", monospace;
+    font-family: "Geist Mono";
   }
 
   h1,
@@ -127,6 +127,7 @@
   h4,
   h5,
   h6 {
+    font-family: "Geist";
     line-height: var(--leading-heading);
     letter-spacing: -0.05em; /* tracking-tighter */
   }
