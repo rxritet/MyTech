@@ -31,6 +31,7 @@ export async function getTechnologies(): Promise<Technology[]> {
   return apiRequest<Technology[]>("/api/technologies");
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function createTechnology(
   payload: Pick<Technology, "name" | "category" | "deviconSlug"> & { badgeUrl?: string },
   secret: string,
@@ -45,6 +46,7 @@ export async function createTechnology(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateTechnology(
   id: number,
   payload: Partial<Pick<Technology, "name" | "category" | "deviconSlug">> & { badgeUrl?: string },
@@ -60,6 +62,7 @@ export async function updateTechnology(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function deleteTechnology(id: number, secret: string): Promise<{ success: boolean }> {
   return apiRequest<{ success: boolean }>(`/api/technologies/${id}`, {
     method: "DELETE",

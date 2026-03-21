@@ -19,6 +19,7 @@ export async function getHomeStack(): Promise<HomeStackCategory[]> {
   return apiRequest<HomeStackCategory[]>("/api/stack/home");
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function createHomeStackCategory(
   payload: Pick<HomeStackCategory, "slug" | "label">,
   secret: string,
@@ -33,6 +34,7 @@ export async function createHomeStackCategory(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function deleteHomeStackCategory(id: number, secret: string): Promise<{ success: boolean }> {
   return apiRequest<{ success: boolean }>(`/api/admin/stack/home/categories/${id}`, {
     method: "DELETE",
@@ -42,6 +44,7 @@ export async function deleteHomeStackCategory(id: number, secret: string): Promi
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function createHomeStackItem(
   payload: { category_id: number; name: string },
   secret: string,
@@ -56,6 +59,7 @@ export async function createHomeStackItem(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function deleteHomeStackItem(id: number, secret: string): Promise<{ success: boolean }> {
   return apiRequest<{ success: boolean }>(`/api/admin/stack/home/items/${id}`, {
     method: "DELETE",
@@ -65,6 +69,7 @@ export async function deleteHomeStackItem(id: number, secret: string): Promise<{
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateHomeStackOrder(
   payload: {
     categories: Array<{ id: number; order: number }>;
@@ -86,6 +91,7 @@ export async function getAboutStack(): Promise<PublicStackItem[]> {
   return apiRequest<PublicStackItem[]>("/api/stack/about");
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateAboutStack(
   payload: { items: Array<{ technologyId: number; category: string; order: number }> },
   secret: string,

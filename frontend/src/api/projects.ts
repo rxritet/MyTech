@@ -40,6 +40,7 @@ export async function getProject(slug: string): Promise<Project> {
   return apiRequest<Project>(`/api/projects/${slug}`);
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function createProject(payload: ProjectUpsertPayload, secret: string): Promise<Project> {
   return apiRequest<Project>("/api/projects", {
     method: "POST",
@@ -51,6 +52,7 @@ export async function createProject(payload: ProjectUpsertPayload, secret: strin
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateProject(id: number, payload: ProjectUpsertPayload, secret: string): Promise<Project> {
   return apiRequest<Project>(`/api/projects/${id}`, {
     method: "PUT",
@@ -62,6 +64,7 @@ export async function updateProject(id: number, payload: ProjectUpsertPayload, s
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function deleteProject(id: number, secret: string): Promise<{ success: boolean; project: Project }> {
   return apiRequest<{ success: boolean; project: Project }>(`/api/projects/${id}`, {
     method: "DELETE",

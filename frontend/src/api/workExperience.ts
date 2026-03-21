@@ -32,6 +32,7 @@ export async function getWorkExperience(): Promise<WorkExperience[]> {
   return apiRequest<WorkExperience[]>("/api/work-experience");
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function createWorkExperience(
   payload: WorkExperiencePayload,
   secret: string,
@@ -46,6 +47,7 @@ export async function createWorkExperience(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateWorkExperience(
   id: number,
   payload: WorkExperiencePayload,
@@ -61,6 +63,7 @@ export async function updateWorkExperience(
   });
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function deleteWorkExperience(
   id: number,
   secret: string,

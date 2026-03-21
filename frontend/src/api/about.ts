@@ -59,6 +59,7 @@ export async function getAbout(): Promise<AboutData> {
   return apiRequest<AboutData>("/api/about");
 }
 
+/** @security Uses plain secret header. Replace with Bearer JWT in production. */
 export async function updateAbout(payload: Partial<AboutData>, secret: string): Promise<AboutData> {
   return apiRequest<AboutData>("/api/about", {
     method: "PATCH",
