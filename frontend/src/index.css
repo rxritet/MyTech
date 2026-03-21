@@ -3,8 +3,8 @@
 
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -57,7 +57,7 @@
   }
 
   body {
-    font-family: "Geist", sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -70,7 +70,7 @@
   code,
   pre,
   .font-mono {
-    font-family: "Geist Mono", monospace;
+    font-family: "Space Mono", monospace;
   }
 
   h1,
