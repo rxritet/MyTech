@@ -3,8 +3,8 @@
 
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-sans: "Space Grotesk", sans-serif;
+  --font-mono: "Space Mono", monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
