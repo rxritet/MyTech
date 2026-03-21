@@ -206,7 +206,7 @@ export default function About() {
 
   return (
     <article id="about" className="max-w-[86rem] mx-auto px-3 py-20 sm:px-5 lg:px-6 space-y-16 md:space-y-20 relative">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-16">
+      <div className="grid w-full max-w-5xl mx-auto grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 px-3 sm:px-6 mb-16">
         {quickStats.map((s) => (
           <div key={s.label} className="flex flex-col gap-1">
             <span className="text-4xl font-bold text-white">{s.value}</span>
