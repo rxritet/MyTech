@@ -1,10 +1,26 @@
 @import url("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Space Grotesk", sans-serif;
-  --font-mono: "Space Mono", monospace;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -57,7 +73,7 @@
   }
 
   body {
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Geist", sans-serif;
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -70,7 +86,7 @@
   code,
   pre,
   .font-mono {
-    font-family: "Space Mono", monospace;
+    font-family: "Geist Mono", monospace;
   }
 
   h1,
