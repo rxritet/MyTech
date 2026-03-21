@@ -1,58 +1,10 @@
 @import url("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Geist";
-  src: url("/fonts/Geist-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist";
-  src: url("/fonts/Geist-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist";
-  src: url("/fonts/Geist-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist Mono";
-  src: url("/fonts/GeistMono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist Mono";
-  src: url("/fonts/GeistMono-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist Mono";
-  src: url("/fonts/GeistMono-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Geist";
-  --font-mono: "Geist Mono";
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -105,7 +57,7 @@
   }
 
   body {
-    font-family: "Geist";
+    font-family: var(--font-sans);
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -118,7 +70,7 @@
   code,
   pre,
   .font-mono {
-    font-family: "Geist Mono";
+    font-family: var(--font-mono);
   }
 
   h1,
@@ -127,7 +79,6 @@
   h4,
   h5,
   h6 {
-    font-family: "Geist";
     line-height: var(--leading-heading);
     letter-spacing: -0.05em; /* tracking-tighter */
   }
