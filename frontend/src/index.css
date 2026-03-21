@@ -3,8 +3,8 @@
 
 /* ── Custom Theme Config ─────────────────────────────────────── */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --leading-heading: 1.2;
   --leading-body: 1.5;
 
@@ -57,7 +57,7 @@
   }
 
   body {
-    font-family: var(--font-sans);
+    font-family: "Geist", sans-serif;
     line-height: var(--leading-body);
     background-color: var(--bg);
     color: var(--text);
@@ -65,6 +65,12 @@
       radial-gradient(circle at top, rgba(249, 115, 22, 0.1), transparent 32%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 18%);
     min-height: 100vh;
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: "Geist Mono", monospace;
   }
 
   h1,
