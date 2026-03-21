@@ -17,3 +17,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# DB dumps
+restore_db.sql
+*.sql.bak
