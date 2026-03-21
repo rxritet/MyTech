@@ -123,12 +123,23 @@ export default function Hero() {
           Радмир <span className="text-primary underline decoration-primary decoration-[3px] underline-offset-[6px]">Абраев</span>
         </h1>
         <p className="font-mono text-primary text-lg">
-          &gt; FullStack Developer<span className="animate-blink">_</span>
+          &gt; Go / TS developer. Пишу код, который живёт в проде.<span className="animate-blink">_</span>
         </p>
       </div>
 
       <div className="animate-fade-in-up z-10 w-full flex justify-center px-4" style={{ animationDelay: "200ms" }}>
         <CodeBlock title="stack.ts" lines={stackLines} />
+      </div>
+
+      <div
+        className="animate-fade-in-up flex flex-wrap items-center justify-center gap-6 font-mono text-sm text-white/50 z-10"
+        style={{ animationDelay: "250ms" }}
+      >
+        <span><span className="text-white font-bold text-2xl">10+</span> проектов</span>
+        <span className="text-white/20 hidden sm:inline">•</span>
+        <span className="text-white font-bold text-2xl">Go / TS / Java</span>
+        <span className="text-white/20 hidden sm:inline">•</span>
+        <span><span className="text-white font-bold text-2xl">2</span> курс, Алматы</span>
       </div>
 
       <div className="animate-fade-in-up flex flex-col sm:flex-row items-center gap-4 mt-2 z-10" style={{ animationDelay: "300ms" }}>
